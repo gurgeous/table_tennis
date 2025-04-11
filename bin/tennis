@@ -61,14 +61,23 @@ module TableTennis
       end
     end
 
-    def demo
-      # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
-      rows = CSV.read("#{ROOT}/samples/starwars.csv", headers: true).map(&:to_h)
-      rows = rows.first(options[:limit]) if options[:limit]
-      rows = rows.sort_by { |row| row["z"] }
+    FILES = %w[diamonds pigeon-racing starwars titanic]
 
-      # options[:layout] = {films: 32}
-      # options[:title] ||= "Star Wars People"
+    def demo
+      demo = options[:demo]
+      file = case demo
+      when nil then FILES.first
+      when /^\d+$/ then FILES[demo.to_i]
+      when String then FILES.find { _1.start_with?(demo) }
+      end
+      if !FILES.include?(file)
+        puts "#{demo} must be one of #{FILES.join(", ")}"
+        exit 1
+      end
+
+      # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
+      rows = CSV.read("#{ROOT}/demo/#{file}.csv", headers: true).map(&:to_h)
+      rows = rows.first(options[:limit]) if options[:limit]
       if options[:holes]
         10.times do
           row = rows.sample
@@ -77,7 +86,11 @@ module TableTennis
       end
 
       # go
+      options[:title] ||= file.capitalize
       table = TableTennis.new(rows, table_options)
+      table.columns.each do
+        _1.detect_type
+      end
       table.render(options[:debug] ? StringIO.new : $stdout)
     end
   end
@@ -94,7 +107,7 @@ options = {}.tap do |into|
 
     opts.separator nil
     opts.separator "run one of these actions:"
-    opts.on("--demo", "show a sample table (default)")
+    opts.on("--demo NAME", "show one of the tables from demo/*.csv (default)")
     opts.on("--empty", "show an empty table")
     opts.on("--scales", "show all color scales")
     opts.on("--term", "debug terminal background")
@@ -129,7 +142,7 @@ options = {}.tap do |into|
   into[:layout] = case into[:layout]
   when "true" then true
   when "false" then false
-  when /\d+/ then into[:layout].to_i
+  when /\d+/ then into[:layout].to_i + 1
   end
   into[:limit] ||= 25
   into[:limit] = nil if into[:limit] == 0
