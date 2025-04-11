@@ -16,8 +16,7 @@ Gem::Specification.new do |s|
   }
 
   # what's in the gem?
-  s.files = `git ls-files`.split("\n").grep_v(%r{^(samples|test)/})
-  s.executables = s.files.grep(%r{^bin/}) { File.basename(_1) }
+  s.files = `git ls-files`.split("\n").grep_v(%r{^(bin|samples|test)/})
   s.require_paths = ["lib"]
 
   # gem dependencies

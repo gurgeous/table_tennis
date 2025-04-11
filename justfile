@@ -49,6 +49,7 @@ coverage:
 # gem tasks
 #
 
+# you can test locally from another project by dropping gem file into vendor/cache
 gem-push: check-git-status
   @just banner gem build...
   gem build table_manners.gemspec
