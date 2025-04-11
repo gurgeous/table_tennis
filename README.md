@@ -88,9 +88,9 @@ options = {
 Color scales are useful for visualizing numeric columns. The `:color_scales` option can be a single column, an array of column names, or a hash from column names to colors. The scale defaults to `:b` (blue) if you don't use a hash.
 
 ```ruby
-TableManners.new(rows, color_scales: :price)
-TableManners.new(rows, color_scales: [ :price, :quantity ])
-TableManners.new(rows, color_scales: { price: :b, quantity: :r })
+puts TableManners.new(rows, color_scales: :price)
+puts TableManners.new(rows, color_scales: [ :price, :quantity ])
+puts TableManners.new(rows, color_scales: { price: :b, quantity: :r })
 ```
 
 The color names are abbreviations, so `:gyr` goes from green to yellow to red. Here is the full list of supported color scales - `%i[g y r b gw yw rw bw rg gr gyr]`. For clarity this screenshot uses sorted columns, but note that TableManners never does any sorting:
