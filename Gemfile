@@ -1,12 +1,6 @@
 source "https://rubygems.org"
 gemspec
 
-gem "csv" # required for Ruby 3.4+
-gem "ffi"
-gem "memo_wise"
-gem "paint"
-gem "unicode-display_width"
-
 group :development, :test do
   gem "amazing_print"
   gem "minitest"

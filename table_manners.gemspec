@@ -6,26 +6,24 @@ Gem::Specification.new do |s|
   s.authors = ["Adam Doppelt"]
   s.email = "amd@gurge.com"
 
-  # s.summary = "table_manners - disk cache for faraday"
-  s.summary = "summary"
-  # s.description = "table_manners works with faraday to aggressively cache responses on disk."
+  s.summary = "Stylish tables in your terminal."
   s.homepage = "http://github.com/gurgeous/table_manners"
   s.license = "MIT"
-  s.required_ruby_version = ">= 3.1.0"
-  s.metadata["rubygems_mfa_required"] = "true"
+  s.required_ruby_version = ">= 3.0.0"
+  s.metadata = {
+    "rubygems_mfa_required" => "true",
+    "source_code_uri" => s.homepage,
+  }
 
   # what's in the gem?
-  # s.files = Dir.chdir(File.expand_path(__dir__)) do
-  #   `git ls-files -z`.split("\x0").reject { _1.match(%r{^test/}) }
-  # end
-  s.bindir = "bin"
-  s.executables = s.files.grep(%r{^#{s.bindir}/}) { File.basename(_1) }
+  s.files = `git ls-files`.split("\n").grep_v(%r{^(samples|test)/})
+  s.executables = s.files.grep(%r{^bin/}) { File.basename(_1) }
   s.require_paths = ["lib"]
 
   # gem dependencies
-  # s.add_dependency "content-type", "~> 0.0"
-  # s.add_dependency "faraday", "~> 2.7"
-  # s.add_dependency "faraday-cookie_jar", "~> 0.0"
-  # s.add_dependency "faraday-follow_redirects", "~> 0.0"
-  # s.add_dependency "slop", "~> 4.10"
+  s.add_dependency "csv", "~> 3.3" # required for Ruby 3.4+
+  s.add_dependency "ffi", "~> 1.17"
+  s.add_dependency "memo_wise", "~> 1.11"
+  s.add_dependency "paint", "~> 2.3"
+  s.add_dependency "unicode-display_width", "~> 3.1"
 end

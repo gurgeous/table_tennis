@@ -1,6 +1,6 @@
-# TableManners
+# TableManners [![test](https://github.com/gurgeous/table_manners/actions/workflows/test.yml/badge.svg)](https://github.com/gurgeous/table_manners/actions/workflows/test.yml)
 
-TableManners is a Ruby library for printing nice looking tables in your terminal. Real handy when messing around with data in Ruby. For example:
+TableManners is a Ruby library for printing stylish tables in your terminal.
 
 ```rb
 require "table_manners"
@@ -28,8 +28,8 @@ gem "table_manners"
 - auto-themes to pick light or dark based on your terminal background
 - auto-layout to fit your terminal window
 - auto-format floats and dates
-- auto-color numeric columns (with `color_scales:` option)
-- titles, row numbers, titles, zebra stripes...
+- auto-color numeric columns
+- titles, row numbers, zebra stripes...
 
 ### Themes
 
@@ -39,7 +39,7 @@ TableManners examines the background color of your terminal to pick either the d
 
 ### Rows (Your Data)
 
-Construct your table with an array of rows. Rows are hashes, ActiveRecord objects, structs, Data records, or anything that responds to `to_h`. It also supports some oddball things like arrays (as rows) or even a single hash, similar to AmazingPrint.
+Construct your table with an array of rows. Rows are hashes, ActiveRecord objects, structs, Data records, or anything that responds to `to_h`. It also supports oddball things like arrays (as rows) or even a single hash.
 
 ```ruby
 puts TableManners.new([{a: "hello", b: "world"}, {a: "foo", b: "bar"})
@@ -64,7 +64,6 @@ options = {
   title: "Employees",
   zebra: true,
 }
-puts TableManners.new(rows, options)
 ```
 
 | option | default | details |
@@ -79,7 +78,7 @@ puts TableManners.new(rows, options)
 | `row_numbers` | `false` | Show row numbers in the table. |
 | `save` | ─ | If you set this to a file path, TableManners will save your table as a CSV file too. Useful if you want to do something else with the data. |
 | `search` | ─ | string/regex to highlight in output |
-| `strftime` | `"%Y-%m-%d"` | string for formatting dates |
+| `strftime` | `"%Y-%m-%d"` | strftime string for formatting Date/Time objects |
 | `theme` | `:dark` | Which theme to use, one of `:dark`, `:light` or `:ansi`. |
 | `title` | ─ | Add a title line to the table. |
 | `zebra` | `false` | Turn on zebra stripes. |
@@ -97,26 +96,38 @@ Use **mark** to highlight certain rows. Maybe you need to find the droids? Or **
 ```ruby
 puts TableManners.new(rows, mark: -> { _1[:homeworld] =~ /droids/i })
 puts TableManners.new(rows, search: /hope.*empire/i })
-puts TableManners.new(..., row_numbers: true, zebra: true)
+puts TableManners.new(rows, row_numbers: true, zebra: true)
 ```
 
 ![droids](droids.png)
 ![hope](hope.png)
 ![row numbers](row_numbers.png)
 
-### Ways to Output
+### Advanced Usage
 
-There are a few different ways to render the table:
+TableManners can be configured a few different ways:
 
 ```ruby
-puts TableManners.new(...)        # 1 - build one giant string
-TableManners.new(...).render      # 2 - write to $stdout row by row
-TableManners.new(...).render(io)  # 3 - write to io row by row
+
+TableManners.defaults = { title: "All Tables Have This Name" }
+TableManners.new(rows, title: "An Amazing Title")
+TableManners.new do |t|
+  t.title = "Yet Another Way To Set Things Up"
+end
 ```
 
-1. Uses `to_s`, so there will be a pause before output shows up. Annoying for large tables.
-1. Write to `$stdout` one row at a time. I try to use this for tables over 10,000 rows.
-1. Render to any I/O stream ($stdout/$stderr, an open file, StringIO...)
+Tables usually get `puts` to $stdout, but there are other ways to do it:
+
+```ruby
+# Uses `to_s`, so there can be a pause before output shows up. Best for small tables.
+puts TableManners.new(rows)
+
+# Write to `$stdout` one row at a time. Prefer this for tables over 10,000 rows.
+TableManners.new(rows).render
+
+# Render to any I/O stream ($stdout/$stderr, an open file, StringIO...)
+TableManners.new(rows).render(io)
+```
 
 ### Similar Tools
 
@@ -125,5 +136,11 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 - [bat](https://github.com/sharkdp/bat) - syntax highlights csv files, and many others
 - [csvlens](https://github.com/YS-L/csvlens) & [tidy viewer](https://github.com/alexhallam/tv) - great viewers for CSV files, beautiful and fun
 - [qsv](https://github.com/dathere/qsv) - filter, sort, combine, join... (a fork of [xsv](https://github.com/BurntSushi/xsv))
-- [Terminal::Table](https://github.com/tj/terminal-table) - wonderful rubygem for pretty printing tables, great for non-hash data too
+- [Terminal::Table](https://github.com/tj/terminal-table) - wonderful rubygem for pretty printing tables, great for non-hash data like confusion matrices
 - [visidata](https://www.visidata.org) - the best for poking around large files, it does everything
+
+### Special Thanks
+
+- [termbg](https://github.com/dalance/termbg) and [termenv](https://github.com/muesli/termenv) for showing how to safely detect the terminal background color. These libraries are widely used for Rust/Go, but as far as I know nothing similar exists for Ruby.
+- The [Paint gem](https://github.com/janlelis/paint) for help with ansi colors.
+- Google Sheets for providing nice color scales
