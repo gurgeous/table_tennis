@@ -7,9 +7,6 @@
 # _debug_, _digits_, _layout_, _mark_, _placeholder_, _row_numbers_, _save_,
 # _search_, _strftime_, _theme_, _title_, _zebra_
 #
-# TODO
-# - badge, gemspec, logo?, finish readme
-#
 
 module TableManners
   # Public API for TableManners.

@@ -11,7 +11,7 @@ puts TableManners.new(Starwars.all, options)
 
 Prints this lovely table in your terminal:
 
-![starwars](dark.png)
+![starwars](screenshots/dark.png)
 
 ### Installation
 
@@ -35,7 +35,7 @@ gem "table_manners"
 
 TableManners examines the background color of your terminal to pick either the dark or light theme. You can also specify `:dark` or `:light` manually, or even an `:ansi` theme to use your terminal's default colors. This feature is [surprisngly complicated](https://github.com/gurgeous/table_manners/blob/main/lib/table_manners/util/termbg.rb).
 
-![themes](themes.png)
+![themes](screenshots/themes.png)
 
 ### Rows (Your Data)
 
@@ -87,7 +87,7 @@ options = {
 
 **Color scales** are useful for visualizing numeric columns. Here is the full list of supported scales:
 
-![scales](scales.png)
+![scales](screenshots/scales.png)
 
 ---
 
@@ -99,9 +99,9 @@ puts TableManners.new(rows, search: /hope.*empire/i })
 puts TableManners.new(rows, row_numbers: true, zebra: true)
 ```
 
-![droids](droids.png)
-![hope](hope.png)
-![row numbers](row_numbers.png)
+![droids](screenshots/droids.png)
+![hope](screenshots/hope.png)
+![row numbers](screenshots/row_numbers.png)
 
 ### Advanced Usage
 
