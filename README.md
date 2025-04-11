@@ -69,17 +69,17 @@ options = {
 | option | default | details |
 | ------ | ------- | ------- |
 | `color_scales` | ─ | Color code a column of floats, see screenshots below. Similar to the "conditional formatting" feature in Google Sheets. Can be a column name, an array of column names, or a hash from column names to colors. |
-| `color` | `nil` | Should we use color? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`. |
+| `color` | `nil` | Are ANSI colors enabled? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`. |
 | `columns` | `nil` | Manually set which columns to include. Leave unset to show all columns.
 | `digits` | `3` | Format floats to this number of digits. TableManners will look for either `Float` cells or string floats. |
 | `layout` | `true` | This controls column widths. Leave unset or use `true` for autolayout. Autolayout will shrink the table to fit inside the terminal. `false` turns off layout and columns will be full width. Use an int to fix all columns to a certain width, or a hash to just set a few. |
-| `mark` | ─ | `mark` is a way to highlight specific columns. For example, use `mark: ->(row) { row[:planet] == "tatooine" }` to highlight those rows. Your lambda can also return a specific color if you want.
+| `mark` | ─ | `mark` is a way to highlight specific columns with a nice color. For example, use `mark: ->(row) { row[:planet] == "tatooine" }` to highlight those rows. Your lambda can also return a specific color if you want.
 | `placeholder` | `"—"` | Put this into empty cells. |
 | `row_numbers` | `false` | Show row numbers in the table. |
 | `save` | ─ | If you set this to a file path, TableManners will save your table as a CSV file too. Useful if you want to do something else with the data. |
 | `search` | ─ | string/regex to highlight in output |
 | `strftime` | `"%Y-%m-%d"` | strftime string for formatting Date/Time objects |
-| `theme` | `:dark` | Which theme to use, one of `:dark`, `:light` or `:ansi`. |
+| `theme` | `:dark` | Which theme to use, one of `:dark`, `:light` or `:ansi`. If colors are turned off this has no effect.|
 | `title` | ─ | Add a title line to the table. |
 | `zebra` | `false` | Turn on zebra stripes. |
 
@@ -94,7 +94,7 @@ options = {
 Use **mark** to highlight certain rows. Maybe you need to find the droids? Or **search** to highlight text. I almost always use **row numbers** and **zebra stripes** too.
 
 ```ruby
-puts TableManners.new(rows, mark: -> { _1[:homeworld] =~ /droids/i })
+puts TableManners.new(rows, mark: ->(row) { row[:homeworld] =~ /droids/i })
 puts TableManners.new(rows, search: /hope.*empire/i })
 puts TableManners.new(rows, row_numbers: true, zebra: true)
 ```
