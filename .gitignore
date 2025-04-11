@@ -1,0 +1,5 @@
+.envrc
+.tool-versions
+.vscode
+*.gem
+terminals/

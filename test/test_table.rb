@@ -1,0 +1,68 @@
+module TableManners
+  class TestTable < Minitest::Test
+    def test_main
+      table = TableManners.new([{a: 1, b: 2}])
+      assert_equal %i[a b], table.columns.map(&:name)
+      assert_equal [{a: 1, b: 2}], table.rows
+
+      # to_s
+      lines = table.to_s.split("\n").map { Util::Strings.unpaint(_1) }
+      assert_match(/^╭─+┬─+╮$/, lines[0])
+      [1, 3].each do
+        assert_match(/^|\s+[a1]\s+|\s+[b2]\s+|$/, lines[_1])
+      end
+      [2, 4].each do
+        assert_match(/^[╰├]─+[┴┼]─+[╯┤]$/, lines[_1])
+      end
+
+      # $stdout
+      assert_output(/┴/) { table.render }
+    end
+
+    # just make sure these don't crash
+    def test_kitchen_sink
+      options = {
+        color_scales: {a: :red},
+        digits: 2,
+        layout: {b: 3},
+        mark: ->(_) { rand < 0.1 },
+        row_numbers: true,
+        search: "2",
+        strftime: "%Y-%m-%d",
+        theme: :light,
+        title: "hello",
+        zebra: true,
+      }
+      TableManners.new([{a: 1, b: 2}])
+      TableManners.new([], options)
+    end
+
+    def test_sanity!
+      assert_no_raises do
+        TableManners.new([{a: 1, b: 2}], color_scales: {a: :red}, layout: {a: 3})
+      end
+      assert_raises(ArgumentError) do
+        TableManners.new([{a: 1, b: 2}], {color_scales: {xxx: :red}})
+      end
+      assert_raises(ArgumentError) do
+        TableManners.new([{a: 1, b: 2}], {layout: {xxx: 3}})
+      end
+    end
+
+    def test_save
+      2.times do |ii|
+        File.unlink(TMP) if File.exist?(TMP)
+        rows = [{a: 1}]
+        if ii == 0
+          # explicit call to save
+          TableManners.new(rows).save(TMP)
+        else
+          # save: option for render
+          TableManners.new(rows, save: TMP).to_s
+        end
+        csv = CSV.read(TMP, headers: true).map(&:to_h)
+        assert_equal([{"a" => "1"}], csv)
+      end
+    end
+  end
+end

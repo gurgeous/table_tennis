@@ -1,0 +1,58 @@
+require:
+  - standard
+
+inherit_gem:
+  standard: config/ruby-3.3.yml
+  standard-custom: config/base.yml
+  standard-performance: config/base.yml
+
+plugins:
+  - standard-custom
+  - standard-performance
+  - rubocop-performance
+
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+
+#
+# fight with standardrb!
+#
+
+# we like these, don't remove
+Bundler/OrderedGems: { Enabled: true } # sort gems in gemfile
+Layout/EmptyLineBetweenDefs: { AllowAdjacentOneLineDefs: true }
+Lint/NonLocalExitFromIterator: { Enabled: false }
+Lint/RedundantDirGlobSort: { Enabled: true } # glob is already sorted
+Performance/RegexpMatch: { Enabled: false }
+Style/HashSyntax: { EnforcedShorthandSyntax: always } # use modern hash syntax
+Style/NestedTernaryOperator: { Enabled: false } # we do this sometimes
+Style/NonNilCheck: { Enabled: false } # allow x != nil for clarity
+Style/RedundantAssignment: { Enabled: false } # allows s=xxx;s=yyy;s
+Style/RedundantReturn: { Enabled: false } # sometines we do this while working on something
+Style/StringConcatenation: { Enabled: true } # prefer interpolation
+Style/TrailingCommaInArrayLiteral: { EnforcedStyleForMultiline: consistent_comma } # commas!!
+Style/TrailingCommaInHashLiteral: { EnforcedStyleForMultiline: consistent_comma } # commas!!
+
+#
+# These are rules that are not enabled by default (in standardrb) but we tend to
+# write code this way. We don't often trigger these, but it matches our style.
+#
+
+Lint/MissingSuper: { Enabled: true }
+Naming/FileName: { Enabled: true }
+Naming/MemoizedInstanceVariableName: { Enabled: true }
+Naming/MethodName: { Enabled: true }
+Performance/MapCompact: { Enabled: true }
+Performance/SelectMap: { Enabled: true }
+Style/BlockDelimiters: { Enabled: true }
+Style/CollectionCompact: { Enabled: true }
+Style/CollectionMethods: { Enabled: true }
+Style/HashEachMethods: { Enabled: true }
+Style/HashTransformKeys: { Enabled: true }
+Style/HashTransformValues: { Enabled: true }
+Style/MinMax: { Enabled: true }
+Style/PreferredHashMethods: { Enabled: true }
+Style/SelectByRegexp: { Enabled: true }
+Style/SymbolArray: { Enabled: true }
+Style/WordArray: { Enabled: true }

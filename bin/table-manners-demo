@@ -1,0 +1,141 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.join(__dir__, "../lib"))
+
+require "optparse"
+require "table_manners"
+
+module TableManners
+  class Main
+    ROOT = File.expand_path("..", __dir__)
+    ACTIONS = %i[demo empty scales term spectrum]
+
+    attr_reader :options
+
+    def initialize(options)
+      @options = options
+    end
+
+    def main = send(options[:action])
+
+    def table_options
+      table_options = options.select { TableManners::Config::OPTIONS.key?(_1) }.tap do
+        _1[:color_scales] = if (column = options[:"color-scale"])
+          {column => Util::Scale::SCALES.keys.sample}
+        end
+        _1[:mark] = if options[:mark]
+          ->(row) { row.to_s =~ options[:mark] }
+        end
+        _1[:row_numbers] = options[:"row-numbers"] # dash to underscore
+      end.compact
+      if options[:debug]
+        ENV["TM_DEBUG"] = "1"
+        GC.disable
+      end
+      table_options
+    end
+
+    #
+    # actions
+    #
+
+    def empty
+      puts TableManners.new([], table_options)
+    end
+
+    def scales
+      keys = Util::Scale::SCALES.keys
+      keys -= %i[white_green white_yellow white_red white_blue]
+      names = keys.map { _1.to_s.gsub(/([a-z])[a-z]+/, "\\1").delete("_") }.map(&:to_sym)
+      color_scales = names.zip(keys).to_h
+      rows = (1..20).map { names.to_h { [_1, rand] } }
+      puts TableManners.new(rows, {color_scales:})
+    end
+
+    def spectrum = Util::Colors.spectrum
+
+    def term
+      info = Theme.info
+      len = info.keys.map(&:length).max
+      Theme.info.each do |key, value|
+        key = Paint[key.to_s.ljust(len), "white"]
+        puts "#{key} #{value || "-"}"
+      end
+    end
+
+    def demo
+      # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
+      rows = CSV.read("#{ROOT}/samples/starwars.csv", headers: true).map(&:to_h)
+      rows = rows.first(options[:limit]) if options[:limit]
+      rows = rows.sort_by { |row| row["z"] }
+
+      options[:layout] = {films: 32}
+      # options[:title] ||= "Star Wars People"
+      if options[:holes]
+        10.times do
+          row = rows.sample
+          row[row.keys.sample] = nil
+        end
+      end
+
+      # go
+      table = TableManners.new(rows, table_options)
+      table.render(options[:debug] ? StringIO.new : $stdout)
+    end
+  end
+end
+
+#
+# args
+#
+
+options = {}.tap do |into|
+  OptionParser.new do |opts|
+    opts.accept(Regexp) { Regexp.new(_1, Regexp::IGNORECASE) }
+    opts.accept(Symbol) { _1.to_sym }
+
+    opts.separator nil
+    opts.separator "run one of these actions:"
+    opts.on("--demo", "show a sample table (default)")
+    opts.on("--empty", "show an empty table")
+    opts.on("--scales", "show all color scales")
+    opts.on("--term", "debug terminal background")
+    opts.on("--spectrum", "show supported colors")
+
+    opts.separator nil
+    opts.on("--[no-]color", "enable/disable ansi colors entirely")
+    opts.on("--color-scale COLUMN", Symbol, "color scale a column")
+    opts.on("--columns COLUMNS", Array, "columns to include in the table")
+    opts.on("--digits DIGITS", Integer, "number of digits for formatting floats")
+    opts.on("--holes", "randomly nil out some cells to test placeholders")
+    opts.on("--layout LAYOUT", "true for autolayout, false for no layout, or int width")
+    opts.on("--limit LIMIT", Integer, "limit rows table")
+    opts.on("--mark REGEX", Regexp, "mark rows matching this regex")
+    opts.on("--placeholder PLACEHOLDER", String, "string to use for nils")
+    opts.on("--row-numbers", "turn on row numbers")
+    opts.on("--save PATH", "save the table as csv to PATH")
+    opts.on("--search REGEX", Regexp, "search cells for this regex")
+    opts.on("--theme THEME", %w[dark light ansi], Symbol, "set theme to dark, light, or ansi")
+    opts.on("--title TITLE", "set title for table")
+    opts.on("--zebra", "turn on zebra stripes")
+
+    opts.separator nil
+    opts.on("-d", "--debug", "enable verbose debug output")
+    opts.on("-h", "--help", "prints this help") do
+      puts opts.help
+      exit
+    end
+  end.parse!(into:)
+  into[:action] = TableManners::Main::ACTIONS.find { into[_1] } || :demo
+  into[:columns] = into[:columns]&.map(&:to_sym)
+  into[:layout] = case into[:layout]
+  when "true" then true
+  when "false" then false
+  when /\d+/ then into[:layout].to_i
+  end
+  into[:limit] ||= 25
+  into[:limit] = nil if into[:limit] == 0
+end
+
+# main
+TableManners::Main.new(options).main
