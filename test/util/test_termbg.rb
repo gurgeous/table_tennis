@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     class TestTermbg < Minitest::Test
       SUCCESS_STR = ["\e];rgb:ffff/8888/2222\e\\", "\e[1;2R"].join

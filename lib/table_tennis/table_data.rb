@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   # This class stores our data as rows & columns. The initialization is a little
   # tricky due to memoization and some ordering issues, but basically works like
   # this:

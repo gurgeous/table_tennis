@@ -12,7 +12,7 @@ require "minitest/hooks"
 require "minitest/pride"
 require "mocha/minitest"
 require "ostruct"
-require "table_manners"
+require "table_tennis"
 
 class Minitest::Test
   include Minitest::Hooks
@@ -38,7 +38,7 @@ class Minitest::Test
     File.unlink(TMP) if File.exist?(TMP)
     IO.stubs(:console).returns(FakeConsole.new)
     reset_memo_wise!
-    TableManners.defaults = nil
+    TableTennis.defaults = nil
 
     # we can't do much with windows, but at least make the tests pass by
     # pretending that Paint.mode is doing something.

@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     class TestScale < Minitest::Test
       def test_interpolate

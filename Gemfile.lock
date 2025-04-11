@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    table_manners (0.0.1)
+    table_tennis (0.0.1)
       csv (~> 3.3)
       ffi (~> 1.17)
       memo_wise (~> 1.11)
@@ -116,7 +116,7 @@ DEPENDENCIES
   rake
   simplecov
   standard
-  table_manners!
+  table_tennis!
 
 BUNDLED WITH
    2.6.5

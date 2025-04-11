@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     class TestRender < Minitest::Test
       def test_main

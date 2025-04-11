@@ -3,9 +3,9 @@
 $LOAD_PATH.unshift(File.join(__dir__, "../lib"))
 
 require "optparse"
-require "table_manners"
+require "table_tennis"
 
-module TableManners
+module TableTennis
   class Main
     ROOT = File.expand_path("..", __dir__)
     ACTIONS = %i[demo empty scales term spectrum]
@@ -19,7 +19,7 @@ module TableManners
     def main = send(options[:action])
 
     def table_options
-      table_options = options.select { TableManners::Config::OPTIONS.key?(_1) }.tap do
+      table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
         _1[:color_scales] = if (column = options[:"color-scale"])
           {column => Util::Scale::SCALES.keys.sample}
         end
@@ -40,14 +40,14 @@ module TableManners
     #
 
     def empty
-      puts TableManners.new([], table_options)
+      puts TableTennis.new([], table_options)
     end
 
     def scales
       names = Util::Scale::SCALES.keys
       values = (1..20).map { rand }.sort
       rows = values.map { |v| names.to_h { [_1, v] } }
-      puts TableManners.new(rows, {color_scales: names.zip(names).to_h})
+      puts TableTennis.new(rows, {color_scales: names.zip(names).to_h})
     end
 
     def spectrum = Util::Colors.spectrum
@@ -77,7 +77,7 @@ module TableManners
       end
 
       # go
-      table = TableManners.new(rows, table_options)
+      table = TableTennis.new(rows, table_options)
       table.render(options[:debug] ? StringIO.new : $stdout)
     end
   end
@@ -124,7 +124,7 @@ options = {}.tap do |into|
       exit
     end
   end.parse!(into:)
-  into[:action] = TableManners::Main::ACTIONS.find { into[_1] } || :demo
+  into[:action] = TableTennis::Main::ACTIONS.find { into[_1] } || :demo
   into[:columns] = into[:columns]&.map(&:to_sym)
   into[:layout] = case into[:layout]
   when "true" then true
@@ -136,4 +136,4 @@ options = {}.tap do |into|
 end
 
 # main
-TableManners::Main.new(options).main
+TableTennis::Main.new(options).main

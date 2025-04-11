@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   class TestTheme < Minitest::Test
     def test_theme_keys
       Theme::THEMES.each_value { assert_equal Theme::THEME_KEYS, _1.keys }

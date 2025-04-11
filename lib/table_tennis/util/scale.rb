@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     # Helpers for color scales (adding background colors to a column based on the
     # value of the float in the cell). Like conditional formattiong with a color

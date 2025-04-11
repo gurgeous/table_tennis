@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     # Named color names and misc color helpers.
     module Colors
@@ -406,20 +406,20 @@ module TableManners
         when Symbol
           # Paint ansi color or ansi effect
           if !SYMBOLS.include?(color)
-            puts "warning: TableManners #{color.inspect} unknown ansi color/effect symbol"
+            puts "warning: TableTennis #{color.inspect} unknown ansi color/effect symbol"
             return
           end
           return color
 
         when String
           if !(hex = NAMED[color.downcase])
-            puts "warning: TableManners #{color.inspect} unknown named color string"
+            puts "warning: TableTennis #{color.inspect} unknown named color string"
             return
           end
           return hex
 
         else
-          puts "warning: TableManners #{color.inspect} unknown color"
+          puts "warning: TableTennis #{color.inspect} unknown color"
           return
         end
       end

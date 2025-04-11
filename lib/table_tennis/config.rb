@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   class << self
     attr_accessor :defaults
   end
@@ -24,7 +24,7 @@ module TableManners
     }.freeze
 
     def initialize(options = {}, &block)
-      options = [OPTIONS, TableManners.defaults, options].reduce { _1.merge(_2 || {}) }
+      options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
       options[:color] = Config.detect_color? if options[:color].nil?
       options[:theme] = Config.detect_theme if options[:theme].nil?
       options[:debug] = true if ENV["TM_DEBUG"]
@@ -147,12 +147,12 @@ module TableManners
     end
 
     def [](key)
-      raise ArgumentError, "unknown TableManners.#{key}" if !respond_to?(key)
+      raise ArgumentError, "unknown TableTennis.#{key}" if !respond_to?(key)
       send(key)
     end
 
     def []=(key, value)
-      raise ArgumentError, "unknown TableManners.#{key}=" if !respond_to?(:"#{key}=")
+      raise ArgumentError, "unknown TableTennis.#{key}=" if !respond_to?(:"#{key}=")
       send(:"#{key}=", value)
     end
 
@@ -173,7 +173,7 @@ module TableManners
 
     def validate(option, value, &block)
       if value != nil && (error = yield)
-        raise ArgumentError, "TableManners.#{option} #{error}, got #{value.inspect}"
+        raise ArgumentError, "TableTennis.#{option} #{error}, got #{value.inspect}"
       end
       value
     end

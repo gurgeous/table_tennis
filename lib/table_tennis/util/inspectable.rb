@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     # A mixin to avoid putting all row data into xxx.inspect. This makes
     # development much easier.

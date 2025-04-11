@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   class TestTableData < Minitest::Test
     def test_all
       # columns inferred

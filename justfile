@@ -1,6 +1,6 @@
 
 # read gem version
-gemver := `grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" lib/table_manners/version.rb`
+gemver := `grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" lib/table_tennis/version.rb`
 
 #
 # dev
@@ -14,7 +14,7 @@ check: lint test
 ci: check
 
 demo-watch *ARGS:
-  @watchexec --stop-timeout=0 --clear clear table-manners-demo {{ARGS}}
+  @watchexec --stop-timeout=0 --clear clear table-tennis-demo {{ARGS}}
 
 format:
   @just banner format...
@@ -28,7 +28,7 @@ lint:
   bundle exec rubocop
 
 pry:
-  bundle exec pry -I lib -r table_manners.rb
+  bundle exec pry -I lib -r table_tennis.rb
 
 test *ARGS:
   @just banner rake test {{ARGS}}
@@ -52,12 +52,12 @@ coverage:
 # you can test locally from another project by dropping gem file into vendor/cache
 gem-push: check-git-status
   @just banner gem build...
-  gem build table_manners.gemspec
+  gem build table_tennis.gemspec
   @just banner tag...
   git tag -a "v{{gemver}}" -m "Tagging {{gemver}}"
   git push --tags
   @just banner gem push...
-  gem push "table_manners-{{gemver}}.gem"
+  gem push "table_tennis-{{gemver}}.gem"
 
 #
 # util

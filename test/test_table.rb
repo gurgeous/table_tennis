@@ -1,7 +1,7 @@
-module TableManners
+module TableTennis
   class TestTable < Minitest::Test
     def test_main
-      table = TableManners.new([{a: 1, b: 2}])
+      table = TableTennis.new([{a: 1, b: 2}])
       assert_equal %i[a b], table.columns.map(&:name)
       assert_equal [{a: 1, b: 2}], table.rows
 
@@ -33,19 +33,19 @@ module TableManners
         title: "hello",
         zebra: true,
       }
-      TableManners.new([{a: 1, b: 2}])
-      TableManners.new([], options)
+      TableTennis.new([{a: 1, b: 2}])
+      TableTennis.new([], options)
     end
 
     def test_sanity!
       assert_no_raises do
-        TableManners.new([{a: 1, b: 2}], color_scales: {a: :r}, layout: {a: 3})
+        TableTennis.new([{a: 1, b: 2}], color_scales: {a: :r}, layout: {a: 3})
       end
       assert_raises(ArgumentError) do
-        TableManners.new([{a: 1, b: 2}], {color_scales: {xxx: :r}})
+        TableTennis.new([{a: 1, b: 2}], {color_scales: {xxx: :r}})
       end
       assert_raises(ArgumentError) do
-        TableManners.new([{a: 1, b: 2}], {layout: {xxx: 3}})
+        TableTennis.new([{a: 1, b: 2}], {layout: {xxx: 3}})
       end
     end
 
@@ -55,10 +55,10 @@ module TableManners
         rows = [{a: 1}]
         if ii == 0
           # explicit call to save
-          TableManners.new(rows).save(TMP)
+          TableTennis.new(rows).save(TMP)
         else
           # save: option for render
-          TableManners.new(rows, save: TMP).to_s
+          TableTennis.new(rows, save: TMP).to_s
         end
         csv = CSV.read(TMP, headers: true).map(&:to_h)
         assert_equal([{"a" => "1"}], csv)

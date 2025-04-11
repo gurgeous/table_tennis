@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   #
   # A single column in a table. The data is actually stored in the rows, but it
   # can be enumerated from here. Mostly used for layout calculations.

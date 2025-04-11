@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     # Helpers for measuring and truncating strings.
     module Strings

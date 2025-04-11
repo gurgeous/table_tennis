@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   class TestConfig < Minitest::Test
     def test_basic
       assert_equal "foo", Config.new(placeholder: "foo").placeholder
@@ -9,7 +9,7 @@ module TableManners
 
     def test_defaults
       assert_equal "—", Config.new.placeholder
-      TableManners.defaults = {placeholder: "foo"}
+      TableTennis.defaults = {placeholder: "foo"}
       assert_equal "foo", Config.new.placeholder
       assert_equal "bar", Config.new(placeholder: "bar").placeholder
       assert_nil Config.new(placeholder: nil).placeholder
@@ -113,7 +113,7 @@ module TableManners
       if !ex.is_a?(ArgumentError)
         flunk("Expected ArgumentError for #{what}, but got #{ex.inspect}")
       end
-      assert_match("TableManners.#{key}", ex.message)
+      assert_match("TableTennis.#{key}", ex.message)
     end
   end
 end

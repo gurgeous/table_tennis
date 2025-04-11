@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     # This stage "paints" the table by calculating the style for cells, rows and
     # columns. The styles are stuffed into `data.set_style`. Later, the

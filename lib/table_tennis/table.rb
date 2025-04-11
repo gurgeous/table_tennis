@@ -1,15 +1,15 @@
 #
-# Welcome to TableManners! Use as follows:
+# Welcome to TableTennis! Use as follows:
 #
-# puts TableManners.new(array_of_hashes, options = {})
+# puts TableTennis.new(array_of_hashes, options = {})
 #
 # See the README for details on options - _color_scales_, _color_, _columns_,
 # _debug_, _digits_, _layout_, _mark_, _placeholder_, _row_numbers_, _save_,
 # _search_, _strftime_, _theme_, _title_, _zebra_
 #
 
-module TableManners
-  # Public API for TableManners.
+module TableTennis
+  # Public API for TableTennis.
   class Table
     extend Forwardable
     include Util::Inspectable
@@ -19,7 +19,7 @@ module TableManners
     def_delegators :data, *%i[debug debug_if_slow]
 
     # Create a new table with options (see Config or README). This is typically
-    # called using TableManners.new.
+    # called using TableTennis.new.
     def initialize(input_rows, options = {}, &block)
       config = Config.new(options, &block)
       @data = TableData.new(config:, input_rows:)
@@ -67,9 +67,9 @@ module TableManners
 
   class << self
     #
-    # Welcome to TableManners! Use as follows:
+    # Welcome to TableTennis! Use as follows:
     #
-    # puts TableManners.new(array_of_hashes_or_records, options = {})
+    # puts TableTennis.new(array_of_hashes_or_records, options = {})
     #
     # See the README for details on options - _color_scales_, _color_,
     # _columns_, _debug_, _digits_, _layout_, _mark_, _placeholder_,

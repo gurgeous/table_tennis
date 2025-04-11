@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     # This stage figures out how wide each column should be. Most of the fun is
     # in the autolayout behavior, which tries to fill the terminal without

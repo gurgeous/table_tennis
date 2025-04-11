@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   # This class contains the current theme, as well as the definitions for all
   # themes.
   class Theme

@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     class TestLayout < Minitest::Test
       def test_false

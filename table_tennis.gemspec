@@ -1,13 +1,13 @@
-require_relative "lib/table_manners/version"
+require_relative "lib/table_tennis/version"
 
 Gem::Specification.new do |s|
-  s.name = "table_manners"
-  s.version = TableManners::VERSION
+  s.name = "table_tennis"
+  s.version = TableTennis::VERSION
   s.authors = ["Adam Doppelt"]
   s.email = "amd@gurge.com"
 
   s.summary = "Stylish tables in your terminal."
-  s.homepage = "http://github.com/gurgeous/table_manners"
+  s.homepage = "http://github.com/gurgeous/table_tennis"
   s.license = "MIT"
   s.required_ruby_version = ">= 3.0.0"
   s.metadata = {

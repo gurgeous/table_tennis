@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     class TestFormat < Minitest::Test
       def test_floats

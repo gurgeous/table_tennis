@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   # A single table row (a hash). Doesn't have much behavior.
   class Row < Hash
     def initialize(column_names, fat_row)

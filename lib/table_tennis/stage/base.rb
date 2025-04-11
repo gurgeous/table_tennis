@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     # Base class for each stage of the rendering pipeline, mostly here just to
     # delegate to TableData.

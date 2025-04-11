@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     # This stage "formats" the table by injesting cells that contain various
     # ruby objects and formatting each one as a string. `rows` are formatted in

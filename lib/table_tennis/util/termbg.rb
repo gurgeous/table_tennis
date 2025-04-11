@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     # Very complicated module for determining the terminal background color,
     # used to select the default color theme.

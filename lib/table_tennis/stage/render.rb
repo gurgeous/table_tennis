@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Stage
     # This is the final stage of the rending pipeline - take our layout
     # information, the table cells, and the painted styles to render the table

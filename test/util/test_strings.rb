@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     class TestString < Minitest::Test
       def test_unpaint

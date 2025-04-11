@@ -1,4 +1,4 @@
-module TableManners
+module TableTennis
   module Util
     class TestColors < Minitest::Test
       def test_get
