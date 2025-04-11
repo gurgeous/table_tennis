@@ -55,7 +55,7 @@ Here is a more complex example to get you started:
 
 ```ruby
 options = {
-  color_scales: { commission: :g },
+  color_scales: { commission: :g },          # "g" is green
   columns: %i[ name commission bday phone ],
   mark: -> { _1[:name] =~ /jane|john/i },
   row_numbers: true,
@@ -79,13 +79,21 @@ options = {
 | `save` | ─ | If you set this to a file path, TableManners will save your table as a CSV file too. Useful if you want to do something else with the data. |
 | `search` | ─ | string/regex to highlight in output |
 | `strftime` | see → | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`  |
-| `theme` | `:dark` | Which theme to use, one of `:dark`, `:light` or `:ansi`. If colors are turned off this has no effect.|
+| `theme` | nil | When unset, will be autodetected based on terminal background color. If autodetect fails the theme defaults to :dark. You can also manually specify `:dark`, `:light` or `:ansi`. If colors are turned off this setting has no effect.|
 | `title` | ─ | Add a title line to the table. |
 | `zebra` | `false` | Turn on zebra stripes. |
 
 ### Tips
 
-**Color scales** are useful for visualizing numeric columns. Here is the full list of supported scales:
+**Color scales** are useful for visualizing numeric columns. The option can be a single column, an array of column names, or a hash from column names to color schemes. The scale defaults to `:b` (blue) if you don't use a hash.
+
+```ruby
+TableManners.new(rows, color_scales: :price)
+TableManners.new(rows, color_scales: [ :price, :quantity ])
+TableManners.new(rows, color_scales: { price: :b, quantity: :r })
+```
+
+The scheme names are abbreviations, so `:gyr` is a color scheme that goes from green to yellow to red. Here is the full list of supported scales - `%i[g y r b gw yw rw bw rg gr gyr]`.
 
 ![scales](./screenshots/scales.png)
 

@@ -44,12 +44,10 @@ module TableManners
     end
 
     def scales
-      keys = Util::Scale::SCALES.keys
-      keys -= %i[white_green white_yellow white_red white_blue]
-      names = keys.map { _1.to_s.gsub(/([a-z])[a-z]+/, "\\1").delete("_") }.map(&:to_sym)
-      color_scales = names.zip(keys).to_h
-      rows = (1..20).map { names.to_h { [_1, rand] } }
-      puts TableManners.new(rows, {color_scales:})
+      names = Util::Scale::SCALES.keys
+      values = (1..20).map { rand }.sort
+      rows = values.map { |v| names.to_h { [_1, v] } }
+      puts TableManners.new(rows, {color_scales: names.zip(names).to_h})
     end
 
     def spectrum = Util::Colors.spectrum
