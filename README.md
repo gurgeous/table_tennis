@@ -39,7 +39,7 @@ TableManners examines the background color of your terminal to pick either the d
 
 ### Rows (Your Data)
 
-Construct your table with an array of rows. Rows are hashes, ActiveRecord objects, structs, Data records, or anything that responds to `to_h`. It also supports oddball things like arrays (as rows) or even a single hash.
+Construct your table with an array of rows. Rows are hashes, ActiveRecord objects, structs, Data records, or anything that responds to `to_h`. It also supports oddballs like arrays (as rows) or even a single hash.
 
 ```ruby
 puts TableManners.new([{a: "hello", b: "world"}, {a: "foo", b: "bar"})
@@ -55,7 +55,7 @@ Here is a more complex example to get you started:
 
 ```ruby
 options = {
-  color_scales: { commission: :g },          # "g" is green
+  color_scales: :commission,
   columns: %i[ name commission bday phone ],
   mark: -> { _1[:name] =~ /jane|john/i },
   row_numbers: true,
@@ -68,7 +68,7 @@ options = {
 
 | option | default | details |
 | ------ | ------- | ------- |
-| `color_scales` | ─ | Color code a column of floats, see screenshots below. Similar to the "conditional formatting" feature in Google Sheets. Can be a column name, an array of column names, or a hash from column names to colors. |
+| `color_scales` | ─ | Color code a column of floats, similar to the "conditional formatting" feature in Google Sheets. See [docs below](#color-scales). |
 | `color` | `nil` | Are ANSI colors enabled? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`. |
 | `columns` | `nil` | Manually set which columns to include. Leave unset to show all columns.
 | `digits` | `3` | Format floats to this number of digits. TableManners will look for either `Float` cells or string floats. |
@@ -83,9 +83,9 @@ options = {
 | `title` | ─ | Add a title line to the table. |
 | `zebra` | `false` | Turn on zebra stripes. |
 
-### Tips
+### Color Scales
 
-**Color scales** are useful for visualizing numeric columns. The option can be a single column, an array of column names, or a hash from column names to color schemes. The scale defaults to `:b` (blue) if you don't use a hash.
+Color scales are useful for visualizing numeric columns. The `:color_scales` option can be a single column, an array of column names, or a hash from column names to colors. The scale defaults to `:b` (blue) if you don't use a hash.
 
 ```ruby
 TableManners.new(rows, color_scales: :price)
@@ -93,11 +93,11 @@ TableManners.new(rows, color_scales: [ :price, :quantity ])
 TableManners.new(rows, color_scales: { price: :b, quantity: :r })
 ```
 
-The scheme names are abbreviations, so `:gyr` is a color scheme that goes from green to yellow to red. Here is the full list of supported scales - `%i[g y r b gw yw rw bw rg gr gyr]`.
+The color names are abbreviations, so `:gyr` goes from green to yellow to red. Here is the full list of supported color scales - `%i[g y r b gw yw rw bw rg gr gyr]`. For clarity this screenshot uses sorted columns, but note that TableManners never does any sorting:
 
 ![scales](./screenshots/scales.png)
 
----
+### Tips
 
 Use **mark** to highlight certain rows. Maybe you need to find the droids? Or **search** to highlight text. I almost always use **row numbers** and **zebra stripes** too.
 
