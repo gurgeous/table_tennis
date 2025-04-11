@@ -11,7 +11,7 @@ puts TableManners.new(Starwars.all, options)
 
 Prints this lovely table in your terminal:
 
-![starwars](screenshots/dark.png)
+![starwars](./screenshots/dark.png)
 
 ### Installation
 
@@ -33,9 +33,9 @@ gem "table_manners"
 
 ### Themes
 
-TableManners examines the background color of your terminal to pick either the dark or light theme. You can also specify `:dark` or `:light` manually, or even an `:ansi` theme to use your terminal's default colors. This feature is [surprisngly complicated](https://github.com/gurgeous/table_manners/blob/main/lib/table_manners/util/termbg.rb).
+TableManners examines the background color of your terminal to pick either the dark or light theme. You can also specify `:dark` or `:light` manually, or even an `:ansi` theme to use your terminal's default colors. This feature is [surprisingly complicated](https://github.com/gurgeous/table_manners/blob/main/lib/table_manners/util/termbg.rb).
 
-![themes](screenshots/themes.png)
+![themes](./screenshots/themes.png)
 
 ### Rows (Your Data)
 
@@ -78,7 +78,7 @@ options = {
 | `row_numbers` | `false` | Show row numbers in the table. |
 | `save` | ─ | If you set this to a file path, TableManners will save your table as a CSV file too. Useful if you want to do something else with the data. |
 | `search` | ─ | string/regex to highlight in output |
-| `strftime` | `"%Y-%m-%d"` | strftime string for formatting Date/Time objects |
+| `strftime` | see → | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`  |
 | `theme` | `:dark` | Which theme to use, one of `:dark`, `:light` or `:ansi`. If colors are turned off this has no effect.|
 | `title` | ─ | Add a title line to the table. |
 | `zebra` | `false` | Turn on zebra stripes. |
@@ -87,7 +87,7 @@ options = {
 
 **Color scales** are useful for visualizing numeric columns. Here is the full list of supported scales:
 
-![scales](screenshots/scales.png)
+![scales](./screenshots/scales.png)
 
 ---
 
@@ -99,9 +99,9 @@ puts TableManners.new(rows, search: /hope.*empire/i })
 puts TableManners.new(rows, row_numbers: true, zebra: true)
 ```
 
-![droids](screenshots/droids.png)
-![hope](screenshots/hope.png)
-![row numbers](screenshots/row_numbers.png)
+| `:mark` | `:search` | `:row_numbers` and `:zebra` |
+| - | - | - |
+| ![droids](./screenshots/droids.png) | ![hope](./screenshots/hope.png) | ![row numbers](./screenshots/row_numbers.png) |
 
 ### Advanced Usage
 
