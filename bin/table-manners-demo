@@ -69,7 +69,7 @@ module TableManners
       rows = rows.first(options[:limit]) if options[:limit]
       rows = rows.sort_by { |row| row["z"] }
 
-      options[:layout] = {films: 32}
+      # options[:layout] = {films: 32}
       # options[:title] ||= "Star Wars People"
       if options[:holes]
         10.times do

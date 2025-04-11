@@ -9,8 +9,6 @@ gem "unicode-display_width"
 
 group :development, :test do
   gem "amazing_print"
-  gem "image_optim", require: false
-  gem "image_optim_pack", require: false
   gem "minitest"
   gem "minitest-hooks"
   gem "mocha"

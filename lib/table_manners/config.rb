@@ -88,6 +88,11 @@ module TableManners
     #
 
     def color_scales=(value)
+      case value
+      when Array then value = value.to_h { [_1, :g] }
+      when Symbol then value = {value => :g}
+      end
+      value.to_h { [_1, :g] } if value.is_a?(Array)
       @color_scales = validate(:color_scales, value) do
         if !value.is_a?(Hash)
           "expected hash"
@@ -100,6 +105,7 @@ module TableManners
         end
       end
     end
+    alias_method(:"color_scale=", :"color_scales=")
 
     def columns=(value)
       @columns = validate(:columns, value) do

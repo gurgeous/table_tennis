@@ -21,7 +21,10 @@ module TableManners
 
       # here are things that work
       assert_config_no_raise(:color, true)
-      assert_config_no_raise(:color_scales, {a: :blue})
+      assert_config_no_raise(:color_scale, :a)
+      assert_config_no_raise(:color_scales, :a)
+      assert_config_no_raise(:color_scales, {a: :b})
+      assert_config_no_raise(:color_scales, %i[a b c])
       assert_config_no_raise(:columns, %i[a b c])
       assert_config_no_raise(:digits, 123)
       assert_config_no_raise(:layout, {a: 123})
@@ -42,7 +45,7 @@ module TableManners
 
       # and some things that don't
       assert_config_raise(:color_scales, "nope")
-      assert_config_raise(:color_scales, {"a" => :blue})
+      assert_config_raise(:color_scales, {"a" => :b})
       assert_config_raise(:color_scales, {a: :nope})
       assert_config_raise(:color_scales, {a: "nope"})
       assert_config_raise(:columns, [:a, :b, "c"])

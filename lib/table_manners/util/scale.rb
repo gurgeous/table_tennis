@@ -12,26 +12,21 @@ module TableManners
 
       SCALES = {
         # white => color
-        green: [WHITE, GREEN],
-        yellow: [WHITE, YELLOW],
-        red: [WHITE, RED],
-        blue: [WHITE, BLUE],
-        # aliases for the above
-        white_green: [WHITE, GREEN],
-        white_yellow: [WHITE, YELLOW],
-        white_red: [WHITE, RED],
-        white_blue: [WHITE, BLUE],
+        g: [WHITE, GREEN],
+        y: [WHITE, YELLOW],
+        r: [WHITE, RED],
+        b: [WHITE, BLUE],
 
         # green/yellow/red => white
-        green_white: [GREEN, WHITE],
-        yellow_white: [YELLOW, WHITE],
-        red_white: [RED, WHITE],
-        blue_white: [BLUE, WHITE],
+        gw: [GREEN, WHITE],
+        yw: [YELLOW, WHITE],
+        rw: [RED, WHITE],
+        bw: [BLUE, WHITE],
 
         # red <=> green
-        red_green: [RED, WHITE, GREEN],
-        green_red: [GREEN, WHITE, RED],
-        green_yellow_red: [GREEN, YELLOW, RED],
+        rg: [RED, WHITE, GREEN],
+        gr: [GREEN, WHITE, RED],
+        gyr: [GREEN, YELLOW, RED],
       }
 
       def interpolate(name, t)

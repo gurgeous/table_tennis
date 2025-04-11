@@ -4,7 +4,7 @@ module TableManners
       def test_main
         config = Config.new(
           color: true,
-          color_scales: {b: :red_green},
+          color_scales: {b: :rg},
           mark: ->(row) { row[:a] == "0" },
           placeholder: "NA",
           row_numbers: true,

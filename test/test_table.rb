@@ -22,7 +22,7 @@ module TableManners
     # just make sure these don't crash
     def test_kitchen_sink
       options = {
-        color_scales: {a: :red},
+        color_scales: {a: :r},
         digits: 2,
         layout: {b: 3},
         mark: ->(_) { rand < 0.1 },
@@ -39,10 +39,10 @@ module TableManners
 
     def test_sanity!
       assert_no_raises do
-        TableManners.new([{a: 1, b: 2}], color_scales: {a: :red}, layout: {a: 3})
+        TableManners.new([{a: 1, b: 2}], color_scales: {a: :r}, layout: {a: 3})
       end
       assert_raises(ArgumentError) do
-        TableManners.new([{a: 1, b: 2}], {color_scales: {xxx: :red}})
+        TableManners.new([{a: 1, b: 2}], {color_scales: {xxx: :r}})
       end
       assert_raises(ArgumentError) do
         TableManners.new([{a: 1, b: 2}], {layout: {xxx: 3}})
