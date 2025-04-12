@@ -39,6 +39,14 @@ module TableTennis
     def type = detect_type
     memo_wise :type
 
+    def alignment
+      case type
+      when :float, :int then :right
+      else :left
+      end
+    end
+    memo_wise :alignment
+
     def truncate(stop)
       @header = Util::Strings.truncate(header, stop)
       map! { Util::Strings.truncate(_1, stop) }

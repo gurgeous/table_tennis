@@ -11,9 +11,10 @@ module TableTennis
 
       # similar to rails titleize
       def titleize(str)
-        str = str.tr("_", " ")
-        str = str.gsub(/ id$/, "")
-        str = str.gsub(/(^| )\w/, &:upcase)
+        str = str.gsub(/_id$/, "") # remove _id
+        str = str.tr("_", " ") # remove underscores
+        str = str.gsub(/(\w)([A-Z])/, '\1 \2') # OneTwo => One Two
+        str = str.split.map(&:capitalize).join(" ") # capitalize
         str
       end
 

@@ -9,8 +9,6 @@
 #
 # v0.0.2
 #
-# - titleize SerpTime => Serp Time
-# - tests for titleize?
 # - maybe scales can work for strings/tally?
 # - mark single color should be bg (test)
 # - render right justify floats and ints (and tests)

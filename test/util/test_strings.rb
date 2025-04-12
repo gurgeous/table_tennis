@@ -79,6 +79,7 @@ module TableTennis
           ["created_at", "Created At"],
           ["serp_total_time", "Serp Total Time"],
           ["serp time", "Serp Time"],
+          ["SerpTime", "Serp Time"],
         ].each do |str, exp|
           assert_equal exp, Strings.titleize(str)
         end

@@ -85,10 +85,10 @@ module TableTennis
         # pad and paint
         if whitespace > 0
           spaces = " " * whitespace
-          value = if columns[c].type == :float || columns[c].type == :int
-            "#{spaces}#{value}"
-          else
+          value = if columns[c].alignment == :left
             "#{value}#{spaces}"
+          else
+            "#{spaces}#{value}"
           end
         end
         paint(value, style)
