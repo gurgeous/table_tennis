@@ -4,82 +4,64 @@ module TableTennis
     # ruby objects and formatting each as a string. Cells are formatted in place
     # by transforming rows.
     class Format < Base
-      attr_reader :fns, :placeholder
-
       def run
-        @placeholder = config.placeholder || ""
-
-        # built an fn for each column
+        # find (optional) fn for each column
         fns = columns.map do
-          fn = fn_for_column_type(_1.type) || :other
-          :"column_#{fn}"
+          fn = fn(_1.type)
+          :"fn_#{fn}" if fn
         end
 
         rows.each do |row|
           row.each_index do
             value = row[_1]
-            value = send(fns[_1], value) || fmt_other(value)
-            row[_1] = value
+            value = send(fns[_1], value) if fns[_1]
+            row[_1] = value || fallback(value)
           end
         end
       end
 
       #
-      # column formatters
+      # fns for each column type
       #
 
-      def fn_for_column_type(type)
+      def fn(type)
         case type
         when :float then :float if config.digits
+        when :int then :int
         when :time then :time if config.strftime
-        when :int, :string then type
         end
       end
 
-      def column_float(value)
+      def fn_float(value)
         case value
-        when String
-          Util::What.float_or_int?(value) ? fmt_float(value.to_f) : fmt_str(value)
-        when Numeric
-          fmt_float(value)
+        when String then fmt_float(value.to_f) if Util::What.float_or_int?(value)
+        when Numeric then fmt_float(value)
         end
       end
 
-      def column_int(value)
+      def fn_int(value)
         case value
-        when String
-          Util::What.int?(value) ? fmt_int(value.to_i) : fmt_str(value)
-        when Integer
-          fmt_int(value)
+        when String then fmt_int(value.to_i) if Util::What.int?(value)
+        when Integer then fmt_int(value)
         end
       end
 
-      def column_time(value)
-        if Util::What.time?(value)
-          value.strftime(config.strftime)
-        end
+      def fn_time(value)
+        value.strftime(config.strftime) if Util::What.time?(value)
       end
-
-      def column_string(value) = value ? fmt_str(value) : placeholder
-      def column_other(value) = value ? fmt_other(value) : placeholder
 
       #
       # primitives
       #
 
-      def fmt_str(str)
-        # normalize whitespace
-        if str.match?(/\s/)
-          str = str.strip.gsub("\n", "\\n").gsub("\r", "\\r")
-        end
-        # empty?
-        return placeholder if str.empty?
-        str
-      end
+      def placeholder = @placeholder ||= config.placeholder || ""
 
-      def fmt_other(value)
-        return placeholder if !value
-        fmt_str(value.to_s)
+      def fallback(value)
+        return placeholder if value.nil?
+        # to string, normalize whitespace, honor placeholder
+        str = (value.is_a?(String) ? value : value.to_s)
+        str = str.strip.gsub("\n", "\\n").gsub("\r", "\\r") if str.match?(/\s/)
+        str.empty? ? placeholder : str
       end
 
       def fmt_float(x) = (@fmt_float ||= "%.#{config.digits}f") % x
