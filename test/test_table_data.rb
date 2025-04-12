@@ -4,13 +4,13 @@ module TableTennis
       # columns inferred
       data = TableData.new(input_rows: [{a: 1, b: 2}])
       assert_equal %i[a b], data.column_names
-      assert_equal [{a: 1, b: 2}], data.rows
+      assert_equal [[1, 2]], data.rows
 
       # columns specified
       config = Config.new(columns: %i[a])
       data = TableData.new(config:, input_rows: [{a: 1, b: 2}])
       assert_equal %i[a], data.column_names
-      assert_equal [{a: 1}], data.rows
+      assert_equal [[1]], data.rows
     end
 
     def test_different_inputs
@@ -21,18 +21,18 @@ module TableTennis
         [HasAttributes.new(a: 1)], # ActiveModel/ActiveRecord
       ].each do |input_rows|
         data = TableData.new(input_rows:)
-        assert_equal [{a: 1}], data.rows
+        assert_equal [[1]], data.rows
       end
     end
 
     def test_edge_input_rows
       # an array
       data = TableData.new(input_rows: [[1]])
-      assert_equal [{"0": 1}], data.rows
+      assert_equal [[1]], data.rows
 
       # a single hash. this is the only time input_rows is modified
       data = TableData.new(input_rows: {a: 1, b: 2})
-      assert_equal [{key: :a, value: 1}, {key: :b, value: 2}], data.rows
+      assert_equal [[:a, 1], [:b, 2]], data.rows
       assert_equal [{key: :a, value: 1}, {key: :b, value: 2}], data.input_rows
 
       # invalid
@@ -40,10 +40,10 @@ module TableTennis
     end
 
     def test_ragged_rows
-      keys = TableData.new(input_rows: [
+      rows = TableData.new(input_rows: [
         {a: 1, b: 2}, {a: 1},
-      ]).rows.map(&:keys)
-      assert_equal keys[0], keys[1]
+      ]).rows
+      assert_equal [[1, 2], [1, nil]], rows
     end
 
     def test_missing_columns

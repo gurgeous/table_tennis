@@ -9,11 +9,18 @@
 #
 # v0.0.2
 #
-# - titleize
-# - column type detection and formattiong? commas for numbers, right justify
-#   - maybe this can also work for strings/tally?
-# - mark single color should be bg
+# - scales. tests for titleize?
+# - test comma for numbers
+# - maybe scales can work for strings/tally?
+# - mark single color should be bg (test)
 # - compare against tv, csvlens & vd
+#
+# REMIND: redo tests based on formatting updates
+#   column is floats, ints, strings
+#   with/without config.digits & config.strftime
+#   works with nils too
+#   int formatting with commas
+#   right justify floats and ints
 #
 
 module TableTennis

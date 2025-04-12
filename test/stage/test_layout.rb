@@ -6,7 +6,7 @@ module TableTennis
         data = TableData.new(config:, input_rows: [{hello: "x" * 123}])
         Layout.new(data).run
         assert_equal([123], data.columns.map(&:width))
-        assert_equal([123], data.rows.first.values.map(&:length))
+        assert_equal([123], data.rows.first.map(&:length))
       end
 
       def test_constant
@@ -17,7 +17,7 @@ module TableTennis
         # widths should get set, both header/data should get truncated
         assert_equal([3], data.columns.map(&:width))
         assert_equal([3], data.columns.map(&:header).map(&:length))
-        assert_equal([3], data.rows.first.values.map(&:length))
+        assert_equal([3], data.rows.first.map(&:length))
       end
 
       def test_hash
@@ -28,7 +28,7 @@ module TableTennis
         # widths should get set, both header/data should get truncated
         assert_equal([3, 8], data.columns.map(&:width))
         assert_equal([3, 6], data.columns.map(&:header).map(&:length))
-        assert_equal([3, 8], data.rows.first.values.map(&:length))
+        assert_equal([3, 8], data.rows.first.map(&:length))
       end
 
       def test_autolayout
@@ -41,21 +41,21 @@ module TableTennis
         Layout.new(data).run
         assert_equal([10, 20], data.columns.map(&:width))
         assert_equal([7, 4], data.columns.map(&:header).map(&:length))
-        assert_equal([10, 20], data.rows.first.values.map(&:length))
+        assert_equal([10, 20], data.rows.first.map(&:length))
 
         # cruncha muncha
         IO.console.stubs(:winsize).returns([nil, 20])
         Layout.new(data).run
         assert_equal([4, 7], data.columns.map(&:width))
         assert_equal([4, 4], data.columns.map(&:header).map(&:length))
-        assert_equal([4, 7], data.rows.first.values.map(&:length))
+        assert_equal([4, 7], data.rows.first.map(&:length))
 
         # tiny
         IO.console.stubs(:winsize).returns([nil, 10])
         Layout.new(data).run
         assert_equal([2, 2], data.columns.map(&:width))
         assert_equal([2, 2], data.columns.map(&:header).map(&:length))
-        assert_equal([2, 2], data.rows.first.values.map(&:length))
+        assert_equal([2, 2], data.rows.first.map(&:length))
       end
 
       def test_emojis

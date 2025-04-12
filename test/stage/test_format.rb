@@ -25,7 +25,7 @@ module TableTennis
 
       def test_strftime
         config = Config.new(strftime: "%Y-%m-%d") # test strftime formatting
-        [Time.now, Date.today, ActsLikeTime.new].each do |value|
+        [Time.now, Date.today, WithStrftime.new].each do |value|
           assert_match(/^\d{4}-\d{2}-\d{2}$/, format_one(config:, value:))
         end
       end
@@ -42,8 +42,7 @@ module TableTennis
       end
 
       # TimeWithZone
-      class ActsLikeTime
-        def acts_like_time = true
+      class WithStrftime
         def strftime(_) = "9999-99-99" # hack
       end
     end
