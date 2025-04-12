@@ -58,7 +58,7 @@ module TableTennis
         row_style = data.get_style(r:)
 
         # assemble line by rendering cells
-        enum = (r != :header) ? rows[r].each_value : columns.map(&:header)
+        enum = (r != :header) ? rows[r].each : columns.map(&:header)
         line = enum.map.with_index do |value, c|
           render_cell(value, r, c, row_style)
         end.join(" #{pipe} ")
@@ -83,7 +83,14 @@ module TableTennis
         value = value.gsub(search) { paint(_1, :search) } if search
 
         # pad and paint
-        value = "#{value}#{" " * whitespace}" if whitespace > 0
+        if whitespace > 0
+          spaces = " " * whitespace
+          value = if columns[c].type == :float || columns[c].type == :int
+            "#{spaces}#{value}"
+          else
+            "#{value}#{spaces}"
+          end
+        end
         paint(value, style)
       end
 

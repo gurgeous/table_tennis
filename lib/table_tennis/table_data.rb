@@ -45,7 +45,7 @@ module TableTennis
           raise ArgumentError, "specified column `#{name}` not found in any row of input data"
         end
       end
-      names.map { Column.new(_1, self) }
+      names.map.with_index { Column.new(self, _1, _2) }
     end
     memo_wise :columns
 
@@ -58,7 +58,7 @@ module TableTennis
     # memoization to cache the result of fat_rows, and then we create final rows
     # with just the columns we want
     def rows
-      fat_rows.map { Row.new(column_names, _1) }
+      fat_rows.map { _1.values_at(*column_names) }
     end
     memo_wise :rows
 

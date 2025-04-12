@@ -76,7 +76,7 @@ module TableTennis
       def paint_placeholders
         placeholder = config.placeholder
         rows.each.with_index do |row, r|
-          row.each_value.with_index do |value, c|
+          row.each.with_index do |value, c|
             if value == placeholder
               set_style(r:, c:, style: :chrome)
             end

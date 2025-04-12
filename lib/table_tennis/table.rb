@@ -49,7 +49,7 @@ module TableTennis
     def save(path)
       headers = column_names
       CSV.open(path, "wb", headers:, write_headers: true) do |csv|
-        rows.each { csv << _1.values }
+        rows.each { csv << _1 }
       end
     end
 

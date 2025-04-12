@@ -9,12 +9,12 @@ module TableTennis
     extend Forwardable
     prepend MemoWise
 
-    attr_reader :name, :data
+    attr_reader :name, :data, :index
     attr_accessor :header, :width
     def_delegators :data, *%i[rows]
 
-    def initialize(name, data)
-      @name, @data = name, data
+    def initialize(data, name, index)
+      @name, @data, @index = name, data, index
       @header = name.to_s
       if data&.config&.titleize?
         @header = Util::Strings.titleize(@header)
@@ -23,7 +23,7 @@ module TableTennis
 
     def each(&block)
       return to_enum(__method__) unless block_given?
-      rows.each { yield(_1[name]) }
+      rows.each { yield(_1[index]) }
       self
     end
 
@@ -32,14 +32,14 @@ module TableTennis
       rows.each_index { yield(_1) }
     end
 
-    def map!(&block) = rows.each { _1[name] = yield(_1[name]) }
+    def map!(&block) = rows.each { _1[index] = yield(_1[index]) }
 
     # sample some cells to infer column type
     def type
-      samples = rows.sample(100).map { _1[name] }
+      samples = rows.sample(100).map { _1[index] }
       types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
       return types.first if types.length == 1
-      return :float if types == %i[float number]
+      return :float if types == %i[float int]
       :mixed
     end
     memo_wise :type

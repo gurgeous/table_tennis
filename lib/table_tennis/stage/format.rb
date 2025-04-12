@@ -16,8 +16,10 @@ module TableTennis
         end
 
         rows.each do |row|
-          row.map.zip(fns) do |(name, value), fn|
-            row[name] = send(fn, value) || fmt_other(value)
+          row.each_index do
+            value = row[_1]
+            value = send(fns[_1], value) || fmt_other(value)
+            row[_1] = value
           end
         end
       end
