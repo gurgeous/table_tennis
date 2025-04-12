@@ -34,12 +34,19 @@ module TableTennis
 
     def map!(&block) = rows.each { _1[name] = yield(_1[name]) }
 
-    # sample some cells to infer column type
+    def sample(n = 1)
+      rows.sample(n).map { _1[name] }
+    end
+
+    # Sample 100 cells to infer column type. Ignore nils entirely.
     def type
-      samples = rows.sample(100).map { _1[name] }
-      types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
-      return types.first if types.length == 1
-      return :float if types == %i[float number]
+      samples = sample(100)
+      types = samples.filter_map { Util::What.what_is_it(_1) }
+      # puts "#{name} => #{samples.sort_by(&:to_s)} #{types.tally}"
+      types = types.uniq.sort
+      return nil if types.empty? # all nils
+      return types.first if types.length == 1 # one type
+      return :float if types == %i[float int] # floats + numbers
       :mixed
     end
     memo_wise :type

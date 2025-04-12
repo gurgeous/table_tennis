@@ -14,6 +14,7 @@
 #   - maybe this can also work for strings/tally?
 # - mark single color should be bg
 # - compare against tv, csvlens & vd
+# - change rows to arrays
 #
 
 module TableTennis
