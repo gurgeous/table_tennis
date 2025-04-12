@@ -71,6 +71,18 @@ module TableTennis
         (4..7).each { assert_equal "👋🏻…", Strings.truncate(hands, _1) }
         (8..9).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1) }
       end
+
+      def test_titleize
+        [
+          ["action", "Action"],
+          ["action_id", "Action"],
+          ["created_at", "Created At"],
+          ["serp_total_time", "Serp Total Time"],
+          ["serp time", "Serp Time"],
+        ].each do |str, exp|
+          assert_equal exp, Strings.titleize(str)
+        end
+      end
     end
   end
 end

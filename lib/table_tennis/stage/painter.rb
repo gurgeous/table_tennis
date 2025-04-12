@@ -43,7 +43,11 @@ module TableTennis
             style = :zebra
           end
           if (mark_style = config.mark&.call(input_rows[r]))
-            style = mark_style.is_a?(Symbol) ? mark_style : :mark
+            style = case mark_style
+            when String, Symbol then [nil, mark_style] # assume bg color
+            when Array then mark_style # a Paint array
+            else; :mark # default
+            end
           end
           set_style(r:, style:) if style
         end

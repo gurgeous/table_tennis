@@ -89,7 +89,7 @@ module TableTennis
       options[:title] ||= file.capitalize
       table = TableTennis.new(rows, table_options)
       table.columns.each do
-        _1.detect_type
+        puts "#{_1.name} => #{_1.type}"
       end
       table.render(options[:debug] ? StringIO.new : $stdout)
     end
@@ -128,6 +128,7 @@ options = {}.tap do |into|
     opts.on("--search REGEX", Regexp, "search cells for this regex")
     opts.on("--theme THEME", %w[dark light ansi], Symbol, "set theme to dark, light, or ansi")
     opts.on("--title TITLE", "set title for table")
+    opts.on("--titleize", "titleize column names")
     opts.on("--zebra", "turn on zebra stripes")
 
     opts.separator nil

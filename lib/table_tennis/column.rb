@@ -16,6 +16,9 @@ module TableTennis
     def initialize(name, data)
       @name, @data = name, data
       @header = name.to_s
+      if data&.config&.titleize?
+        @header = Util::Strings.titleize(@header)
+      end
     end
 
     def each(&block)
@@ -31,28 +34,15 @@ module TableTennis
 
     def map!(&block) = rows.each { _1[name] = yield(_1[name]) }
 
-    def detect_type
-      sample = rows.sample(100).map { _1[name] }
-      tally = sample.map do
-        case _1
-        when String
-          case _1
-          when /\A-?\d+\Z/ then :number
-          when /\A-?\d+\.\d+\Z/ then :float
-          when /\A(n\/a|na|none)\Z/i then :nil
-          else; :string
-          end
-        when Float then :float
-        when Numeric then :number
-        when Date, Time then :date
-        when nil then :nil
-        else; :other
-        end
-      end.compact.tally.sort_by { [-_2, _1] }.to_h
-      puts "#{header} => #{tally}"
-      p sample.map { _1.nil? ? "nil" : _1.to_s }.sort.join(" ")
-      puts
+    # sample some cells to infer column type
+    def type
+      samples = rows.sample(100).map { _1[name] }
+      types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
+      return types.first if types.length == 1
+      return :float if types == %i[float number]
+      :mixed
     end
+    memo_wise :type
 
     def truncate(stop)
       @header = Util::Strings.truncate(header, stop)

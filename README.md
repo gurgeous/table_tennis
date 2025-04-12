@@ -81,6 +81,7 @@ options = {
 | `strftime` | see → | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`  |
 | `theme` | nil | When unset, will be autodetected based on terminal background color. If autodetect fails the theme defaults to :dark. You can also manually specify `:dark`, `:light` or `:ansi`. If colors are turned off this setting has no effect.|
 | `title` | ─ | Add a title line to the table. |
+| `titleize` | ─ | Titleize column names, so `person_id` becomes `Person`. |
 | `zebra` | `false` | Turn on zebra stripes. |
 
 ### Color Scales

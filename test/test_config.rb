@@ -41,6 +41,7 @@ module TableTennis
       assert_config_no_raise(:theme, :light)
       assert_config_no_raise(:title, :foo)
       assert_config_no_raise(:title, "foo")
+      assert_config_no_raise(:titleize, true)
       assert_config_no_raise(:zebra, true)
 
       # and some things that don't

@@ -12,6 +12,7 @@
 # - titleize
 # - column type detection and formattiong? commas for numbers, right justify
 #   - maybe this can also work for strings/tally?
+# - mark single color should be bg
 # - compare against tv, csvlens & vd
 #
 

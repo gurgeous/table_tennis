@@ -20,6 +20,7 @@ module TableTennis
       strftime: nil, # string for formatting dates
       theme: nil,  # :dark, :light or :ansi. :dark is the default
       title: nil, # string for table title, if any
+      titleize: false, # if true, titleize column names
       zebra: false, # turn on zebra stripes
     }.freeze
 
@@ -50,6 +51,7 @@ module TableTennis
       save: :str,
       strftime: :str,
       title: :str,
+      titleize: :bool,
       zebra: :bool,
     }.each do |option, type|
       define_method(:"#{option}=") do |value|

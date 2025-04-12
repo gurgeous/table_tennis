@@ -452,7 +452,7 @@ module TableTennis
 
       # "#?(rgb|rrggbb|rrrrggggbbbb)" => [r,g,b]
       def to_rgb(hex)
-        if !hex.match(/\A#?([0-9a-f]+)\z/i)
+        if !hex.match(/\A#?([0-9a-f]+)\Z/i)
           return
         end
         hex = $1

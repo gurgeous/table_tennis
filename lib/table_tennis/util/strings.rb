@@ -9,6 +9,14 @@ module TableTennis
       # strip ansi codes
       def unpaint(str) = str.gsub(/\e\[[0-9;]*m/, "")
 
+      # similar to rails titleize
+      def titleize(str)
+        str = str.tr("_", " ")
+        str = str.gsub(/ id$/, "")
+        str = str.gsub(/(^| )\w/, &:upcase)
+        str
+      end
+
       def width(text)
         simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
       end
