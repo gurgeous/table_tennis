@@ -1,7 +1,5 @@
 module TableTennis
   class TestTableData < Minitest::Test
-    def ab = [{a: 1, b: 2}]
-
     def test_all
       # columns inferred
       data = TableData.new(input_rows: ab)

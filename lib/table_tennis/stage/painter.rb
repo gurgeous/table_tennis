@@ -42,12 +42,8 @@ module TableTennis
           if config.zebra? && r.even?
             style = :zebra
           end
-          if (mark_style = config.mark&.call(input_rows[r]))
-            style = case mark_style
-            when String, Symbol then [nil, mark_style] # assume bg color
-            when Array then mark_style # a Paint array
-            else; :mark # default
-            end
+          if (user_mark = config.mark&.call(input_rows[r]))
+            style = mark_style(user_mark)
           end
           set_style(r:, style:) if style
         end
@@ -80,6 +76,14 @@ module TableTennis
               set_style(r:, c:, style: :chrome)
             end
           end
+        end
+      end
+
+      def mark_style(user_mark)
+        case user_mark
+        when String, Symbol then [nil, user_mark] # assume bg color
+        when Array then user_mark # a Paint array
+        else; :mark # default
         end
       end
     end

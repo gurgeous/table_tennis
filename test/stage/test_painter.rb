@@ -33,6 +33,20 @@ module TableTennis
         # placeholder
         assert_equal :chrome, data.get_style(r: 4, c: 1)
       end
+
+      def test_mark_style
+        data = TableData.new(config: Config.new, input_rows: ab)
+        painter = Painter.new(data)
+        [
+          [true, :mark],
+          [123, :mark],
+          ["red", [nil, "red"]],
+          [:red, [nil, :red]],
+          [%i[blue green], %i[blue green]],
+        ].each do |user_mark, exp|
+          assert_equal exp, painter.send(:mark_style, user_mark)
+        end
+      end
     end
   end
 end
