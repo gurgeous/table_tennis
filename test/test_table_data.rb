@@ -1,14 +1,16 @@
 module TableTennis
   class TestTableData < Minitest::Test
+    def ab = [{a: 1, b: 2}]
+
     def test_all
       # columns inferred
-      data = TableData.new(input_rows: [{a: 1, b: 2}])
+      data = TableData.new(input_rows: ab)
       assert_equal %i[a b], data.column_names
       assert_equal [[1, 2]], data.rows
 
       # columns specified
       config = Config.new(columns: %i[a])
-      data = TableData.new(config:, input_rows: [{a: 1, b: 2}])
+      data = TableData.new(config:, input_rows: ab)
       assert_equal %i[a], data.column_names
       assert_equal [[1]], data.rows
     end
@@ -50,7 +52,7 @@ module TableTennis
       assert_raises(ArgumentError) do
         # there is no column c
         config = Config.new(columns: %i[a c])
-        TableData.new(config:, input_rows: [{a: 1, b: 2}]).columns
+        TableData.new(config:, input_rows: ab).columns
       end
     end
 
@@ -65,6 +67,12 @@ module TableTennis
       input_rows = 7.times.map { {a: rand, b: rand} }
       data = TableData.new(input_rows:)
       assert_match(/7 rows/, data.inspect)
+    end
+
+    def test_debug
+      # really just for coverage
+      TableData.new(input_rows: ab).debug("hi")
+      TableData.new(input_rows: ab).debug_if_slow("hi") {}
     end
 
     class HasAttributes
