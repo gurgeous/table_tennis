@@ -16,24 +16,23 @@ module TableTennis
         when nil, "" then return nil
         when String
           return :float if float?(value)
-          return :number if int?(value)
+          return :int if int?(value)
           return nil if na?(value)
           return :string
         when Float then return :float
-        when Numeric then return :number
-        when Date, DateTime, Time then return :date
+        when Numeric then return :int
         end
-
-        # Rails TimeWithZone
-        return :time if value.respond_to?(:acts_like_time)
+        return :time if time?(value)
 
         :other
       end
 
-      # string tests
+      # tests
       def na?(str) = str.match?(/\A(n\/a|na|none|\s+)\Z/i)
-      def float?(str) = str.match?(/\A-?\d+\.\d+\Z/)
+      def float_or_int?(str) = str.match?(/\A-?\d+(?:[.]?\d*)?\Z/)
+      def float?(str) = str.match?(/\A-?\d+[.]\d*\Z/)
       def int?(str) = str.match?(/\A-?\d+\Z/)
+      def time?(value) = value.respond_to?(:strftime)
     end
   end
 end
