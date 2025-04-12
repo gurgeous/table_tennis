@@ -64,12 +64,14 @@ module TableTennis
       end
 
       def test_grapheme_clusters
-        # DisplayWidth thinks each hand is 4 wide for some reason. Doesn't
-        # really matter for our test, though
         hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
-        (1..3).each { assert_equal "…", Strings.truncate(hands, _1) }
-        (4..7).each { assert_equal "👋🏻…", Strings.truncate(hands, _1) }
-        (8..9).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1) }
+
+        # make sure this doesn't change (used to be 4)
+        assert_equal 2, Unicode::DisplayWidth.of(hands[0])
+
+        (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
+        (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
+        (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
       end
 
       def test_titleize

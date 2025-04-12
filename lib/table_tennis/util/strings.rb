@@ -47,9 +47,10 @@ module TableTennis
 
           # we've gone too far. do we need to pop for the ellipsis?
           text = list[0, _1]
-          text.pop if w == 1
+          text.pop if width - w == stop
           return "#{text.join}…"
         end
+
         text
       end
 
