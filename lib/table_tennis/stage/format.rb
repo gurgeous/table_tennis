@@ -5,21 +5,25 @@ module TableTennis
     # by transforming rows.
     class Format < Base
       def run
-        # find (optional) fn for each column
+        # Sample each column and infer column types. Determine which fn_xxx to
+        # use for each column.
         fns = columns.map do
-          fn = fn(_1.type)
-          :"fn_#{fn}" if fn
+          fn = case _1.type
+          when :float then :fn_float if config.digits
+          when :int then :fn_int
+          when :time then :fn_time if config.strftime
+          end
+          fn || :fn_default
         end
 
         rows.each do |row|
           row.each_index do
             value = row[_1]
-            value = if fns[_1] && (formatted = send(fns[_1], value))
-              formatted || fallback(value)
-            else
-              fallback(value)
-            end
-            row[_1] = value
+            # Try to format using the column fn. This can return nil. For
+            # example, a float column and value is nil, not a float, etc.
+            formatted = send(fns[_1], value)
+            # If the column formatter failed, use the default formatter
+            row[_1] = formatted || fn_default(value)
           end
         end
       end
@@ -27,14 +31,6 @@ module TableTennis
       #
       # fns for each column type
       #
-
-      def fn(type)
-        case type
-        when :float then :float if config.digits
-        when :int then :int
-        when :time then :time if config.strftime
-        end
-      end
 
       def fn_float(value)
         case value
@@ -58,7 +54,7 @@ module TableTennis
       # primitives
       #
 
-      def fallback(value)
+      def fn_default(value)
         return config.placeholder if value.nil?
         # to string, normalize whitespace, honor placeholder
         str = (value.is_a?(String) ? value : value.to_s)

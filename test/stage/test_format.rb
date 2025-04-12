@@ -55,21 +55,6 @@ module TableTennis
         end
       end
 
-      # fn()
-      def test_fn
-        f = create_format
-        assert_equal :int, f.fn(:int)
-        # w optional formatting
-        config = f.config
-        config.digits, config.strftime = 123, "xx"
-        assert_equal :float, f.fn(:float)
-        assert_equal :time, f.fn(:time)
-        # w/o optional formatting
-        config.digits = config.strftime = nil
-        assert_nil f.fn(:float)
-        assert_nil f.fn(:time)
-      end
-
       #
       # fns
       #
@@ -126,11 +111,7 @@ module TableTennis
         end
       end
 
-      #
-      # primitives
-      #
-
-      def test_fallback
+      def test_fn_default
         f = create_format
         [
           [nil, "NA"],
@@ -139,9 +120,13 @@ module TableTennis
           ["foo", "foo"],
           [" foo\nbar\rx ", "foo\\nbar\\rx"],
         ].each do |value, exp|
-          assert_equal exp, f.fallback(value)
+          assert_equal exp, f.fn_default(value)
         end
       end
+
+      #
+      # primitives
+      #
 
       def test_fmt_float
         f = create_format

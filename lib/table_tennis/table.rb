@@ -9,11 +9,12 @@
 #
 # v0.0.2
 #
-# - scales. tests for titleize?
+# - titleize SerpTime => Serp Time
+# - tests for titleize?
 # - maybe scales can work for strings/tally?
 # - mark single color should be bg (test)
-# - compare against tv, csvlens & vd
 # - render right justify floats and ints (and tests)
+# - compare against tv, csvlens & vd
 #
 
 module TableTennis
