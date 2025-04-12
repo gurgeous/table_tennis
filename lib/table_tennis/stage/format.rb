@@ -14,8 +14,12 @@ module TableTennis
         rows.each do |row|
           row.each_index do
             value = row[_1]
-            value = send(fns[_1], value) if fns[_1]
-            row[_1] = value || fallback(value)
+            value = if fns[_1] && (formatted = send(fns[_1], value))
+              formatted || fallback(value)
+            else
+              fallback(value)
+            end
+            row[_1] = value
           end
         end
       end
@@ -54,14 +58,12 @@ module TableTennis
       # primitives
       #
 
-      def placeholder = @placeholder ||= config.placeholder || ""
-
       def fallback(value)
-        return placeholder if value.nil?
+        return config.placeholder if value.nil?
         # to string, normalize whitespace, honor placeholder
         str = (value.is_a?(String) ? value : value.to_s)
         str = str.strip.gsub("\n", "\\n").gsub("\r", "\\r") if str.match?(/\s/)
-        str.empty? ? placeholder : str
+        str.empty? ? config.placeholder : str
       end
 
       def fmt_float(x) = (@fmt_float ||= "%.#{config.digits}f") % x

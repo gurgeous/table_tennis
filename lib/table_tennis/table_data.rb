@@ -93,9 +93,6 @@ module TableTennis
     #
     def chrome_width = columns.length * 3 + 1
 
-    # this is handy for tests
-    def first_cell = rows.first&.first
-
     # for debugging
     def debug(str)
       return if !config&.debug

@@ -63,7 +63,7 @@ module TableTennis
         config = Config.new(layout: 3)
         data = TableData.new(config:, input_rows: [{a: rockets}])
         Layout.new(data).run
-        assert_equal("🚀…", data.first_cell)
+        assert_equal("🚀…", data.rows.first.first)
       end
     end
   end

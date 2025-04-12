@@ -32,6 +32,8 @@ module TableTennis
       options.each { self[_1] = _2 }
 
       yield self if block_given?
+
+      self.placeholder ||= ""
     end
 
     # readers

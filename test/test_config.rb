@@ -12,7 +12,7 @@ module TableTennis
       TableTennis.defaults = {placeholder: "foo"}
       assert_equal "foo", Config.new.placeholder
       assert_equal "bar", Config.new(placeholder: "bar").placeholder
-      assert_nil Config.new(placeholder: nil).placeholder
+      assert_equal "", Config.new(placeholder: nil).placeholder
     end
 
     def test_validation

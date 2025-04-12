@@ -19,7 +19,7 @@ module TableTennis
         paint_row_numbers if config.row_numbers
         paint_rows if config.mark || config.zebra
         paint_columns if config.color_scales
-        paint_placeholders if config.placeholder
+        paint_placeholders
       end
 
       protected
@@ -74,10 +74,9 @@ module TableTennis
       end
 
       def paint_placeholders
-        placeholder = config.placeholder
         rows.each.with_index do |row, r|
           row.each.with_index do |value, c|
-            if value == placeholder
+            if value == config.placeholder
               set_style(r:, c:, style: :chrome)
             end
           end

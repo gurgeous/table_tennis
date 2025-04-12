@@ -1,21 +1,58 @@
 module TableTennis
   module Stage
     class TestFormat < Minitest::Test
-      # REMIND: remove first_call
-      # end to end test
       def test_main
-        # find (optional) fn for each column
-        # fns = columns.map do
-        #   fn = fn(_1.type)
-        #   :"fn_#{fn}" if fn
-        # end
-        # rows.each do |row|
-        #   row.each_index do
-        #     value = row[_1]
-        #     value = send(fns[_1], value) if fns[_1]
-        #     row[_1] = value || fallback(value)
-        #   end
-        # end
+        types = %i[float int time string other]
+
+        # this column has everything!
+        kitchen_sink = [
+          1.2345, 12345, "1.2345", "12345",
+          "gub", :xyzzy,
+          "  ", nil,
+          Date.today, Time.now,
+        ]
+        # rows
+        input_rows = ([kitchen_sink] * types.length).transpose
+
+        # minimal - everything should just turn into a string
+        TableTennis::Column.any_instance.stubs(:detect_type).returns(*types)
+        f = create_format(input_rows:, digits: nil, placeholder: nil, strftime: nil).tap(&:run)
+        f.columns.each do
+          # numbers (no digits)
+          values = _1.to_a
+          if _1.type == :int
+            assert_equal %w[1.2345 12,345 1.2345 12,345 gub xyzzy], values.shift(6)
+          else
+            assert_equal %w[1.2345 12345 1.2345 12345 gub xyzzy], values.shift(6)
+          end
+          # empty (no placeholder)
+          2.times { assert_equal "", values.shift }
+          # date/time (no strftime)
+          assert_match(/^[\d-]{10}/, values.shift)
+          assert_match(/^[\d-]{10} \d\d/, values.shift)
+        end
+
+        # maximal
+        TableTennis::Column.any_instance.stubs(:detect_type).returns(*types)
+        f = create_format(input_rows:, strftime: "%Y").tap(&:run)
+        f.columns.each do
+          values = _1.to_a
+          # numbers (digits = 3)
+          numbers = values.shift(4)
+          case _1.type
+          when :float then assert_equal %w[1.234 12345.000 1.234 12345.000], numbers
+          when :int then assert_equal %w[1.2345 12,345 1.2345 12,345], numbers
+          else; assert_equal %w[1.2345 12345 1.2345 12345], numbers
+          end
+          # strings & placeholder
+          assert_equal %w[gub xyzzy NA NA], values.shift(4)
+          # date/time (strftime = %Y)
+          if _1.type == :time
+            2.times { assert_match(/^\d{4}$/, values.shift) }
+          else
+            2.times { assert_match(/^[\d-]{10}/, values.shift) }
+          end
+        end
       end
 
       # fn()
@@ -81,7 +118,7 @@ module TableTennis
         f = create_format
         # times
         [Time.now, Date.today, DateTime.now, WithStrftime.new].each do
-          assert_match(/^\d{4}-\d{2}-\d{2}$/, f.fn_time(_1))
+          assert_match(/^\d{4}$/, f.fn_time(_1))
         end
         # unsupported
         [:surprise, "   ", "gub", nil].each do
@@ -92,11 +129,6 @@ module TableTennis
       #
       # primitives
       #
-
-      def test_placeholder
-        assert_equal "foo", create_format(placeholder: "foo").placeholder
-        assert_equal "", create_format(placeholder: nil).placeholder
-      end
 
       def test_fallback
         f = create_format
@@ -119,58 +151,18 @@ module TableTennis
         assert_equal("-1,234,567", f.fmt_int(-1234567))
       end
 
-      # def test_floats
-      #   # floats should be formatted to 3 by default
-      #   assert_equal "1.123", format_one(value: "1.12345")
-      #   assert_equal "1.123", format_one(value: 1.12345)
-      #   # or not
-      #   config = Config.new(digits: nil)
-      #   assert_equal "1.12345", format_one(config:, value: 1.12345)
-      #   assert_equal "1.12345", format_one(config:, value: "1.12345")
-      # end
-
-      # def test_other
-      #   assert_equal "foo", format_one(value: :foo)
-      #   assert_equal "foo bar", format_one(value: :" foo bar ")
-      # end
-
-      # def test_placeholder
-      #   config = Config.new(placeholder: "foo")
-      #   [nil, "", " "].each do |value|
-      #     assert_equal "foo", format_one(config:, value:)
-      #   end
-      # end
-
-      # def test_strftime
-      #   config = Config.new(strftime: "%Y-%m-%d") # test strftime formatting
-      #   [Time.now, Date.today, WithStrftime.new].each do |value|
-      #     assert_match(/^\d{4}-\d{2}-\d{2}$/, format_one(config:, value:))
-      #   end
-      # end
-
-      # def test_whitespace
-      #   assert_equal "foo\\nbar\\rx", format_one(value: " foo\nbar\rx ")
-      # end
-
       protected
 
       def create_format(input_rows: [], **options)
-        defaults = {placeholder: "NA", digits: 3, strftime: "%Y-%m-%d"}
+        defaults = {digits: 3, placeholder: "NA", strftime: "%Y"}
         config = Config.new(defaults.merge(options))
         data = TableData.new(config:, input_rows:)
         Format.new(data)
       end
 
-      # def format_one(value:, config: nil)
-      #   config ||= Config.new
-      #   data = TableData.new(config:, input_rows: [{value:}])
-      #   f.new(data).run
-      #   data.first_cell
-      # end
-
-      # TimeWithZone
+      # Rails TimeWithZone
       class WithStrftime
-        def strftime(_) = "9999-99-99" # hack
+        def strftime(fmt) = Time.now.strftime(fmt)
       end
     end
   end

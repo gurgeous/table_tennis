@@ -64,7 +64,7 @@ module TableTennis
     def test_inspectable
       input_rows = 7.times.map { {a: rand, b: rand} }
       data = TableData.new(input_rows:)
-      assert_match(/7 rows/, data.inspect_without_rows)
+      assert_match(/7 rows/, data.inspect)
     end
 
     class HasAttributes

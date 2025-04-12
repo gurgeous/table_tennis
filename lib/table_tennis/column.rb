@@ -6,6 +6,7 @@ module TableTennis
 
   class Column
     include Enumerable
+    include Util::Inspectable
     extend Forwardable
     prepend MemoWise
 
@@ -35,13 +36,7 @@ module TableTennis
     def map!(&block) = rows.each { _1[index] = yield(_1[index]) }
 
     # sample some cells to infer column type
-    def type
-      samples = rows.sample(100).map { _1[index] }
-      types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
-      return types.first if types.length == 1
-      return :float if types == %i[float int]
-      :mixed
-    end
+    def type = detect_type
     memo_wise :type
 
     def truncate(stop)
@@ -51,6 +46,14 @@ module TableTennis
 
     def measure
       [2, max_by(&:length)&.length, header.length].max
+    end
+
+    def detect_type
+      samples = rows.sample(100).map { _1[index] }
+      types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
+      return types.first if types.length == 1
+      return :float if types == %i[float int]
+      :other
     end
   end
 end
