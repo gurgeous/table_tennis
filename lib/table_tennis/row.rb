@@ -3,10 +3,9 @@ module TableTennis
   class Row < Array
     # r is the index of this row
     attr_reader :r
-
     def initialize(r, values)
+      super(values)
       @r = r
-      replace(values)
     end
   end
 end

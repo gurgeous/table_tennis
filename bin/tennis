@@ -5,6 +5,10 @@ $LOAD_PATH.unshift(File.join(__dir__, "../lib"))
 require "optparse"
 require "table_tennis"
 
+#
+# Standalone test bin, not shipped with gem.
+#
+
 module TableTennis
   class Main
     ROOT = File.expand_path("..", __dir__)
@@ -20,8 +24,10 @@ module TableTennis
 
     def table_options
       table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
-        _1[:color_scales] = if (column = options[:"color-scale"])
-          {column => Util::Scale::SCALES.keys.sample}
+        _1[:color_scales] = if (columns = options[:"color-scale"])
+          columns.to_h do |name|
+            [name.to_sym, Util::Scale::SCALES.keys.sample]
+          end
         end
         _1[:mark] = if options[:mark]
           ->(row) { row.to_s =~ options[:mark] }
@@ -111,8 +117,9 @@ options = {}.tap do |into|
     opts.on("--spectrum", "show supported colors")
 
     opts.separator nil
+    opts.on("-a", "--all", "don't limit rows")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
-    opts.on("--color-scale COLUMN", Symbol, "color scale a column")
+    opts.on("--color-scale COLUMN", Array, "color scale a column")
     opts.on("--columns COLUMNS", Array, "columns to include in the table")
     opts.on("--digits DIGITS", Integer, "number of digits for formatting floats")
     opts.on("--holes", "randomly nil out some cells to test placeholders")
@@ -143,7 +150,7 @@ options = {}.tap do |into|
   when /\d+/ then into[:layout].to_i + 1
   end
   into[:limit] ||= 25
-  into[:limit] = nil if into[:limit] == 0
+  into[:limit] = nil if into[:limit] == 0 || into[:all]
 end
 
 # main

@@ -32,8 +32,6 @@ module TableTennis
       options.each { self[_1] = _2 }
 
       yield self if block_given?
-
-      self.placeholder ||= ""
     end
 
     # readers
@@ -210,7 +208,12 @@ module TableTennis
     end
 
     def _str(option, value)
-      value = value.to_s if option == :title && value.is_a?(Symbol)
+      case option
+      when :placeholder
+        value = "" if value.nil?
+      when :title
+        value = value.to_s if value.is_a?(Symbol)
+      end
       validate(option, value) do
         "expected string" if !value.is_a?(String)
       end

@@ -4,14 +4,23 @@ module TableTennis
   # Floats strings?
   #
   module Util
-    module What
+    module Identify
       # Helpers for measuring and truncating strings.
       prepend MemoWise
 
       module_function
 
-      # what is this value?
-      def what_is_it(value)
+      def identify_column(values)
+        # grab 100, what do we have?
+        types = values.filter_map { identify(_1) }.uniq
+        # if only one type, we're golden
+        return types.first if types.length == 1
+        # allow float/int to act as :float
+        return :float if types.sort == %i[float int]
+      end
+
+      # Try to identify a single cell value. Peer into strings.
+      def identify(value)
         case value
         when nil, "" then return nil
         when String
@@ -23,8 +32,7 @@ module TableTennis
         when Numeric then return :int
         end
         return :time if time?(value)
-
-        :other
+        :unknown
       end
 
       # tests

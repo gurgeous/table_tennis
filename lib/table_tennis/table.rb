@@ -15,14 +15,14 @@ module TableTennis
     include Util::Inspectable
 
     attr_reader :data
-    def_delegators :data, *%i[column_names columns config input_rows rows]
+    def_delegators :data, *%i[column_names columns config rows]
     def_delegators :data, *%i[debug debug_if_slow]
 
     # Create a new table with options (see Config or README). This is typically
     # called using TableTennis.new.
-    def initialize(input_rows, options = {}, &block)
+    def initialize(rows, options = {}, &block)
       config = Config.new(options, &block)
-      @data = TableData.new(config:, input_rows:)
+      @data = TableData.new(config:, rows:)
       sanity!
       save(config.save) if config.save
     end

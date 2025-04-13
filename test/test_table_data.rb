@@ -2,13 +2,13 @@ module TableTennis
   class TestTableData < Minitest::Test
     def test_all
       # columns inferred
-      data = TableData.new(input_rows: ab)
+      data = TableData.new(rows: ab)
       assert_equal %i[a b], data.column_names
       assert_equal [[1, 2]], data.rows
 
       # columns specified
       config = Config.new(columns: %i[a])
-      data = TableData.new(config:, input_rows: ab)
+      data = TableData.new(config:, rows: ab)
       assert_equal %i[a], data.column_names
       assert_equal [[1]], data.rows
     end
@@ -19,28 +19,28 @@ module TableTennis
         [{"a" => 1}], # array of hashes (strings)
         [HasToH.new(a: 1)], # to_h
         [HasAttributes.new(a: 1)], # ActiveModel/ActiveRecord
-      ].each do |input_rows|
-        data = TableData.new(input_rows:)
+      ].each do |rows|
+        data = TableData.new(rows:)
         assert_equal [[1]], data.rows
       end
     end
 
     def test_edge_input_rows
       # an array
-      data = TableData.new(input_rows: [[1]])
+      data = TableData.new(rows: [[1]])
       assert_equal [[1]], data.rows
 
-      # a single hash. this is the only time input_rows is modified
-      data = TableData.new(input_rows: {a: 1, b: 2})
+      # a single hash. this is the only time rows is modified
+      data = TableData.new(rows: {a: 1, b: 2})
       assert_equal [[:a, 1], [:b, 2]], data.rows
       assert_equal [{key: :a, value: 1}, {key: :b, value: 2}], data.input_rows
 
       # invalid
-      assert_raises(ArgumentError) { TableData.new(input_rows: 123) }
+      assert_raises(ArgumentError) { TableData.new(rows: 123) }
     end
 
     def test_ragged_rows
-      rows = TableData.new(input_rows: [
+      rows = TableData.new(rows: [
         {a: 1, b: 2}, {a: 1},
       ]).rows
       assert_equal [[1, 2], [1, nil]], rows
@@ -50,27 +50,26 @@ module TableTennis
       assert_raises(ArgumentError) do
         # there is no column c
         config = Config.new(columns: %i[a c])
-        TableData.new(config:, input_rows: ab).columns
+        TableData.new(config:, rows: ab).columns
       end
     end
 
     def test_row_numbers
       config = Config.new(row_numbers: true)
-      data = TableData.new(config:, input_rows: [{a: 1}, {b: 2}])
+      data = TableData.new(config:, rows: [{a: 1}, {b: 2}])
       assert_equal :"#", data.columns.first.name
       assert_equal [1, 2], data.columns.first.to_a
     end
 
     def test_inspectable
-      input_rows = 7.times.map { {a: rand, b: rand} }
-      data = TableData.new(input_rows:)
+      data = TableData.new(rows: 7.times.map { {a: rand, b: rand} })
       assert_match(/7 rows/, data.inspect)
     end
 
     def test_debug
       # really just for coverage
-      TableData.new(input_rows: ab).debug("hi")
-      TableData.new(input_rows: ab).debug_if_slow("hi") {}
+      TableData.new(rows: ab).debug("hi")
+      TableData.new(rows: ab).debug_if_slow("hi") {}
     end
 
     class HasAttributes

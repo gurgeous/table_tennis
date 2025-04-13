@@ -77,7 +77,7 @@ module TableTennis
 
       def scale_numbers(c, scale)
         # focus on rows that contain values
-        focus = rows.select { Util::What.number?(_1[c]) }
+        focus = rows.select { Util::Identify.number?(_1[c]) }
         return if focus.length < 2 # edge case
         floats = focus.map { _1[c].to_f }
 
@@ -107,11 +107,12 @@ module TableTennis
         scale(c, scale, focus, t)
       end
 
+      # interpolate column c with scale, using rows+t
       def scale(c, scale, rows, t)
-        rows.zip(t).each do |row, t|
+        rows.map(&:r).zip(t).each do |r, t|
           bg = Util::Scale.interpolate(scale, t)
           fg = Util::Colors.contrast(bg)
-          set_style(r: row.r, c:, style: [fg, bg])
+          set_style(r:, c:, style: [fg, bg])
         end
       end
 

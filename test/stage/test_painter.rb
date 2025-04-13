@@ -11,7 +11,7 @@ module TableTennis
           theme: :dark,
           zebra: true
         )
-        data = TableData.new(config:, input_rows: [
+        data = TableData.new(config:, rows: [
           {a: "0", b: "0", c: "a"},
           {a: "1", b: "1", c: "b"},
           {a: "2", b: "2", c: "a"},
@@ -35,7 +35,7 @@ module TableTennis
       end
 
       def test_mark_style
-        data = TableData.new(config: Config.new, input_rows: ab)
+        data = TableData.new(config: Config.new, rows: ab)
         painter = Painter.new(data)
         [
           [true, :mark],

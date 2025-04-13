@@ -12,11 +12,11 @@ module TableTennis
           Date.today, Time.now,
         ]
         # rows
-        input_rows = ([kitchen_sink] * types.length).transpose
+        rows = ([kitchen_sink] * types.length).transpose
 
         # minimal - everything should just turn into a string
-        TableTennis::Column.any_instance.stubs(:detect_type).returns(*types)
-        f = create_format(input_rows:, digits: nil, placeholder: nil, strftime: nil).tap(&:run)
+        Util::Identify.stubs(:identify_column).returns(*types)
+        f = create_format(rows:, digits: nil, placeholder: nil, strftime: nil).tap(&:run)
         f.columns.each do
           # numbers (no digits)
           values = _1.to_a
@@ -33,8 +33,8 @@ module TableTennis
         end
 
         # maximal
-        TableTennis::Column.any_instance.stubs(:detect_type).returns(*types)
-        f = create_format(input_rows:, strftime: "%Y").tap(&:run)
+        Util::Identify.stubs(:identify_column).returns(*types)
+        f = create_format(rows:, strftime: "%Y").tap(&:run)
         f.columns.each do
           values = _1.to_a
           # numbers (digits = 3)
@@ -114,9 +114,9 @@ module TableTennis
       def test_fn_default
         f = create_format
         [
-          [nil, "NA"],
-          ["", "NA"],
-          ["   ", "NA"],
+          [nil, nil],
+          ["", nil],
+          ["   ", nil],
           ["foo", "foo"],
           [" foo\nbar\rx ", "foo\\nbar\\rx"],
         ].each do |value, exp|
@@ -138,10 +138,10 @@ module TableTennis
 
       protected
 
-      def create_format(input_rows: [], **options)
+      def create_format(rows: [], **options)
         defaults = {digits: 3, placeholder: "NA", strftime: "%Y"}
         config = Config.new(defaults.merge(options))
-        data = TableData.new(config:, input_rows:)
+        data = TableData.new(config:, rows:)
         Format.new(data)
       end
 

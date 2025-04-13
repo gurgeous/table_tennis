@@ -2,9 +2,10 @@ module TableTennis
   # A single column in a table. The data is actually stored in the rows, but it
   # can be enumerated from here.
   class Column
+    extend Forwardable
     include Enumerable
     include Util::Inspectable
-    extend Forwardable
+    prepend MemoWise
 
     # c is the column index
     attr_reader :name, :data, :c
@@ -27,8 +28,12 @@ module TableTennis
 
     def map!(&block) = rows.each { _1[c] = yield(_1[c]) }
 
-    # sample some cells to infer column type
-    def type = @type ||= detect_type
+    # what type is this column? Sample 100 rows and guess. Will be nil if we aren't sure.
+    def type
+      samples = rows.sample(100).map { _1[c] }
+      Util::Identify.identify_column(samples)
+    end
+    memo_wise :type
 
     def alignment
       case type
@@ -46,17 +51,6 @@ module TableTennis
       [2, max_by(&:length)&.length, header.length].max
     end
 
-    # sample some cells to infer column type
-    def type = @type ||= detect_type
-
     protected
-
-    def detect_type
-      samples = rows.sample(100).map { _1[c] }
-      types = samples.filter_map { Util::What.what_is_it(_1) }.uniq.sort
-      return types.first if types.length == 1
-      return :float if types == %i[float int]
-      :other
-    end
   end
 end

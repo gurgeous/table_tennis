@@ -23,7 +23,7 @@ module TableTennis
             # example, a float column and value is nil, not a float, etc.
             formatted = send(fns[_1], value)
             # If the column formatter failed, use the default formatter
-            row[_1] = formatted || fn_default(value)
+            row[_1] = formatted || fn_default(value) || config.placeholder
           end
         end
       end
@@ -34,35 +34,39 @@ module TableTennis
 
       def fn_float(value)
         case value
-        when String then fmt_float(value.to_f) if Util::What.number?(value)
+        when String then fmt_float(value.to_f) if Util::Identify.number?(value)
         when Numeric then fmt_float(value)
         end
       end
 
       def fn_int(value)
         case value
-        when String then fmt_int(value.to_i) if Util::What.int?(value)
+        when String then fmt_int(value.to_i) if Util::Identify.int?(value)
         when Integer then fmt_int(value)
         end
       end
 
       def fn_time(value)
-        value.strftime(config.strftime) if Util::What.time?(value)
+        value.strftime(config.strftime) if Util::Identify.time?(value)
       end
 
       #
       # primitives
       #
 
+      # default formatting. cleanup whitespace
       def fn_default(value)
-        return config.placeholder if value.nil?
-        # to string, normalize whitespace, honor placeholder
+        return if value.nil?
         str = (value.is_a?(String) ? value : value.to_s)
         str = str.strip.gsub("\n", "\\n").gsub("\r", "\\r") if str.match?(/\s/)
-        str.empty? ? config.placeholder : str
+        return if str.empty?
+        str
       end
 
+      # format float using config.digits
       def fmt_float(x) = (@fmt_float ||= "%.#{config.digits}f") % x
+
+      # add delimeters to an int
       def fmt_int(x) = x.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) { "#{_1}," }
     end
   end

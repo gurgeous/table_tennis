@@ -23,8 +23,8 @@ module TableTennis
 
     attr_accessor :config, :input_rows, :styles
 
-    def initialize(input_rows:, config: nil)
-      @config, @input_rows = config, input_rows
+    def initialize(rows:, config: nil)
+      @config, @input_rows = config, rows
 
       if !config && !ENV["MINITEST"]
         raise ArgumentError, "must provide a config"
