@@ -24,7 +24,7 @@ module TableTennis
 
     def table_options
       table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
-        _1[:color_scales] = if (columns = options[:"color-scale"])
+        _1[:color_scales] = if (columns = options[:color_scales])
           columns.to_h do |name|
             [name.to_sym, Util::Scale::SCALES.keys.sample]
           end
@@ -67,7 +67,7 @@ module TableTennis
       end
     end
 
-    FILES = %w[diamonds pigeon-racing starwars titanic]
+    FILES = %w[diamonds numbers igeon-racing starwars titanic]
 
     def demo
       demo = options[:demo]
@@ -84,15 +84,21 @@ module TableTennis
       # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
       rows = CSV.read("#{ROOT}/demo/#{file}.csv", headers: true).map(&:to_h)
       rows = rows.first(options[:limit]) if options[:limit]
+
+      # these can't be calculated until after the CSV is loaded
+      if options[:color_scales] == ["all"]
+        options[:color_scales] = rows.first.keys
+      end
       if options[:holes]
-        10.times do
+        holes = (rows.length * rows.first.length) / 10
+        holes.times do
           row = rows.sample
           row[row.keys.sample] = nil
         end
       end
+      options[:title] ||= file.capitalize
 
       # go
-      options[:title] ||= file.capitalize
       table = TableTennis.new(rows, table_options)
       table.render(options[:debug] ? StringIO.new : $stdout)
     end
@@ -143,6 +149,7 @@ options = {}.tap do |into|
     end
   end.parse!(into:)
   into[:action] = TableTennis::Main::ACTIONS.find { into[_1] } || :demo
+  into[:color_scales] = into.delete(:"color-scale")
   into[:columns] = into[:columns]&.map(&:to_sym)
   into[:layout] = case into[:layout]
   when "true" then true
@@ -155,3 +162,20 @@ end
 
 # main
 TableTennis::Main.new(options).main
+
+# require "securerandom"
+# puts "floats,ints,numbers,strings"
+# rows = (1..1000).map do
+#   num = ->(prob) do
+#     x = if rand < 0.5
+#       (rand * 1000000)
+#     else
+#       (rand * 1000)
+#     end.round(5)
+#     x = x.to_i if rand < prob
+#     x
+#   end
+#   f, i, n = num.call(0), num.call(1), num.call(0.5)
+#   s = SecureRandom.alphanumeric(5)
+#   puts [f, i, n, s].join(",")
+# end

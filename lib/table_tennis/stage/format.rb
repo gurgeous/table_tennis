@@ -34,14 +34,14 @@ module TableTennis
 
       def fn_float(value)
         case value
-        when String then fmt_float(value.to_f) if Util::Identify.number?(value)
+        when String then fmt_float(to_f(value)) if Util::Identify.number?(value)
         when Numeric then fmt_float(value)
         end
       end
 
       def fn_int(value)
         case value
-        when String then fmt_int(value.to_i) if Util::Identify.int?(value)
+        when String then fmt_int(to_i(value)) if Util::Identify.int?(value)
         when Integer then fmt_int(value)
         end
       end
@@ -68,6 +68,9 @@ module TableTennis
 
       # add delimeters to an int
       def fmt_int(x) = x.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) { "#{_1}," }
+
+      def to_f(str) = str.delete(",").to_f
+      def to_i(str) = str.delete(",").to_i
     end
   end
 end

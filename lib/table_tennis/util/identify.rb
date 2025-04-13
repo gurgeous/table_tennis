@@ -37,9 +37,9 @@ module TableTennis
 
       # tests
       def na?(str) = str.match?(/\A(n\/a|na|none|\s+)\Z/i)
-      def number?(str) = str.match?(/\A-?\d+(?:[.]?\d*)?\Z/)
-      def float?(str) = str.match?(/\A-?\d+[.]\d*\Z/)
-      def int?(str) = str.match?(/\A-?\d+\Z/)
+      def number?(str) = str.match?(/\A-?[\d,]+(?:[.]?\d*)?\Z/)
+      def float?(str) = str.match?(/\A-?[\d,]+[.]\d*\Z/)
+      def int?(str) = str.match?(/\A-?[\d,]+\Z/)
       def time?(value) = value.respond_to?(:strftime)
     end
   end

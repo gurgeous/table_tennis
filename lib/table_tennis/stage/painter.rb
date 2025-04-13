@@ -79,7 +79,7 @@ module TableTennis
         # focus on rows that contain values
         focus = rows.select { Util::Identify.number?(_1[c]) }
         return if focus.length < 2 # edge case
-        floats = focus.map { _1[c].to_f }
+        floats = focus.map { _1[c].delete(",").to_f }
 
         # find a "t" for each row
         min, max = floats.minmax
