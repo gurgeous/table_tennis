@@ -51,20 +51,12 @@ module TableTennis
 
       def paint_columns
         columns.each.with_index do |column, c|
-          scale = config.color_scales[column.name]
-          next if !scale
-
-          floats = column.map { _1.to_f if _1 =~ /^-?\d+(\.\d+)?$/ }
-          min, max = floats.compact.minmax
-          next if min == max # edge case
-
-          # color
-          column.each_index.zip(floats).each do |r, f|
-            next if !f
-            t = (f - min) / (max - min)
-            bg = Util::Scale.interpolate(scale, t)
-            fg = Util::Colors.contrast(bg)
-            set_style(r:, c:, style: [fg, bg])
+          if (scale = config.color_scales[column.name])
+            if column.type == :float || column.type == :int
+              scale_numbers(c, scale)
+            else
+              scale_categories(c, scale)
+            end
           end
         end
       end
@@ -76,6 +68,50 @@ module TableTennis
               set_style(r:, c:, style: :chrome)
             end
           end
+        end
+      end
+
+      #
+      # helpers
+      #
+
+      def scale_numbers(c, scale)
+        # focus on rows that contain values
+        focus = rows.select { Util::What.number?(_1[c]) }
+        return if focus.length < 2 # edge case
+        floats = focus.map { _1[c].to_f }
+
+        # find a "t" for each row
+        min, max = floats.minmax
+        return if min == max # edge case
+        t = floats.map { (_1 - min) / (max - min) }
+
+        # now interpolate
+        scale(c, scale, focus, t)
+      end
+
+      def scale_categories(c, scale)
+        # focus on rows that contain values
+        focus = rows.select { _1[c] != config.placeholder }
+
+        # find a "t" for each row
+        categories = focus.map { _1[c] }.uniq.sort
+        return if categories.length < 2 # edge case
+        categories = categories.map.with_index do |category, ii|
+          t = ii.to_f / (categories.length - 1)
+          [category, t]
+        end.to_h
+        t = focus.map { categories[_1[c]] }
+
+        # now interpolate
+        scale(c, scale, focus, t)
+      end
+
+      def scale(c, scale, rows, t)
+        rows.zip(t).each do |row, t|
+          bg = Util::Scale.interpolate(scale, t)
+          fg = Util::Colors.contrast(bg)
+          set_style(r: row.r, c:, style: [fg, bg])
         end
       end
 

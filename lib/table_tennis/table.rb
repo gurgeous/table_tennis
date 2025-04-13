@@ -7,13 +7,6 @@
 # _debug_, _digits_, _layout_, _mark_, _placeholder_, _row_numbers_, _save_,
 # _search_, _strftime_, _theme_, _title_, _zebra_
 #
-# v0.0.2
-#
-# - maybe scales can work for strings/tally?
-# - mark single color should be bg (test)
-# - render right justify floats and ints (and tests)
-# - compare against tv, csvlens & vd
-#
 
 module TableTennis
   # Public API for TableTennis.

@@ -88,9 +88,6 @@ module TableTennis
       # go
       options[:title] ||= file.capitalize
       table = TableTennis.new(rows, table_options)
-      table.columns.each do
-        puts "#{_1.name} => #{_1.type}"
-      end
       table.render(options[:debug] ? StringIO.new : $stdout)
     end
   end

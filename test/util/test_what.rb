@@ -19,8 +19,8 @@ module TableTennis
       end
 
       def test_float_helpers
-        assert Util::What.float_or_int?("1.2")
-        assert Util::What.float_or_int?("1")
+        assert Util::What.number?("1.2")
+        assert Util::What.number?("1")
         assert Util::What.float?("1.2")
         assert !Util::What.float?("1")
       end

@@ -9,7 +9,14 @@ module TableTennis
   #    account.
   # 3) Use fat_rows to calculate rows & columns.
   #
-  # Rows are hash tables and column names are symbols.
+  #  Generally we try to use this language:
+  # - `row` is a a Row, an array of cells
+  # - `column` is a Column. It doesn't store any data directly but it
+  #    can be enumerated.
+  # - `name` is a column.name
+  # - `value` is the value of a cell
+  # - `r` and `c` are row and column indexes
+  #
   class TableData
     prepend MemoWise
     include Util::Inspectable
@@ -58,7 +65,7 @@ module TableTennis
     # memoization to cache the result of fat_rows, and then we create final rows
     # with just the columns we want
     def rows
-      fat_rows.map { _1.values_at(*column_names) }
+      fat_rows.map.with_index { Row.new(_2, _1.values_at(*column_names)) }
     end
     memo_wise :rows
 

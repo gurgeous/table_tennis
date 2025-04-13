@@ -66,6 +66,17 @@ module TableTennis
         assert_match(/abc\w+…/, title_line)
       end
 
+      def test_alignment
+        [
+          [:other, /^│ a   │/],
+          [:float, /^│   a │/],
+          [:int, /^│   a │/],
+        ].each do |type, alignment|
+          Column.any_instance.stubs(:detect_type).returns(type)
+          assert_match(alignment, render_string(title: nil).split("\n")[1])
+        end
+      end
+
       protected
 
       def create_render(color: false, input_rows: nil, theme: nil, title: "xyzzy")

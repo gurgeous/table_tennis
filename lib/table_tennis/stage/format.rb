@@ -34,7 +34,7 @@ module TableTennis
 
       def fn_float(value)
         case value
-        when String then fmt_float(value.to_f) if Util::What.float_or_int?(value)
+        when String then fmt_float(value.to_f) if Util::What.number?(value)
         when Numeric then fmt_float(value)
         end
       end
