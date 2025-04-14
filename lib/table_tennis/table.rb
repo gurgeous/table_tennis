@@ -59,7 +59,7 @@ module TableTennis
         next if rows.empty? # ignore on empty data
         invalid = config[key].keys - data.column_names
         if !invalid.empty?
-          raise ArgumentError, "#{key} columns `#{invalid.join(", ")}` not found in input data"
+          raise ArgumentError, "#{key} columns `#{invalid.join(", ")}` not in (#{column_names})"
         end
       end
     end

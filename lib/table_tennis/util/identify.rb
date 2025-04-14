@@ -3,9 +3,10 @@ module TableTennis
   # This module helps to classifying columns and values. Are they floats? Dates?
   # Floats strings?
   #
+
   module Util
+    # Helpers for measuring and truncating strings.
     module Identify
-      # Helpers for measuring and truncating strings.
       prepend MemoWise
 
       module_function
@@ -13,10 +14,14 @@ module TableTennis
       def identify_column(values)
         # grab 100, what do we have?
         types = values.filter_map { identify(_1) }.uniq
-        # if only one type, we're golden
-        return types.first if types.length == 1
-        # allow float/int to act as :float
-        return :float if types.sort == %i[float int]
+        case types.length
+        when 0 # all nils, too bad
+        when 1
+          types.first # one type, it wins
+        when 2
+          :float if types.sort == %i[float int]
+        end
+        # all mixed up, can't do much with it
       end
 
       # Try to identify a single cell value. Peer into strings.

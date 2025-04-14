@@ -75,14 +75,10 @@ module TableTennis
 
     # Set the style for a cell, row or column. The "style" is a
     # theme symbol or hex color.
-    def set_style(style:, r: nil, c: nil)
-      styles[[r, c]] = style
-    end
+    def set_style(style:, r: nil, c: nil) = styles[[r, c]] = style
 
     # Get the style for a cell, row or column.
-    def get_style(r: nil, c: nil)
-      styles[[r, c]]
-    end
+    def get_style(r: nil, c: nil) = styles[[r, c]]
 
     # what is the width of the columns, not including chrome?
     def data_width = columns.sum(&:width)

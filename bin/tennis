@@ -67,7 +67,7 @@ module TableTennis
       end
     end
 
-    FILES = %w[diamonds numbers igeon-racing starwars titanic]
+    FILES = %w[diamonds numbers pigeon-racing starwars titanic]
 
     def demo
       demo = options[:demo]
