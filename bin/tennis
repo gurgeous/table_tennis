@@ -162,20 +162,3 @@ end
 
 # main
 TableTennis::Main.new(options).main
-
-# require "securerandom"
-# puts "floats,ints,numbers,strings"
-# rows = (1..1000).map do
-#   num = ->(prob) do
-#     x = if rand < 0.5
-#       (rand * 1000000)
-#     else
-#       (rand * 1000)
-#     end.round(5)
-#     x = x.to_i if rand < prob
-#     x
-#   end
-#   f, i, n = num.call(0), num.call(1), num.call(0.5)
-#   s = SecureRandom.alphanumeric(5)
-#   puts [f, i, n, s].join(",")
-# end
