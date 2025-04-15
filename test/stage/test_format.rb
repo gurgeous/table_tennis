@@ -6,7 +6,7 @@ module TableTennis
 
         # this column has everything!
         kitchen_sink = [
-          1234.5678, 1234, "-1234.5678", "-1234",
+          1234.567111, 1234, "-1234.567111", "-1234",
           "gub", :xyzzy,
           "  ", nil,
           Date.today, Time.now,
@@ -20,7 +20,7 @@ module TableTennis
         f.columns.each do
           values = _1.to_a
           # numbers - passed through verbatim
-          assert_equal %w[1234.5678 1234 -1234.5678 -1234 gub xyzzy], values.shift(6)
+          assert_equal %w[1234.567111 1234 -1234.567111 -1234 gub xyzzy], values.shift(6)
           # empty (no placeholder)
           2.times { assert_equal "", values.shift }
           # date/time (no strftime)
@@ -36,9 +36,9 @@ module TableTennis
           # numbers (digits = 3)
           numbers = values.shift(4)
           case _1.type
-          when :float then assert_equal %w[1,234.568 1,234.000 -1,234.568 -1,234.000], numbers
-          when :int then assert_equal %w[1234.5678 1,234 -1234.5678 -1,234], numbers
-          else; assert_equal %w[1234.5678 1234 -1234.5678 -1234], numbers
+          when :float then assert_equal %w[1,234.567 1,234.000 -1,234.567 -1,234.000], numbers
+          when :int then assert_equal %w[1234.567111 1,234 -1234.567111 -1,234], numbers
+          else; assert_equal %w[1234.567111 1234 -1234.567111 -1234], numbers
           end
           # strings & placeholder
           assert_equal %w[gub xyzzy NA NA], values.shift(4)
@@ -59,7 +59,8 @@ module TableTennis
         f = create_format
         [
           # floats
-          ["1.12345", "1.123"],
+          ["1234.567111", "1,234.567"],
+          ["-1234.567111", "-1,234.567"],
           ["-1.12345", "-1.123"],
           ["1.1", "1.100"],
           ["1.", "1.000"],
@@ -124,12 +125,33 @@ module TableTennis
       # primitives
       #
 
-      def test_fmt_float
+      def test_fmt_numbers
+        # default - digits & delims
         f = create_format
         assert_equal("-1.234", f.fmt_float(-1.234111))
+        assert_equal("-1,234.567", f.fmt_float(-1234.567111))
+        assert_equal("-1,234.000", f.fmt_float(-1234))
         assert_equal("1", f.fmt_int(1))
         assert_equal("1,234,567", f.fmt_int(1234567))
         assert_equal("-1,234,567", f.fmt_int(-1234567))
+
+        f = create_format(delims: false, digits: nil)
+        assert_equal("-1.234111", f.fmt_float(-1.234111))
+        assert_equal("-1234.567111", f.fmt_float(-1234.567111))
+        assert_equal("1234567", f.fmt_float(1234567)) # edge case
+        assert_equal("1234567", f.fmt_int(1234567))
+
+        f = create_format(delims: true, digits: nil)
+        assert_equal("-1.234111", f.fmt_float(-1.234111))
+        assert_equal("-1,234.567111", f.fmt_float(-1234.567111))
+        assert_equal("1,234,567", f.fmt_int(1234567))
+        assert_equal("1,234,567", f.fmt_float(1234567)) # edge case
+
+        f = create_format(delims: false, digits: 3)
+        assert_equal("-1.234", f.fmt_float(-1.234111))
+        assert_equal("-1234.567", f.fmt_float(-1234.567111))
+        assert_equal("1234567", f.fmt_int(1234567))
+        assert_equal("1234567.000", f.fmt_float(1234567)) # edge case
       end
 
       protected
