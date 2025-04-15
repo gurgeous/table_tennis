@@ -19,7 +19,7 @@ module TableTennis
         paint_row_numbers if config.row_numbers
         paint_rows if config.mark || config.zebra
         paint_columns if config.color_scales
-        paint_placeholders if config.placeholder
+        paint_placeholders
       end
 
       protected
@@ -42,41 +42,94 @@ module TableTennis
           if config.zebra? && r.even?
             style = :zebra
           end
-          if (mark_style = config.mark&.call(input_rows[r]))
-            style = mark_style.is_a?(Symbol) ? mark_style : :mark
+          if (user_mark = config.mark&.call(input_rows[r]))
+            style = mark_style(user_mark)
           end
           set_style(r:, style:) if style
         end
       end
 
+      # This is the main entry point for color scales. Color scaling is pretty simple.
+      # Scale.interpolate uses a `t` param to interpolate between the gradient colors. We pick a "t"
+      # for each cell to get the right color. For numeric columns, this is easy: t = (cell_value -
+      # min) / (max - min). For non-numeric columns, we do roughly the same thing but we pick
+      # "cell_value" by creating a sorted list of all cells in the column, then using the position
+      # of each string as the cell value. So if the column contained A..Z, A would bend up being t=0
+      # and Z would be t=1.
       def paint_columns
         columns.each.with_index do |column, c|
-          scale = config.color_scales[column.name]
-          next if !scale
-
-          floats = column.map { _1.to_f if _1 =~ /^-?\d+(\.\d+)?$/ }
-          min, max = floats.compact.minmax
-          next if min == max # edge case
-
-          # color
-          column.each_index.zip(floats).each do |r, f|
-            next if !f
-            t = (f - min) / (max - min)
-            bg = Util::Scale.interpolate(scale, t)
-            fg = Util::Colors.contrast(bg)
-            set_style(r:, c:, style: [fg, bg])
+          if (scale = config.color_scales[column.name])
+            if column.type == :float || column.type == :int
+              scale_numeric(c, scale)
+            else
+              scale_non_numeric(c, scale)
+            end
           end
         end
       end
 
       def paint_placeholders
-        placeholder = config.placeholder
         rows.each.with_index do |row, r|
-          row.each_value.with_index do |value, c|
-            if value == placeholder
+          row.each.with_index do |value, c|
+            if value == config.placeholder
               set_style(r:, c:, style: :chrome)
             end
           end
+        end
+      end
+
+      #
+      # helpers
+      #
+
+      def scale_numeric(c, scale)
+        # focus on rows that contain values
+        focus = rows.select { Util::Identify.number?(_1[c]) }
+        return if focus.length < 2 # edge case
+        floats = focus.map { _1[c].delete(",").to_f }
+
+        # find a "t" for each row
+        min, max = floats.minmax
+        return if min == max # edge case
+        t = floats.map { (_1 - min) / (max - min) }
+
+        # now interpolate
+        scale(c, scale, focus, t)
+      end
+
+      def scale_non_numeric(c, scale)
+        # focus on rows that contain values
+        focus = rows.select { _1[c] != config.placeholder }
+
+        # find a "t" for each row. since this column is non-numeric, we create a sorted list of all
+        # values in the column and use the position of each cell value to calculate t. So if the
+        # column contained A..Z, A would end up being t=0 and Z would be t=1.
+        all_values = focus.map { _1[c] }.uniq.sort
+        return if all_values.length < 2 # edge case
+        all_values = all_values.map.with_index do |value, ii|
+          t = ii.to_f / (all_values.length - 1)
+          [value, t]
+        end.to_h
+        t = focus.map { all_values[_1[c]] }
+
+        # now interpolate
+        scale(c, scale, focus, t)
+      end
+
+      # interpolate column c to paint a color scale
+      def scale(c, scale, rows, t)
+        rows.map(&:r).zip(t).each do |r, t|
+          bg = Util::Scale.interpolate(scale, t)
+          fg = Util::Colors.contrast(bg)
+          set_style(r:, c:, style: [fg, bg])
+        end
+      end
+
+      def mark_style(user_mark)
+        case user_mark
+        when String, Symbol then [nil, user_mark] # assume bg color
+        when Array then user_mark # a Paint array
+        else; :mark # default
         end
       end
     end

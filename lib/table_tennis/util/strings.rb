@@ -9,6 +9,15 @@ module TableTennis
       # strip ansi codes
       def unpaint(str) = str.gsub(/\e\[[0-9;]*m/, "")
 
+      # similar to rails titleize
+      def titleize(str)
+        str = str.gsub(/_id$/, "") # remove _id
+        str = str.tr("_", " ") # remove underscores
+        str = str.gsub(/(\w)([A-Z])/, '\1 \2') # OneTwo => One Two
+        str = str.split.map(&:capitalize).join(" ") # capitalize
+        str
+      end
+
       def width(text)
         simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
       end
@@ -38,9 +47,10 @@ module TableTennis
 
           # we've gone too far. do we need to pop for the ellipsis?
           text = list[0, _1]
-          text.pop if w == 1
+          text.pop if width - w == stop
           return "#{text.join}…"
         end
+
         text
       end
 

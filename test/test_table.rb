@@ -3,7 +3,7 @@ module TableTennis
     def test_main
       table = TableTennis.new([{a: 1, b: 2}])
       assert_equal %i[a b], table.columns.map(&:name)
-      assert_equal [{a: 1, b: 2}], table.rows
+      assert_equal [[1, 2]], table.rows
 
       # to_s
       lines = table.to_s.split("\n").map { Util::Strings.unpaint(_1) }

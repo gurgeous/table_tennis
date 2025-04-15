@@ -12,7 +12,7 @@ module TableTennis
       TableTennis.defaults = {placeholder: "foo"}
       assert_equal "foo", Config.new.placeholder
       assert_equal "bar", Config.new(placeholder: "bar").placeholder
-      assert_nil Config.new(placeholder: nil).placeholder
+      assert_equal "", Config.new(placeholder: nil).placeholder
     end
 
     def test_validation
@@ -41,6 +41,7 @@ module TableTennis
       assert_config_no_raise(:theme, :light)
       assert_config_no_raise(:title, :foo)
       assert_config_no_raise(:title, "foo")
+      assert_config_no_raise(:titleize, true)
       assert_config_no_raise(:zebra, true)
 
       # and some things that don't

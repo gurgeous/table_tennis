@@ -5,6 +5,10 @@ $LOAD_PATH.unshift(File.join(__dir__, "../lib"))
 require "optparse"
 require "table_tennis"
 
+#
+# Standalone test bin, not shipped with gem.
+#
+
 module TableTennis
   class Main
     ROOT = File.expand_path("..", __dir__)
@@ -20,8 +24,10 @@ module TableTennis
 
     def table_options
       table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
-        _1[:color_scales] = if (column = options[:"color-scale"])
-          {column => Util::Scale::SCALES.keys.sample}
+        _1[:color_scales] = if (columns = options[:color_scales])
+          columns.to_h do |name|
+            [name.to_sym, Util::Scale::SCALES.keys.sample]
+          end
         end
         _1[:mark] = if options[:mark]
           ->(row) { row.to_s =~ options[:mark] }
@@ -61,20 +67,36 @@ module TableTennis
       end
     end
 
-    def demo
-      # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
-      rows = CSV.read("#{ROOT}/samples/starwars.csv", headers: true).map(&:to_h)
-      rows = rows.first(options[:limit]) if options[:limit]
-      rows = rows.sort_by { |row| row["z"] }
+    FILES = %w[diamonds numbers pigeon-racing starwars titanic]
 
-      # options[:layout] = {films: 32}
-      # options[:title] ||= "Star Wars People"
+    def demo
+      demo = options[:demo]
+      file = case demo
+      when nil then FILES.first
+      when /^\d+$/ then FILES[demo.to_i]
+      when String then FILES.find { _1.start_with?(demo) }
+      end
+      if !FILES.include?(file)
+        puts "#{demo} must be one of #{FILES.join(", ")}"
+        exit 1
+      end
+
+      # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
+      rows = CSV.read("#{ROOT}/demo/#{file}.csv", headers: true).map(&:to_h)
+      rows = rows.first(options[:limit]) if options[:limit]
+
+      # these can't be calculated until after the CSV is loaded
+      if options[:color_scales] == ["all"]
+        options[:color_scales] = rows.first.keys
+      end
       if options[:holes]
-        10.times do
+        holes = (rows.length * rows.first.length) / 10
+        holes.times do
           row = rows.sample
           row[row.keys.sample] = nil
         end
       end
+      options[:title] ||= file.capitalize
 
       # go
       table = TableTennis.new(rows, table_options)
@@ -94,15 +116,16 @@ options = {}.tap do |into|
 
     opts.separator nil
     opts.separator "run one of these actions:"
-    opts.on("--demo", "show a sample table (default)")
+    opts.on("--demo NAME", "show one of the tables from demo/*.csv (default)")
     opts.on("--empty", "show an empty table")
     opts.on("--scales", "show all color scales")
     opts.on("--term", "debug terminal background")
     opts.on("--spectrum", "show supported colors")
 
     opts.separator nil
+    opts.on("-a", "--all", "don't limit rows")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
-    opts.on("--color-scale COLUMN", Symbol, "color scale a column")
+    opts.on("--color-scale COLUMN", Array, "color scale a column")
     opts.on("--columns COLUMNS", Array, "columns to include in the table")
     opts.on("--digits DIGITS", Integer, "number of digits for formatting floats")
     opts.on("--holes", "randomly nil out some cells to test placeholders")
@@ -115,6 +138,7 @@ options = {}.tap do |into|
     opts.on("--search REGEX", Regexp, "search cells for this regex")
     opts.on("--theme THEME", %w[dark light ansi], Symbol, "set theme to dark, light, or ansi")
     opts.on("--title TITLE", "set title for table")
+    opts.on("--titleize", "titleize column names")
     opts.on("--zebra", "turn on zebra stripes")
 
     opts.separator nil
@@ -125,14 +149,15 @@ options = {}.tap do |into|
     end
   end.parse!(into:)
   into[:action] = TableTennis::Main::ACTIONS.find { into[_1] } || :demo
+  into[:color_scales] = into.delete(:"color-scale")
   into[:columns] = into[:columns]&.map(&:to_sym)
   into[:layout] = case into[:layout]
   when "true" then true
   when "false" then false
-  when /\d+/ then into[:layout].to_i
+  when /\d+/ then into[:layout].to_i + 1
   end
   into[:limit] ||= 25
-  into[:limit] = nil if into[:limit] == 0
+  into[:limit] = nil if into[:limit] == 0 || into[:all]
 end
 
 # main

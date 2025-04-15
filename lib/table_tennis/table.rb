@@ -15,14 +15,14 @@ module TableTennis
     include Util::Inspectable
 
     attr_reader :data
-    def_delegators :data, *%i[column_names columns config input_rows rows]
+    def_delegators :data, *%i[column_names columns config rows]
     def_delegators :data, *%i[debug debug_if_slow]
 
     # Create a new table with options (see Config or README). This is typically
     # called using TableTennis.new.
-    def initialize(input_rows, options = {}, &block)
+    def initialize(rows, options = {}, &block)
       config = Config.new(options, &block)
-      @data = TableData.new(config:, input_rows:)
+      @data = TableData.new(config:, rows:)
       sanity!
       save(config.save) if config.save
     end
@@ -41,7 +41,7 @@ module TableTennis
     def save(path)
       headers = column_names
       CSV.open(path, "wb", headers:, write_headers: true) do |csv|
-        rows.each { csv << _1.values }
+        rows.each { csv << _1 }
       end
     end
 
@@ -59,7 +59,7 @@ module TableTennis
         next if rows.empty? # ignore on empty data
         invalid = config[key].keys - data.column_names
         if !invalid.empty?
-          raise ArgumentError, "#{key} columns `#{invalid.join(", ")}` not found in input data"
+          raise ArgumentError, "#{key} columns `#{invalid.join(", ")}` not in (#{column_names})"
         end
       end
     end

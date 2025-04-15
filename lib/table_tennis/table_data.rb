@@ -9,15 +9,22 @@ module TableTennis
   #    account.
   # 3) Use fat_rows to calculate rows & columns.
   #
-  # Rows are hash tables and column names are symbols.
+  #  Generally we try to use this language:
+  # - `row` is a a Row, an array of cells
+  # - `column` is a Column. It doesn't store any data directly but it
+  #    can be enumerated.
+  # - `name` is a column.name
+  # - `value` is the value of a cell
+  # - `r` and `c` are row and column indexes
+  #
   class TableData
     prepend MemoWise
     include Util::Inspectable
 
     attr_accessor :config, :input_rows, :styles
 
-    def initialize(input_rows:, config: nil)
-      @config, @input_rows = config, input_rows
+    def initialize(rows:, config: nil)
+      @config, @input_rows = config, rows
 
       if !config && !ENV["MINITEST"]
         raise ArgumentError, "must provide a config"
@@ -45,7 +52,7 @@ module TableTennis
           raise ArgumentError, "specified column `#{name}` not found in any row of input data"
         end
       end
-      names.map { Column.new(_1, self) }
+      names.map.with_index { Column.new(self, _1, _2) }
     end
     memo_wise :columns
 
@@ -58,7 +65,7 @@ module TableTennis
     # memoization to cache the result of fat_rows, and then we create final rows
     # with just the columns we want
     def rows
-      fat_rows.map { Row.new(column_names, _1) }
+      fat_rows.map.with_index { Row.new(_2, _1.values_at(*column_names)) }
     end
     memo_wise :rows
 
@@ -68,14 +75,10 @@ module TableTennis
 
     # Set the style for a cell, row or column. The "style" is a
     # theme symbol or hex color.
-    def set_style(style:, r: nil, c: nil)
-      styles[[r, c]] = style
-    end
+    def set_style(style:, r: nil, c: nil) = styles[[r, c]] = style
 
     # Get the style for a cell, row or column.
-    def get_style(r: nil, c: nil)
-      styles[[r, c]]
-    end
+    def get_style(r: nil, c: nil) = styles[[r, c]]
 
     # what is the width of the columns, not including chrome?
     def data_width = columns.sum(&:width)
@@ -92,9 +95,6 @@ module TableTennis
     #                                            extra chrome char at the end
     #
     def chrome_width = columns.length * 3 + 1
-
-    # this is handy for tests
-    def first_cell = rows.first.values&.first
 
     # for debugging
     def debug(str)

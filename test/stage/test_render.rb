@@ -50,8 +50,8 @@ module TableTennis
 
       # no rows or no cols? this can happen for sure
       def test_empty
-        [[], [{}, {}, {}, {}]].each do |input_rows|
-          lines = render_string(input_rows:).split("\n")
+        [[], [{}, {}, {}, {}]].each do |rows|
+          lines = render_string(rows:).split("\n")
           assert_match(/^╭─+╮$/, lines[ii = 0]) # sep
           assert_match(/^│ +xyzzy +│$/, lines[ii += 1]) # title
           assert_match(/^├─+┤$/, lines[ii += 1]) # sep
@@ -66,12 +66,24 @@ module TableTennis
         assert_match(/abc\w+…/, title_line)
       end
 
+      def test_alignment
+        [
+          [:float, /^│   a │/],
+          [:int, /^│   a │/],
+          [:unknown, /^│ a   │/],
+          [nil, /^│ a   │/],
+        ].each do |type, alignment|
+          Column.any_instance.stubs(:type).returns(type)
+          assert_match(alignment, render_string(title: nil).split("\n")[1])
+        end
+      end
+
       protected
 
-      def create_render(color: false, input_rows: nil, theme: nil, title: "xyzzy")
-        input_rows ||= [{a: "1", b: " "}]
+      def create_render(color: false, rows: nil, theme: nil, title: "xyzzy")
+        rows ||= [{a: "1", b: " "}]
         config = Config.new(color:, theme:, title:)
-        data = TableData.new(config:, input_rows:)
+        data = TableData.new(config:, rows:)
         if data.columns.length >= 2
           data.columns[0].width = 3
           data.columns[1].width = 3
@@ -79,8 +91,8 @@ module TableTennis
         Render.new(data)
       end
 
-      def render_string(color: false, input_rows: nil, theme: nil, title: "xyzzy")
-        render = create_render(color:, input_rows:, theme:, title:)
+      def render_string(color: false, rows: nil, theme: nil, title: "xyzzy")
+        render = create_render(color:, rows:, theme:, title:)
         StringIO.new.tap { render.run(_1) }.string
       end
     end

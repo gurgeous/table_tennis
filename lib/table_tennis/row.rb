@@ -1,9 +1,11 @@
 module TableTennis
-  # A single table row (a hash). Doesn't have much behavior.
-  class Row < Hash
-    def initialize(column_names, fat_row)
-      super()
-      column_names.each { self[_1] = fat_row[_1] }
+  # We use this to store each row of data in the table. Row is an array, but with `r` too.
+  class Row < Array
+    # r is the index of this row
+    attr_reader :r
+    def initialize(r, values)
+      super(values)
+      @r = r
     end
   end
 end

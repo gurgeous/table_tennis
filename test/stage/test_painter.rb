@@ -4,34 +4,48 @@ module TableTennis
       def test_main
         config = Config.new(
           color: true,
-          color_scales: {b: :rg},
+          color_scales: {b: :rg, c: :y},
           mark: ->(row) { row[:a] == "0" },
           placeholder: "NA",
           row_numbers: true,
           theme: :dark,
           zebra: true
         )
-        data = TableData.new(config:, input_rows: [
-          {a: "0", b: "0"},
-          {a: "1", b: "1"},
-          {a: "2", b: "2"},
-          {a: "3", b: "3"},
-          {a: "NA", b: "4"},
+        data = TableData.new(config:, rows: [
+          {a: "0", b: "0", c: "a"},
+          {a: "1", b: "1", c: "b"},
+          {a: "2", b: "2", c: "a"},
+          {a: "3", b: "3", c: "b"},
+          {a: "NA", b: "4", c: "NA"},
+          # ^^ gotta fill in the placeholder manually, no formatting stage
         ])
         Painter.new(data).run
 
         # row numbers
         assert_equal :chrome, data.get_style(c: 0)
-        # color scale
+        # color scale numbers & categories
         assert (0..3).all? { data.get_style(r: _1, c: 2) != nil }
+        assert (0..3).all? { data.get_style(r: _1, c: 3) != nil }
         # mark/zebra
         [:mark, nil, :zebra, nil, :zebra].each_with_index do |style, r|
           assert_equal style, data.get_style(r:), "row #{r}"
         end
-        # cell
-        assert_equal :chrome, data.get_style(r: 4, c: 1)
         # placeholder
         assert_equal :chrome, data.get_style(r: 4, c: 1)
+      end
+
+      def test_mark_style
+        data = TableData.new(config: Config.new, rows: ab)
+        painter = Painter.new(data)
+        [
+          [true, :mark],
+          [123, :mark],
+          ["red", [nil, "red"]],
+          [:red, [nil, :red]],
+          [%i[blue green], %i[blue green]],
+        ].each do |user_mark, exp|
+          assert_equal exp, painter.send(:mark_style, user_mark)
+        end
       end
     end
   end

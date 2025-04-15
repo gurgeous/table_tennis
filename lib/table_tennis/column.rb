@@ -1,33 +1,46 @@
 module TableTennis
-  #
   # A single column in a table. The data is actually stored in the rows, but it
-  # can be enumerated from here. Mostly used for layout calculations.
-  #
-
+  # can be enumerated from here.
   class Column
+    extend Forwardable
     include Enumerable
+    include Util::Inspectable
     prepend MemoWise
 
-    attr_reader :name
+    # c is the column index
+    attr_reader :name, :data, :c
     attr_accessor :header, :width
+    def_delegators :data, *%i[rows]
 
-    def initialize(name, data)
-      @name, @data = name, data
+    def initialize(data, name, c)
+      @name, @data, @c = name, data, c
       @header = name.to_s
+      if data&.config&.titleize?
+        @header = Util::Strings.titleize(@header)
+      end
     end
 
     def each(&block)
       return to_enum(__method__) unless block_given?
-      @data.rows.each { yield(_1[name]) }
+      rows.each { yield(_1[c]) }
       self
     end
 
-    def each_index(&block)
-      return to_enum(__method__) unless block_given?
-      @data.rows.each_index { yield(_1) }
-    end
+    def map!(&block) = rows.each { _1[c] = yield(_1[c]) }
 
-    def map!(&block) = @data.rows.each { _1[name] = yield(_1[name]) }
+    # what type is this column? Sample 100 rows and guess. Will be nil if we aren't sure.
+    def type
+      samples = rows.sample(100).map { _1[c] }
+      Util::Identify.identify_column(samples)
+    end
+    memo_wise :type
+
+    def alignment
+      case type
+      when :float, :int then :right
+      else :left
+      end
+    end
 
     def truncate(stop)
       @header = Util::Strings.truncate(header, stop)

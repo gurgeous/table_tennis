@@ -24,6 +24,7 @@ require "table_tennis/stage/painter"
 require "table_tennis/stage/render"
 
 require "table_tennis/util/colors"
+require "table_tennis/util/identify"
 require "table_tennis/util/scale"
 require "table_tennis/util/strings"
 require "table_tennis/util/termbg"

@@ -10,6 +10,7 @@ module TableTennis
       color: nil, # true/false/nil (detect)
       columns: nil, # array of symbols, or inferred from rows
       debug: false, # true for debug output
+      delims: true, # true for numeric delimeters
       digits: 3, # format floats
       layout: true, # true/false/int or hash of columns -> width. true to infer
       mark: nil, # lambda returning boolean or symbol to mark rows in output
@@ -20,6 +21,7 @@ module TableTennis
       strftime: nil, # string for formatting dates
       theme: nil,  # :dark, :light or :ansi. :dark is the default
       title: nil, # string for table title, if any
+      titleize: false, # if true, titleize column names
       zebra: false, # turn on zebra stripes
     }.freeze
 
@@ -43,6 +45,7 @@ module TableTennis
     {
       color: :bool,
       debug: :bool,
+      delims: :bool,
       digits: :int,
       mark: :proc,
       placeholder: :str,
@@ -50,6 +53,7 @@ module TableTennis
       save: :str,
       strftime: :str,
       title: :str,
+      titleize: :bool,
       zebra: :bool,
     }.each do |option, type|
       define_method(:"#{option}=") do |value|
@@ -206,7 +210,12 @@ module TableTennis
     end
 
     def _str(option, value)
-      value = value.to_s if option == :title && value.is_a?(Symbol)
+      case option
+      when :placeholder
+        value = "" if value.nil?
+      when :title
+        value = value.to_s if value.is_a?(Symbol)
+      end
       validate(option, value) do
         "expected string" if !value.is_a?(String)
       end

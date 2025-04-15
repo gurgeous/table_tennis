@@ -2,6 +2,8 @@ module TableTennis
   module Util
     # Named color names and misc color helpers.
     module Colors
+      prepend MemoWise
+
       module_function
 
       NAMED = {
@@ -444,6 +446,7 @@ module TableTennis
       def contrast(bg)
         dark?(bg) ? "white" : "black"
       end
+      memo_wise self: :contrast
 
       # [r,g,b] => "#rrggbb"
       def to_hex(rgb)
@@ -452,7 +455,7 @@ module TableTennis
 
       # "#?(rgb|rrggbb|rrrrggggbbbb)" => [r,g,b]
       def to_rgb(hex)
-        if !hex.match(/\A#?([0-9a-f]+)\z/i)
+        if !hex.match(/\A#?([0-9a-f]+)\Z/i)
           return
         end
         hex = $1

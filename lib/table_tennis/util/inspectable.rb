@@ -3,10 +3,9 @@ module TableTennis
     # A mixin to avoid putting all row data into xxx.inspect. This makes
     # development much easier.
     module Inspectable
-      def inspect = ENV["MINITEST"] ? super : inspect_without_rows
-
-      def inspect_without_rows
+      def inspect
         vars = instance_variables.filter_map do
+          next if _1 == :@data || _1 == :@_memo_wise
           value = instance_variable_get(_1)
           if value.is_a?(Array) && _1.to_s =~ /rows$/
             value = if value.length == 1

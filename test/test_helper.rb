@@ -49,6 +49,8 @@ class Minitest::Test
 
   protected
 
+  def ab = [{a: 1, b: 2}]
+
   def reset_memo_wise!
     @memoized ||= ObjectSpace.each_object(Module).select { _1.included_modules.include? MemoWise }
     @memoized.each do
