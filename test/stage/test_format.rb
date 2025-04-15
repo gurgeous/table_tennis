@@ -125,33 +125,41 @@ module TableTennis
       # primitives
       #
 
-      def test_fmt_numbers
-        # default - digits & delims
+      def test_fmt_number
+        # f = create_format
+        # tm = Time.now
+        # # 0.234
+        # 1_000_000.times { f.fmt_number(-1000, digits: 3) }
+        # printf("\nbm %0.3f\n", Time.now - tm)
+
+        # digits = false
         f = create_format
-        assert_equal("-1.234", f.fmt_float(-1.234111))
-        assert_equal("-1,234.567", f.fmt_float(-1234.567111))
-        assert_equal("-1,234.000", f.fmt_float(-1234))
-        assert_equal("1", f.fmt_int(1))
-        assert_equal("1,234,567", f.fmt_int(1234567))
-        assert_equal("-1,234,567", f.fmt_int(-1234567))
+        [
+          [1234, "1,234"],
+          [0.0, "0"],
+          [0.1234, "0.1234"],
+          [1234.1234, "1,234.1234"],
+          [-1234.1234, "-1,234.1234"],
+        ].each do |x, exp|
+          assert_equal(exp, f.fmt_number(x), "with #{x}")
+        end
 
-        f = create_format(delims: false, digits: nil)
-        assert_equal("-1.234111", f.fmt_float(-1.234111))
-        assert_equal("-1234.567111", f.fmt_float(-1234.567111))
-        assert_equal("1234567", f.fmt_float(1234567)) # edge case
-        assert_equal("1234567", f.fmt_int(1234567))
+        # digits = 3
+        f = create_format
+        [
+          [1234, "1,234.000"],
+          [0.0, "0.000"],
+          [0.1234, "0.123"],
+          [1234.1234, "1,234.123"],
+          [-1234.1234, "-1,234.123"],
+        ].each do |x, exp|
+          assert_equal(exp, f.fmt_number(x, digits: 3), "with #{x}")
+        end
 
-        f = create_format(delims: true, digits: nil)
-        assert_equal("-1.234111", f.fmt_float(-1.234111))
-        assert_equal("-1,234.567111", f.fmt_float(-1234.567111))
-        assert_equal("1,234,567", f.fmt_int(1234567))
-        assert_equal("1,234,567", f.fmt_float(1234567)) # edge case
-
-        f = create_format(delims: false, digits: 3)
-        assert_equal("-1.234", f.fmt_float(-1.234111))
-        assert_equal("-1234.567", f.fmt_float(-1234.567111))
-        assert_equal("1234567", f.fmt_int(1234567))
-        assert_equal("1234567.000", f.fmt_float(1234567)) # edge case
+        f = create_format(delims: false)
+        assert_equal("1234", f.fmt_number(1234))
+        assert_equal("1234.1234", f.fmt_number(1234.1234))
+        assert_equal("1234.123", f.fmt_number(1234.1234, digits: 3))
       end
 
       protected

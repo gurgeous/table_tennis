@@ -71,7 +71,7 @@ options = {
 | `color_scales` | ─ | Color code a column of floats, similar to the "conditional formatting" feature in Google Sheets. See [docs below](#color-scales). |
 | `color` | `nil` | Are ANSI colors enabled? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`. |
 | `columns` | `nil` | Manually set which columns to include. Leave unset to show all columns.
-| `delims` | true | Format ints & floats with commas, like 123,456. |
+| `delims` | true | Format ints & floats with comma delimiter, like 123,456. |
 | `digits` | `3` | Format floats to this number of digits. TableTennis will look for either `Float` cells or string floats. |
 | `layout` | `true` | This controls column widths. Leave unset or use `true` for autolayout. Autolayout will shrink the table to fit inside the terminal. `false` turns off layout and columns will be full width. Use an int to fix all columns to a certain width, or a hash to just set a few. |
 | `mark` | ─ | `mark` is a way to highlight specific columns with a nice color. For example, use `mark: ->(row) { row[:planet] == "tatooine" }` to highlight those rows. Your lambda can also return a specific color if you want.

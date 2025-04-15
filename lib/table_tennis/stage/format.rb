@@ -34,15 +34,15 @@ module TableTennis
 
       def fn_float(value)
         case value
-        when String then fmt_float(to_f(value)) if Util::Identify.number?(value)
-        when Numeric then fmt_float(value)
+        when String then fmt_number(to_f(value), digits: config.digits) if Util::Identify.number?(value)
+        when Numeric then fmt_number(value, digits: config.digits)
         end
       end
 
       def fn_int(value)
         case value
-        when String then fmt_int(to_i(value)) if Util::Identify.int?(value)
-        when Integer then fmt_int(value)
+        when String then fmt_number(to_i(value)) if Util::Identify.int?(value)
+        when Integer then fmt_number(value)
         end
       end
 
@@ -65,30 +65,25 @@ module TableTennis
 
       DELIMS = /(\d)(?=(\d\d\d)+(?!\d))/
 
-      # format ints using config.delims
-      def fmt_int(x)
-        x = x.to_s
-        x.gsub!(DELIMS) { "#{_1}," } if config.delims
-        x
-      end
+      # this is a bit slow but easy to understand
+      def fmt_number(x, digits: nil)
+        delims = config.delims && (x >= 1000 || x <= -1000)
 
-      # format floats (or ints) using config.digits & config.delims
-      def fmt_float(x)
-        x = if config.digits
-          @fmt_float ||= "%.#{config.digits}f"
-          @fmt_float % x
-        elsif x % 1 == 0
-          # this float is actually an int - avoid accidental ".0" in the result
-          x.to_i.to_s
+        # convert to string (and honor digits)
+        x = if digits
+          "%0.#{digits}f" % x
         else
+          # be careful not to leave a trailing .0
+          x = x.to_i if x.is_a?(Float) && (x % 1) == 0
           x.to_s
         end
-        if config.delims
-          left, right = x.split(".")
-          left.gsub!(DELIMS) { "#{_1}," }
-          x = left
-          x = "#{x}.#{right}" if right
+
+        if delims
+          x, r = x.split(".")
+          x.gsub!(DELIMS) { "#{_1}," }
+          x = "#{x}.#{r}" if r
         end
+
         x
       end
 
