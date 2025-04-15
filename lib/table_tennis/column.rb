@@ -50,7 +50,5 @@ module TableTennis
     def measure
       [2, max_by(&:length)&.length, header.length].max
     end
-
-    protected
   end
 end

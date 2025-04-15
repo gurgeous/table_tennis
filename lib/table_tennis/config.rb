@@ -10,6 +10,7 @@ module TableTennis
       color: nil, # true/false/nil (detect)
       columns: nil, # array of symbols, or inferred from rows
       debug: false, # true for debug output
+      delims: true, # true for numeric delimeters
       digits: 3, # format floats
       layout: true, # true/false/int or hash of columns -> width. true to infer
       mark: nil, # lambda returning boolean or symbol to mark rows in output
@@ -44,6 +45,7 @@ module TableTennis
     {
       color: :bool,
       debug: :bool,
+      delims: :bool,
       digits: :int,
       mark: :proc,
       placeholder: :str,

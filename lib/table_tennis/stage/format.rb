@@ -9,7 +9,7 @@ module TableTennis
         # use for each column.
         fns = columns.map do
           fn = case _1.type
-          when :float then :fn_float if config.digits
+          when :float then :fn_float
           when :int then :fn_int
           when :time then :fn_time if config.strftime
           end
@@ -63,12 +63,36 @@ module TableTennis
         str
       end
 
-      # format float using config.digits
-      def fmt_float(x) = (@fmt_float ||= "%.#{config.digits}f") % x
+      DELIMS = /(\d)(?=(\d\d\d)+(?!\d))/
 
-      # add delimeters to an int
-      def fmt_int(x) = x.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) { "#{_1}," }
+      # format ints using config.delims
+      def fmt_int(x)
+        x = x.to_s
+        x.gsub!(DELIMS) { "#{_1}," } if config.delims
+        x
+      end
 
+      # format floats (or ints) using config.digits & config.delims
+      def fmt_float(x)
+        x = if config.digits
+          @fmt_float ||= "%.#{config.digits}f"
+          @fmt_float % x
+        elsif x % 1 == 0
+          # this float is actually an int - avoid accidental ".0" in the result
+          x.to_i.to_s
+        else
+          x.to_s
+        end
+        if config.delims
+          left, right = x.split(".")
+          left.gsub!(DELIMS) { "#{_1}," }
+          x = left
+          x = "#{x}.#{right}" if right
+        end
+        x
+      end
+
+      # str to_xxx that are resistant to commas
       def to_f(str) = str.delete(",").to_f
       def to_i(str) = str.delete(",").to_i
     end

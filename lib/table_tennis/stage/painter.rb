@@ -49,13 +49,20 @@ module TableTennis
         end
       end
 
+      # This is the main entry point for color scales. Color scaling is pretty simple.
+      # Scale.interpolate uses a `t` param to interpolate between the gradient colors. We pick a "t"
+      # for each cell to get the right color. For numeric columns, this is easy: t = (cell_value -
+      # min) / (max - min). For non-numeric columns, we do roughly the same thing but we pick
+      # "cell_value" by creating a sorted list of all cells in the column, then using the position
+      # of each string as the cell value. So if the column contained A..Z, A would bend up being t=0
+      # and Z would be t=1.
       def paint_columns
         columns.each.with_index do |column, c|
           if (scale = config.color_scales[column.name])
             if column.type == :float || column.type == :int
-              scale_numbers(c, scale)
+              scale_numeric(c, scale)
             else
-              scale_categories(c, scale)
+              scale_non_numeric(c, scale)
             end
           end
         end
@@ -75,7 +82,7 @@ module TableTennis
       # helpers
       #
 
-      def scale_numbers(c, scale)
+      def scale_numeric(c, scale)
         # focus on rows that contain values
         focus = rows.select { Util::Identify.number?(_1[c]) }
         return if focus.length < 2 # edge case
@@ -90,24 +97,26 @@ module TableTennis
         scale(c, scale, focus, t)
       end
 
-      def scale_categories(c, scale)
+      def scale_non_numeric(c, scale)
         # focus on rows that contain values
         focus = rows.select { _1[c] != config.placeholder }
 
-        # find a "t" for each row
-        categories = focus.map { _1[c] }.uniq.sort
-        return if categories.length < 2 # edge case
-        categories = categories.map.with_index do |category, ii|
-          t = ii.to_f / (categories.length - 1)
-          [category, t]
+        # find a "t" for each row. since this column is non-numeric, we create a sorted list of all
+        # values in the column and use the position of each cell value to calculate t. So if the
+        # column contained A..Z, A would end up being t=0 and Z would be t=1.
+        all_values = focus.map { _1[c] }.uniq.sort
+        return if all_values.length < 2 # edge case
+        all_values = all_values.map.with_index do |value, ii|
+          t = ii.to_f / (all_values.length - 1)
+          [value, t]
         end.to_h
-        t = focus.map { categories[_1[c]] }
+        t = focus.map { all_values[_1[c]] }
 
         # now interpolate
         scale(c, scale, focus, t)
       end
 
-      # interpolate column c with scale, using rows+t
+      # interpolate column c to paint a color scale
       def scale(c, scale, rows, t)
         rows.map(&:r).zip(t).each do |r, t|
           bg = Util::Scale.interpolate(scale, t)

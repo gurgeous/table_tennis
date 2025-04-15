@@ -6,7 +6,7 @@ module TableTennis
 
         # this column has everything!
         kitchen_sink = [
-          1.2345, 12345, "1.2345", "12345",
+          1234.5678, 1234, "-1234.5678", "-1234",
           "gub", :xyzzy,
           "  ", nil,
           Date.today, Time.now,
@@ -16,15 +16,11 @@ module TableTennis
 
         # minimal - everything should just turn into a string
         Util::Identify.stubs(:identify_column).returns(*types)
-        f = create_format(rows:, digits: nil, placeholder: nil, strftime: nil).tap(&:run)
+        f = create_format(rows:, delims: false, digits: nil, placeholder: nil, strftime: nil).tap(&:run)
         f.columns.each do
-          # numbers (no digits)
           values = _1.to_a
-          if _1.type == :int
-            assert_equal %w[1.2345 12,345 1.2345 12,345 gub xyzzy], values.shift(6)
-          else
-            assert_equal %w[1.2345 12345 1.2345 12345 gub xyzzy], values.shift(6)
-          end
+          # numbers - passed through verbatim
+          assert_equal %w[1234.5678 1234 -1234.5678 -1234 gub xyzzy], values.shift(6)
           # empty (no placeholder)
           2.times { assert_equal "", values.shift }
           # date/time (no strftime)
@@ -40,9 +36,9 @@ module TableTennis
           # numbers (digits = 3)
           numbers = values.shift(4)
           case _1.type
-          when :float then assert_equal %w[1.234 12345.000 1.234 12345.000], numbers
-          when :int then assert_equal %w[1.2345 12,345 1.2345 12,345], numbers
-          else; assert_equal %w[1.2345 12345 1.2345 12345], numbers
+          when :float then assert_equal %w[1,234.568 1,234.000 -1,234.568 -1,234.000], numbers
+          when :int then assert_equal %w[1234.5678 1,234 -1234.5678 -1,234], numbers
+          else; assert_equal %w[1234.5678 1234 -1234.5678 -1234], numbers
           end
           # strings & placeholder
           assert_equal %w[gub xyzzy NA NA], values.shift(4)
