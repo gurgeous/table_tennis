@@ -30,7 +30,7 @@ class Minitest::Test
       MINITEST: 1,
       NO_COLOR: nil,
       TERM: nil,
-      TM_DEBUG: nil,
+      TT_DEBUG: nil,
       ZELLIJ: nil,
     }.each do
       ENV[_1.to_s] = _2&.to_s

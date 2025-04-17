@@ -13,8 +13,6 @@ check: lint test
 
 ci: check
 
-demo-watch *ARGS:
-  @watchexec --stop-timeout=0 --clear clear table-tennis-demo {{ARGS}}
 
 format:
   @just banner format...
@@ -29,6 +27,9 @@ lint:
 
 pry:
   bundle exec pry -I lib -r table_tennis.rb
+
+tennis-watch *ARGS:
+  @watchexec --stop-timeout=0 --clear clear tennis {{ARGS}}
 
 test *ARGS:
   @just banner rake test {{ARGS}}

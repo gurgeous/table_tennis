@@ -29,7 +29,7 @@ module TableTennis
       options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
       options[:color] = Config.detect_color? if options[:color].nil?
       options[:theme] = Config.detect_theme if options[:theme].nil?
-      options[:debug] = true if ENV["TM_DEBUG"]
+      options[:debug] = true if ENV["TT_DEBUG"]
       options.each { self[_1] = _2 }
 
       yield self if block_given?

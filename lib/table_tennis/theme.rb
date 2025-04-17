@@ -64,12 +64,16 @@ module TableTennis
     # - a color that works with Colors.get (#fff, or :bold, or "steelblue")
     # - an array of colors
     def paint(str, value)
+      # cap memo_wise
+      @_memo_wise[__method__].tap { _1.clear if _1.length > 5000 }
+
       if (codes = codes(value))
         str = str.gsub(RESET, "#{RESET}#{codes}")
         str = "#{codes}#{str}#{RESET}"
       end
       str
     end
+    memo_wise :paint
 
     # for debugging, mostly
     def self.info

@@ -35,7 +35,7 @@ module TableTennis
         _1[:row_numbers] = options[:"row-numbers"] # dash to underscore
       end.compact
       if options[:debug]
-        ENV["TM_DEBUG"] = "1"
+        ENV["TT_DEBUG"] = "1"
         GC.disable
       end
       table_options

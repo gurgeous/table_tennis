@@ -202,7 +202,7 @@ module TableTennis
       private_class_method :env_colorfgbg
 
       def debug(s)
-        puts "termbg: #{s}" if ENV["TM_DEBUG"]
+        puts "termbg: #{s}" if ENV["TT_DEBUG"]
       end
       private_class_method :debug
     end
