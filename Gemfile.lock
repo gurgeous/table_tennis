@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    table_tennis (0.0.1)
+    table_tennis (0.0.3)
       csv (~> 3.3)
       ffi (~> 1.17)
       memo_wise (~> 1.11)

@@ -51,7 +51,10 @@ coverage:
 #
 
 # you can test locally from another project by dropping gem file into vendor/cache
-gem-push: check-git-status
+gem-push:
+  @just bundle install and verify git...
+  bundle install
+  @just check-git-status
   @just banner gem build...
   gem build table_tennis.gemspec
   @just banner tag...
