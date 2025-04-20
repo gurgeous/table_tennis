@@ -2,4 +2,6 @@
 .tool-versions
 .vscode
 *.gem
-terminals/
+
+# gems don't need to include this since the gemspec is enough
+Gemfile.lock
