@@ -1,5 +1,7 @@
 require "bundler/setup"
 require "rake/testtask"
+require "bundler"
+Bundler::GemHelper.install_tasks
 
 Rake::TestTask.new do
   # let the user pass *.rb on the command line
