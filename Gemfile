@@ -3,6 +3,8 @@ gemspec
 
 group :development, :test do
   gem "amazing_print"
+  gem "image_optim"
+  gem "image_optim_pack"
   gem "minitest"
   gem "minitest-hooks"
   gem "mocha"
