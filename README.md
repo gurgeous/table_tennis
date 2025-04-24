@@ -42,10 +42,10 @@ TableTennis examines the background color of your terminal to pick either the da
 Construct your table with an array of rows. Rows are hashes, ActiveRecord objects, structs, Data records, or anything that responds to `to_h`. It also supports oddballs like arrays (as rows) or even a single hash.
 
 ```ruby
-puts TableTennis.new([{a: "hello", b: "world"}, {a: "foo", b: "bar"})
+puts TableTennis.new([{a: "hello", b: "world"}, {a: "foo", b: "bar"}])
 puts TableTennis.new(Recipe.all.to_a)  # activerecord
 puts TableTennis.new(array_of_structs) # these use to_h
-puts TableTennis.new([[1,2],[3,4]]])   # array of arrays
+puts TableTennis.new([[1,2],[3,4]])   # array of arrays
 puts TableTennis.new(authors[0])       # single hash
 ```
 
