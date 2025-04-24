@@ -40,8 +40,12 @@ module TableTennis
         [
           [true, :mark],
           [123, :mark],
-          ["red", [nil, "red"]],
-          [:red, [nil, :red]],
+          ["#000", ["white", "#000"]],
+          ["black", ["white", "black"]],
+          ["#fff", ["black", "#fff"]],
+          [:white, ["black", :white]],
+          ["red", ["white", "red"]],
+          [:red, ["white", :red]],
           [%i[blue green], %i[blue green]],
         ].each do |user_mark, exp|
           assert_equal exp, painter.send(:mark_style, user_mark)

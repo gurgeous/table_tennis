@@ -32,12 +32,21 @@ module TableTennis
 
       def test_dark?
         [
+          [nil, true],
+          [:black, true],
+          [:gray, false],
+          [:red, true],
+          [:white, false],
           ["#222", true],
           ["#ff8822", false],
-          ["f84", false],
           ["bogus", true],
-        ].each do |value, exp|
-          assert_equal exp, Colors.dark?(value), "for #{value}"
+          ["f84", false],
+        ].each do |color, exp|
+          if color == "bogus"
+            assert_output(/unknown/) { assert_equal exp, Colors.dark?(color), "for #{color}" }
+          else
+            assert_equal exp, Colors.dark?(color), "for #{color}"
+          end
         end
       end
 
@@ -46,8 +55,12 @@ module TableTennis
           %w[#000000 white],
           %w[#fff black],
           %w[bogus white],
-        ].each do |value, exp|
-          assert_equal exp, Colors.contrast(value), "for #{value}"
+        ].each do |color, exp|
+          if color == "bogus"
+            assert_output(/unknown/) { assert_equal exp, Colors.contrast(color), "for #{color}" }
+          else
+            assert_equal exp, Colors.contrast(color), "for #{color}"
+          end
         end
       end
 

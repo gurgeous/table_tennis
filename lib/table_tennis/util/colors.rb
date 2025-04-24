@@ -439,6 +439,14 @@ module TableTennis
 
       # is this color dark?
       def dark?(color)
+        color = get(color)
+        return true if !color
+
+        # take a guess at symbols too
+        if color.is_a?(Symbol)
+          return !%i[white gray].include?(color)
+        end
+
         luma = luma(color)
         !luma || luma < DARK_LUMA
       end

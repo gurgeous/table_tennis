@@ -127,8 +127,12 @@ module TableTennis
 
       def mark_style(user_mark)
         case user_mark
-        when String, Symbol then [nil, user_mark] # assume bg color
-        when Array then user_mark # a Paint array
+        when String, Symbol
+          # pick a nice fg color
+          [Util::Colors.contrast(user_mark), user_mark]
+        when Array
+          # a Paint array
+          user_mark
         else; :mark # default
         end
       end
