@@ -17,7 +17,8 @@ module TableTennis
 
     def test_validation
       # try something we know is invalid for every option
-      Config::OPTIONS.each { assert_config_raise(_1, (123..345)) }
+      bad = (123..345)
+      Config::OPTIONS.each { assert_config_raise(_1, bad) }
 
       # here are things that work
       assert_config_no_raise(:color, true)
