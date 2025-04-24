@@ -41,10 +41,10 @@ module TableTennis
           [true, :mark],
           [123, :mark],
           ["#000", ["white", "#000"]],
-          ["black", ["white", "black"]],
+          ["black", %w[white black]],
           ["#fff", ["black", "#fff"]],
           [:white, ["black", :white]],
-          ["red", ["white", "red"]],
+          ["red", %w[white red]],
           [:red, ["white", :red]],
           [%i[blue green], %i[blue green]],
         ].each do |user_mark, exp|
