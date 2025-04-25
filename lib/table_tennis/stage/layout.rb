@@ -28,8 +28,8 @@ module TableTennis
       # some math
       #
 
-      AUTOLAYOUT_MIN_COLUMN_WIDTH = 2
-      AUTOLAYOUT_FUDGE = 2
+      MIN_WIDTH = 2
+      FUDGE = 2
 
       # Fit columns into terminal width. This is copied from the very simple HTML
       # table column algorithm. Returns a hash of column name to width.
@@ -39,11 +39,18 @@ module TableTennis
 
         # how much space is available, and do we already fit?
         screen_width = IO.console.winsize[1]
-        available = screen_width - chrome_width - AUTOLAYOUT_FUDGE
+        available = screen_width - chrome_width - FUDGE
         return if available >= data_width
 
         # min/max column widths, which we use below
-        min = columns.map { [_1.width, AUTOLAYOUT_MIN_COLUMN_WIDTH].min }
+        min = columns.map do
+          if dont_shrink_tiny_columns? && _1.tiny?
+            # if we have both tiny and huge cols, don't shrink the tiny ones
+            [_1.width, MIN_WIDTH].max
+          else
+            [_1.width, MIN_WIDTH].min
+          end
+        end
         max = columns.map(&:width)
 
         # W = difference between the available space and the minimum table width
@@ -71,6 +78,11 @@ module TableTennis
           distribute[0, extra_space].each { _1.width += 1 }
         end
       end
+
+      def dont_shrink_tiny_columns?
+        columns.any?(&:tiny?) && columns.any?(&:huge?)
+      end
+      memo_wise :dont_shrink_tiny_columns?
     end
   end
 end

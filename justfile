@@ -16,6 +16,10 @@ coverage:
 # format with rubocop
 format: (lint "-a")
 
+gem-local:
+  @just _banner rake install:local...
+  bundle exec rake install:local
+
 # this will tag, build and push to rubygems
 gem-push: check
   @just rake release...

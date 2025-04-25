@@ -50,5 +50,8 @@ module TableTennis
     def measure
       [2, max_by(&:length)&.length, header.length].max
     end
+
+    def tiny? = width <= 8
+    def huge? = width >= 30
   end
 end
