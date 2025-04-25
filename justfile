@@ -1,6 +1,4 @@
-# show recipes
-default:
-  @just --list
+default: test
 
 # check repo - lint & test
 check: lint test

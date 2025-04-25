@@ -65,6 +65,22 @@ module TableTennis
         Layout.new(data).run
         assert_equal("🚀…", data.rows.first.first)
       end
+
+      def test_dont_shrink_tiny_columns
+        tiny, huge = "tiny", "huge" * 10
+        config = Config.new
+        IO.console.stubs(:winsize).returns([nil, 10])
+
+        # all tiny? gotta shrink 'em
+        data = TableData.new(config:, rows: [{a: tiny, b: tiny}])
+        Layout.new(data).run
+        assert_equal [2, 2], data.columns.map(&:width)
+
+        # some tiny, some huge? don't shrink the tiny ones
+        data = TableData.new(config:, rows: [{a: tiny, b: huge}])
+        Layout.new(data).run
+        assert_equal [4, 2], data.columns.map(&:width)
+      end
     end
   end
 end
