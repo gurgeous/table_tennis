@@ -28,8 +28,7 @@ module TableTennis
       # some math
       #
 
-      AUTOLAYOUT_MIN_COLUMN_WIDTH = 2
-      AUTOLAYOUT_FUDGE = 2
+      FUDGE = 2
 
       # Fit columns into terminal width. This is copied from the very simple HTML
       # table column algorithm. Returns a hash of column name to width.
@@ -37,30 +36,35 @@ module TableTennis
         # set provisional widths
         columns.each { _1.width = _1.measure }
 
-        # how much space is available, and do we already fit?
+        # How much space is available, and do we already fit?
         screen_width = IO.console.winsize[1]
-        available = screen_width - chrome_width - AUTOLAYOUT_FUDGE
+        available = screen_width - chrome_width - FUDGE
         return if available >= data_width
 
-        # min/max column widths, which we use below
-        min = columns.map { [_1.width, AUTOLAYOUT_MIN_COLUMN_WIDTH].min }
-        max = columns.map(&:width)
+        # We don't fit, so we are going to shrink (truncate) some columns.
+        # Potentially all the way down to a lower bound. But what is the lower
+        # bound? It's nice to have a generous value so that narrow columns have
+        # a shot at avoiding truncation. That isn't always possible, though.
+        lower_bound = (available / columns.length).clamp(2, 10)
+
+        # Calculate a "min" and a "max" for each column, then allocate available
+        # space proportionally to each column. This is similar to the algorithm
+        # for HTML tables.
+        min = max = columns.map(&:width)
+        min = min.map { [_1, lower_bound].min }
 
         # W = difference between the available space and the minimum table width
-        # D = difference between maximum and minimum width of the table
-        w = available - min.sum
-        d = max.sum - min.sum
-
-        # edge case if we don't even have enough room for min
-        if w <= 0
+        # D = difference between maximum and minimum table width
+        # ratio = W / D
+        # col.width = col.min + ((col.max - col.min) * ratio)
+        ratio = (available - min.sum).to_f / (max.sum - min.sum)
+        if ratio <= 0
+          # even min doesn't fit, we gotta overflow
           columns.each.with_index { _1.width = min[_2] }
           return
         end
-
-        # expand min to fit available space
-        columns.each.with_index do
-          # width = min + (delta * W / D)
-          _1.width = min[_2] + ((max[_2] - min[_2]) * w / d.to_f).to_i
+        columns.zip(min, max).each do |column, min, max|
+          column.width = min + ((max - min) * ratio).to_i
         end
 
         # because we always round down, there might be some extra space to distribute
