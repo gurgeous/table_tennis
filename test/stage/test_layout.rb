@@ -79,7 +79,7 @@ module TableTennis
         # some tiny, some huge? don't shrink the tiny ones
         data = TableData.new(config:, rows: [{a: tiny, b: huge}])
         Layout.new(data).run
-        assert_equal [4, 2], data.columns.map(&:width)
+        assert_equal [4, 10], data.columns.map(&:width)
       end
     end
   end

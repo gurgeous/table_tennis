@@ -43,14 +43,8 @@ module TableTennis
         return if available >= data_width
 
         # min/max column widths, which we use below
-        min = columns.map do
-          if dont_shrink_tiny_columns? && _1.tiny?
-            # if we have both tiny and huge cols, don't shrink the tiny ones
-            [_1.width, MIN_WIDTH].max
-          else
-            [_1.width, MIN_WIDTH].min
-          end
-        end
+        min_width = protect_tiny_columns? ? 10 : MIN_WIDTH
+        min = columns.map { [_1.width, min_width].min }
         max = columns.map(&:width)
 
         # W = difference between the available space and the minimum table width
@@ -79,10 +73,10 @@ module TableTennis
         end
       end
 
-      def dont_shrink_tiny_columns?
+      def protect_tiny_columns?
         columns.any?(&:tiny?) && columns.any?(&:huge?)
       end
-      memo_wise :dont_shrink_tiny_columns?
+      memo_wise :protect_tiny_columns?
     end
   end
 end

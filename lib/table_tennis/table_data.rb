@@ -44,9 +44,13 @@ module TableTennis
     # Lazily calculate the list of columns.
     def columns
       names = config&.columns
-      names ||= {}.tap do |memo|
-        fat_rows.each { |row| row.each_key { memo[_1] = 1 } }
-      end.keys
+      if !fat_rows.empty?
+        names ||= {}.tap do |memo|
+          fat_rows.each { |row| row.each_key { memo[_1] = 1 } }
+        end.keys
+      else
+        names = []
+      end
       names.each do |name|
         if !fat_rows.any? { _1.key?(name) }
           raise ArgumentError, "specified column `#{name}` not found in any row of input data"
