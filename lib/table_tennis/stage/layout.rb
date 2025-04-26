@@ -28,7 +28,6 @@ module TableTennis
       # some math
       #
 
-      MIN_WIDTH = 2
       FUDGE = 2
 
       # Fit columns into terminal width. This is copied from the very simple HTML
@@ -37,14 +36,25 @@ module TableTennis
         # set provisional widths
         columns.each { _1.width = _1.measure }
 
-        # how much space is available, and do we already fit?
+        # How much space is available, and do we already fit?
         screen_width = IO.console.winsize[1]
         available = screen_width - chrome_width - FUDGE
         return if available >= data_width
 
+        # We don't fit, so we gotta truncate some columns. The basic approach is
+        # to calculate a "min" and a "max" for each column, then allocate
+        # available space proportionally so that each column gets something.
+        # This is similar to the algorithm for HTML tables.
+
+        # First we calculate the "min" for each column. The min is either the
+        # column's full width or a lower bound, whichever is smaller. What is
+        # the lower bound for this table? It's nice to have a generous lower
+        # bound so that narrow columns have a shot at avoiding truncation. That
+        # isn't always possible, though.
+        lower_bound = (available / columns.length).clamp(2, 10)
+        min = columns.map { [_1.width, lower_bound].min }
+
         # min/max column widths, which we use below
-        min_width = protect_tiny_columns? ? 10 : MIN_WIDTH
-        min = columns.map { [_1.width, min_width].min }
         max = columns.map(&:width)
 
         # W = difference between the available space and the minimum table width
@@ -72,11 +82,6 @@ module TableTennis
           distribute[0, extra_space].each { _1.width += 1 }
         end
       end
-
-      def protect_tiny_columns?
-        columns.any?(&:tiny?) && columns.any?(&:huge?)
-      end
-      memo_wise :protect_tiny_columns?
     end
   end
 end

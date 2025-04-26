@@ -46,9 +46,9 @@ module TableTennis
         # cruncha muncha
         IO.console.stubs(:winsize).returns([nil, 20])
         Layout.new(data).run
-        assert_equal([4, 7], data.columns.map(&:width))
-        assert_equal([4, 4], data.columns.map(&:header).map(&:length))
-        assert_equal([4, 7], data.rows.first.map(&:length))
+        assert_equal([5, 6], data.columns.map(&:width))
+        assert_equal([5, 4], data.columns.map(&:header).map(&:length))
+        assert_equal([5, 6], data.rows.first.map(&:length))
 
         # tiny
         IO.console.stubs(:winsize).returns([nil, 10])
@@ -66,20 +66,22 @@ module TableTennis
         assert_equal("🚀…", data.rows.first.first)
       end
 
-      def test_dont_shrink_tiny_columns
-        tiny, huge = "tiny", "huge" * 10
+      def test_lower_bound
         config = Config.new
-        IO.console.stubs(:winsize).returns([nil, 10])
 
-        # all tiny? gotta shrink 'em
-        data = TableData.new(config:, rows: [{a: tiny, b: tiny}])
+        rows = [["hello world how are you doing today"] * 2]
+
+        # if we don't have a lot of room, min should be 2
+        IO.console.stubs(:winsize).returns([nil, 10])
+        data = TableData.new(config:, rows:)
         Layout.new(data).run
         assert_equal [2, 2], data.columns.map(&:width)
 
-        # some tiny, some huge? don't shrink the tiny ones
-        data = TableData.new(config:, rows: [{a: tiny, b: huge}])
+        # if we have more room, columns can breathe
+        IO.console.stubs(:winsize).returns([nil, 40])
+        data = TableData.new(config:, rows:)
         Layout.new(data).run
-        assert_equal [4, 10], data.columns.map(&:width)
+        assert_equal [16, 15], data.columns.map(&:width)
       end
     end
   end
