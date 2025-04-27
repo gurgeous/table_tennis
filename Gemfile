@@ -12,5 +12,5 @@ group :development, :test do
   gem "pry"
   gem "rake"
   gem "simplecov", require: false
-  gem "standard", require: false
+  gem "standard", require: false, platform: :mri
 end

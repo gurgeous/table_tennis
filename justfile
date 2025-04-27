@@ -3,8 +3,10 @@ default: test
 # check repo - lint & test
 check: lint test
 
-# for ci
-ci: check
+# for ci. don't bother linting on windows
+ci:
+  @if [[ "{{os()}}" != "windows" ]]; then just lint ; fi
+  @just test
 
 # check test coverage
 coverage:
