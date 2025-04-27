@@ -33,9 +33,11 @@ module TableTennis
         set_style(r: :title, style: :title)
       end
 
+      NHEADER_COLORS = 6
+
       def paint_headers
         columns.each.with_index do |column, c|
-          set_style(r: :header, c:, style: :"headers#{c % 6}")
+          set_style(r: :header, c:, style: :"header#{c % Theme::NHEADER_COLORS}")
         end
       end
 
