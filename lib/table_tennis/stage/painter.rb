@@ -16,6 +16,7 @@ module TableTennis
       def run
         return if !config.color
         paint_title if config.title
+        paint_headers
         paint_row_numbers if config.row_numbers
         paint_rows if config.mark || config.zebra
         paint_columns if config.color_scales
@@ -30,6 +31,12 @@ module TableTennis
 
       def paint_title
         set_style(r: :title, style: :title)
+      end
+
+      def paint_headers
+        columns.each.with_index do |column, c|
+          set_style(r: :header, c:, style: :"headers#{c % 6}")
+        end
       end
 
       def paint_row_numbers

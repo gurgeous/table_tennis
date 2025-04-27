@@ -7,25 +7,43 @@ module TableTennis
     RESET = Paint::NOTHING
     THEMES = {
       dark: {
-        title: "#7f0",
+        title: ["blue-400", :bold],
         chrome: "gray-500",
         cell: "gray-200",
+        headers0: ["#ff6188", :bold],
+        headers1: ["#fc9867", :bold],
+        headers2: ["#ffd866", :bold],
+        headers3: ["#a9dc76", :bold],
+        headers4: ["#78dce8", :bold],
+        headers5: ["#ab9df2", :bold],
         mark: %w[white blue-500],
         search: %w[black yellow-300],
-        zebra: %w[white #333],
+        zebra: %w[white #222],
       },
       light: {
-        title: "blue-600",
+        title: ["blue-600", :bold],
         chrome: "#bbb",
         cell: "gray-800",
+        headers0: ["#ee4066", :bold],
+        headers1: ["#da7645", :bold],
+        headers2: ["#ddb644", :bold],
+        headers3: ["#87ba54", :bold],
+        headers4: ["#56bac6", :bold],
+        headers5: ["#897bd0", :bold],
         mark: %w[white blue-500],
         search: %w[black yellow-300],
         zebra: %w[black gray-200],
       },
       ansi: {
-        title: :green,
+        title: %i[green bold],
         chrome: %i[faint default],
         cell: :default,
+        headers0: nil, # not supported
+        headers1: nil, # not supported
+        headers2: nil, # not supported
+        headers3: nil, # not supported
+        headers4: nil, # not supported
+        headers5: nil, # not supported
         mark: %i[white blue],
         search: %i[white magenta],
         zebra: nil, # not supported
@@ -50,6 +68,7 @@ module TableTennis
       if value.is_a?(Symbol) && THEME_KEYS.include?(value)
         value = THEMES[name][value]
       end
+
       # turn value(s) into colors
       colors = Array(value).map { Util::Colors.get(_1) }
       return if colors == [] || colors == [nil]
