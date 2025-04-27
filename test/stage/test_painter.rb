@@ -23,6 +23,9 @@ module TableTennis
 
         # row numbers
         assert_equal :chrome, data.get_style(c: 0)
+        # headers
+        assert_equal :header0, data.get_style(r: :header, c: 0)
+        assert_equal :header1, data.get_style(r: :header, c: 1)
         # color scale numbers & categories
         assert (0..3).all? { data.get_style(r: _1, c: 2) != nil }
         assert (0..3).all? { data.get_style(r: _1, c: 3) != nil }
