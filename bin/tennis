@@ -70,6 +70,10 @@ module TableTennis
     FILES = %w[diamonds numbers pigeon-racing starwars titanic]
 
     def demo
+      # REMIND: clear screen, set color scale, width/height, cut out the right section, font size...
+      # more screenshots
+      puts "\e[2J"
+
       demo = options[:demo]
       file = case demo
       when nil then FILES.first

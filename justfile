@@ -52,6 +52,14 @@ test *ARGS:
 test-watch *ARGS:
   watchexec --stop-timeout=0 --clear clear just test "{{ARGS}}"
 
+# create sceenshots
+vhs:
+  @clear
+  @just _banner "running vhs..."
+  @vhs demo.tape
+  @open /tmp/dark.png
+
+
 #
 # util
 #
