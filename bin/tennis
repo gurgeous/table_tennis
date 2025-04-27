@@ -96,7 +96,11 @@ module TableTennis
           row[row.keys.sample] = nil
         end
       end
-      options[:title] ||= file.capitalize
+      if options[:title] == "nil" || options[:title] == ""
+        options[:title] = nil
+      else
+        options[:title] ||= file.capitalize
+      end
 
       # go
       table = TableTennis.new(rows, table_options)
@@ -136,6 +140,7 @@ options = {}.tap do |into|
     opts.on("--row-numbers", "turn on row numbers")
     opts.on("--save PATH", "save the table as csv to PATH")
     opts.on("--search REGEX", Regexp, "search cells for this regex")
+    opts.on("--[no-]separators", "enable/disable table separators")
     opts.on("--theme THEME", %w[dark light ansi], Symbol, "set theme to dark, light, or ansi")
     opts.on("--title TITLE", "set title for table")
     opts.on("--titleize", "titleize column names")

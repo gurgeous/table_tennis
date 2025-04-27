@@ -36,6 +36,7 @@ module TableTennis
       assert_config_no_raise(:mark, -> { "foo" })
       assert_config_no_raise(:placeholder, "foo")
       assert_config_no_raise(:row_numbers, true)
+      assert_config_no_raise(:separators, false)
       assert_config_no_raise(:search, "foo")
       assert_config_no_raise(:search, /foo/)
       assert_config_no_raise(:strftime, "foo")

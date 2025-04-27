@@ -18,6 +18,7 @@ module TableTennis
       row_numbers: false, # show line numbers?
       save: nil, # csv file path to save the table when created
       search: nil, # string/regex to highlight in output
+      separators: true, # if true, show separators between columns
       strftime: nil, # string for formatting dates
       theme: nil,  # :dark, :light or :ansi. :dark is the default
       title: nil, # string for table title, if any
@@ -51,6 +52,7 @@ module TableTennis
       placeholder: :str,
       row_numbers: :bool,
       save: :str,
+      separators: :bool,
       strftime: :str,
       title: :str,
       titleize: :bool,

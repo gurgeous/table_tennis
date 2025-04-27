@@ -32,12 +32,12 @@ module TableTennis
         if config.title
           io.puts render_separator(NW, BAR, NE)
           io.puts render_title
-          io.puts render_separator(W, N, E)
+          io.puts render_separator(W, N, E) if config.separators
         else
           io.puts render_separator(NW, N, NE)
         end
         io.puts render_row(:header)
-        io.puts render_separator(W, C, E)
+        io.puts render_separator(W, C, E) if config.separators
         rows.each_index { io.puts render_row(_1) }
         io.puts render_separator(SW, S, SE)
       end
@@ -59,9 +59,10 @@ module TableTennis
 
         # assemble line by rendering cells
         enum = (r != :header) ? rows[r].each : columns.map(&:header)
+        joiner = config.separators ? " #{pipe} " : "  "
         line = enum.map.with_index do |value, c|
           render_cell(value, r, c, row_style)
-        end.join(" #{pipe} ")
+        end.join(joiner)
         line = "#{pipe} #{line} #{pipe}"
 
         # afterward, apply row color
@@ -95,6 +96,7 @@ module TableTennis
       end
 
       def render_separator(l, m, r)
+        m = "" if !config.separators
         line = [].tap do |buf|
           columns.each.with_index do |column, c|
             buf << ((c == 0) ? l : m)

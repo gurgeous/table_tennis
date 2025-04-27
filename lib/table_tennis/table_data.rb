@@ -92,13 +92,22 @@ module TableTennis
 
     # layout math
     #
-    # |•xxxx•|•xxxx•|•xxxx•|•xxxx•||•xxxx•|•xxxx•|•xxxx•|•xxxx•|
-    # ↑↑    ↑                                                  ↑
-    # 12    3    <-   three chrome chars per column            │
-    #                                                          │
-    #                                            extra chrome char at the end
-    #
-    def chrome_width = columns.length * 3 + 1
+    # with separators
+    # |•xxxx•|•xxxx•|•xxxx•|•xxxx•|•xxxx•|•xxxx•|•xxxx•|•xxxx•|
+    # ↑↑    ↑                                                 ↑
+    # 12    3    <-   three chrome chars per column           │
+    #                                                         │
+    #                                           extra chrome char at the end
+    # without
+    # |•xxxx••xxxx••xxxx••xxxx••xxxx••xxxx••xxxx••xxxx•|
+    #  ↑    ↑                                          ↑
+    #  1    2    <-   two chrome chars per column      │
+    #                                                  │
+    #                             extra chrome char at beginning and end
+    def chrome_width
+      config.separators ? (columns.length * 3 + 1) : (columns.length * 2 + 2)
+    end
+    memo_wise :chrome_width
 
     # for debugging
     def debug(str)

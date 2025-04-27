@@ -3,13 +3,15 @@ module TableTennis
     class TestRender < Minitest::Test
       def test_main
         lines = render_string.split("\n")
-        assert_match(/^╭─+╮$/, lines[ii = 0]) # sep
-        assert_match(/^│ +xyzzy +│$/, lines[ii += 1]) # title
-        assert_match(/^├─+┬─+┤$/, lines[ii += 1]) # sep
-        assert_match(/^│\s+a\s+│\s+b\s+│$/, lines[ii += 1]) # headers
-        assert_match(/^├─+┼─+┤$/, lines[ii += 1]) # sep
-        assert_match(/^│\s+1\s+│\s+│$/, lines[ii += 1]) # row 0
-        assert_match(/^╰─+┴─+╯$/, lines[ii + 1]) # sep
+        [
+          /^╭─+╮$/,              # top
+          /^│ +xyzzy +│$/,       # title
+          /^├─+┬─+┤$/,           # sep
+          /^│\s+a\s+│\s+b\s+│$/, # headers
+          /^├─+┼─+┤$/,           # sep
+          /^│\s+1\s+│\s+│$/,     # row 0
+          /^╰─+┴─+╯$/,           # bot
+        ].zip(lines) { assert_match(_1, _2) }
       end
 
       def test_colors
@@ -52,11 +54,13 @@ module TableTennis
       def test_empty
         [[], [{}, {}, {}, {}]].each do |rows|
           lines = render_string(rows:).split("\n")
-          assert_match(/^╭─+╮$/, lines[ii = 0]) # sep
-          assert_match(/^│ +xyzzy +│$/, lines[ii += 1]) # title
-          assert_match(/^├─+┤$/, lines[ii += 1]) # sep
-          assert_match(/^│ +no data +│$/, lines[ii += 1]) # body
-          assert_match(/^╰─+╯$/, lines[ii + 1]) # sep
+          [
+            /^╭─+╮$/,          # top
+            /^│ +xyzzy +│$/,   # title
+            /^├─+┤$/,          # sep
+            /^│ +no data +│$/, # body
+            /^╰─+╯$/,          # bot
+          ].zip(lines) { assert_match(_1, _2) }
         end
       end
 
@@ -78,11 +82,22 @@ module TableTennis
         end
       end
 
+      def test_no_separators
+        lines = render_string(separators: false).split("\n")
+        [
+          /^╭─+╮$/,          # top
+          /^│ +xyzzy +│$/,   # title
+          /^│\s+a\s+b\s+│$/, # headers
+          /^│\s+1\s+│$/,     # row 0
+          /^╰─+╯$/,          # bot
+        ].zip(lines) { assert_match(_1, _2) }
+      end
+
       protected
 
-      def create_render(color: false, rows: nil, theme: nil, title: "xyzzy")
+      def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
         rows ||= [{a: "1", b: " "}]
-        config = Config.new(color:, theme:, title:)
+        config = Config.new(color:, separators:, theme:, title:)
         data = TableData.new(config:, rows:)
         if data.columns.length >= 2
           data.columns[0].width = 3
@@ -91,8 +106,8 @@ module TableTennis
         Render.new(data)
       end
 
-      def render_string(color: false, rows: nil, theme: nil, title: "xyzzy")
-        render = create_render(color:, rows:, theme:, title:)
+      def render_string(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
+        render = create_render(color:, rows:, separators:, theme:, title:)
         StringIO.new.tap { render.run(_1) }.string
       end
     end
