@@ -17,7 +17,7 @@ module TableTennis
         # named colors
         ["green", "\e[38;2;0;128;0m"],
         # theme
-        [:zebra, "\e[38;2;255;255;255;48;2;51;51;51m"],
+        [:zebra, "\e[38;2;255;255;255;48;2;34;34;34m"],
       ].each do |value, exp|
         assert_equal exp, t.codes(value), "for #{value.inspect}"
       end
