@@ -79,6 +79,7 @@ options = {
 | `row_numbers` | `false` | Show row numbers in the table. |
 | `save` | ─ | If you set this to a file path, TableTennis will save your table as a CSV file too. Useful if you want to do something else with the data. |
 | `search` | ─ | string/regex to highlight in output |
+| `separators` | `true` | Include column and header separators in output. |
 | `strftime` | see → | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`  |
 | `theme` | nil | When unset, will be autodetected based on terminal background color. If autodetect fails the theme defaults to :dark. You can also manually specify `:dark`, `:light` or `:ansi`. If colors are turned off this setting has no effect.|
 | `title` | ─ | Add a title line to the table. |
@@ -149,8 +150,17 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 - [Terminal::Table](https://github.com/tj/terminal-table) - wonderful rubygem for pretty printing tables, great for non-hash data like confusion matrices
 - [visidata](https://www.visidata.org) - the best for poking around large files, it does everything
 
+### Changelog
+
+#### 0.0.4 (April '25)
+
+- Separators can be turned off with `separators: false`.
+- Headers are in color now. Tweaked a few of the dark colors as well.
+- Tricky math to better protect narrow columns with auto-layout.
+
 ### Special Thanks
 
 - [termbg](https://github.com/dalance/termbg) and [termenv](https://github.com/muesli/termenv) for showing how to safely detect the terminal background color. These libraries are widely used for Rust/Go, but as far as I know nothing similar exists for Ruby.
 - The [Paint gem](https://github.com/janlelis/paint) for help with ansi colors.
+- I copied the header color themes from [tabiew](https://github.com/shshemi/tabiew). Great project!
 - Google Sheets for providing nice color scales
