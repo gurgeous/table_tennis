@@ -7,10 +7,11 @@ Gem::Specification.new do |s|
   s.email = "amd@gurge.com"
 
   s.summary = "Stylish tables in your terminal."
-  s.homepage = "http://github.com/gurgeous/table_tennis"
+  s.homepage = "https://github.com/gurgeous/table_tennis"
   s.license = "MIT"
   s.required_ruby_version = ">= 3.0.0"
   s.metadata = {
+    "homepage_uri" => s.homepage,
     "rubygems_mfa_required" => "true",
     "source_code_uri" => s.homepage,
   }
