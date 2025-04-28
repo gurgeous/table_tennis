@@ -20,14 +20,18 @@ module TableTennis
       @options = options
     end
 
-    def main = send(options[:action])
+    def main
+      if options[:clear]
+        # clear and move cursor to 1,1
+        $stdout.write "\e[2J\e[1;1H"
+      end
+      send(options[:action])
+    end
 
     def table_options
       table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
         _1[:color_scales] = if (columns = options[:color_scales])
-          columns.to_h do |name|
-            [name.to_sym, Util::Scale::SCALES.keys.sample]
-          end
+          columns.to_h { |name| [name.to_sym, :b] }
         end
         _1[:mark] = if options[:mark]
           ->(row) { row.to_s =~ options[:mark] }
@@ -128,6 +132,7 @@ options = {}.tap do |into|
 
     opts.separator nil
     opts.on("-a", "--all", "don't limit rows")
+    opts.on("--clear", "clear screen before we begin (for screenshots)")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
     opts.on("--color-scale COLUMN", Array, "color scale a column")
     opts.on("--columns COLUMNS", Array, "columns to include in the table")

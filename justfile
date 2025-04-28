@@ -52,6 +52,12 @@ test *ARGS:
 test-watch *ARGS:
   watchexec --stop-timeout=0 --clear clear just test "{{ARGS}}"
 
+# create sceenshot using vhs
+vhs:
+  @just _banner "running vhs..."
+  vhs demo.tape
+  magick /tmp/dark.png -crop 1448x1004+18+16 screenshots/dark.png
+
 #
 # util
 #
