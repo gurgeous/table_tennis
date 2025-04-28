@@ -22,7 +22,7 @@ gem-local:
 
 # this will tag, build and push to rubygems
 gem-push: check
-  @just rake release...
+  @just _banner rake release...
   rake release
 
 # optimize images
