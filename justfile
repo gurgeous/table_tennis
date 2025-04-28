@@ -54,10 +54,10 @@ test-watch *ARGS:
 
 # create sceenshots
 vhs:
-  @clear
   @just _banner "running vhs..."
-  @vhs demo.tape
-  @open /tmp/dark.png
+  vhs demo.tape
+  magick /tmp/dark.png -crop 1448x1004+18+16 screenshots/dark.png
+  open screenshots/dark.png
 
 
 #
