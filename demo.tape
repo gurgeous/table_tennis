@@ -1,4 +1,8 @@
-# see https://github.com/charmbracelet/vhs
+#
+# script for vhs (https://github.com/charmbracelet/vhs)
+#
+
+# vhs settings
 Output "/tmp/demo.gif"
 Set FontFamily Menlo
 Set FontSize 28
@@ -7,11 +11,13 @@ Set Height 1100
 Set Margin 0
 Set Padding 0
 
-# brew install --cask font-roboto
+# fire up the app
 Hide
   Type@1ms "tennis --clear --demo 3 --title 'Star Wars People' --zebra --columns name,height,homeworld,species,films --color-scale height"
   Enter
   Wait+Screen /Star/
 Show
-Sleep 0.2
+
+# now take the screenshot
+Sleep 0.5
 Screenshot "/tmp/dark.png"
