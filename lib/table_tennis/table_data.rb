@@ -21,7 +21,7 @@ module TableTennis
     prepend MemoWise
     include Util::Inspectable
 
-    attr_accessor :config, :input_rows, :styles
+    attr_accessor :config, :input_rows, :links, :styles
 
     def initialize(rows:, config: nil)
       @config, @input_rows = config, rows
@@ -38,6 +38,7 @@ module TableTennis
         raise ArgumentError, "input_rows must be an array of hash-like objects, not #{input_rows.class}"
       end
 
+      @links = {}
       @styles = {}
     end
 

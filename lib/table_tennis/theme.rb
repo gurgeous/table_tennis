@@ -5,6 +5,9 @@ module TableTennis
     prepend MemoWise
 
     RESET = Paint::NOTHING
+    OSC_8 = "\e]8;;"
+    ST = "\e\\"
+
     NHEADER_COLORS = 6
     THEMES = {
       dark: {
@@ -94,6 +97,12 @@ module TableTennis
       str
     end
     memo_wise :paint
+
+    # use osc 8 to create a terminal hyperlink. underline too
+    def link(str, link)
+      linked = "#{OSC_8}#{link}#{ST}#{str}#{OSC_8}#{ST}"
+      Paint[linked, :underline]
+    end
 
     # for debugging, mostly
     def self.info

@@ -16,14 +16,23 @@ module TableTennis
           fn || :fn_default
         end
 
-        rows.each do |row|
-          row.each_index do
-            value = row[_1]
+        rows.each.with_index do |row, r|
+          row.each_index do |c|
+            value = row[c]
             # Try to format using the column fn. This can return nil. For
             # example, a float column and value is nil, not a float, etc.
-            formatted = send(fns[_1], value)
+            str = send(fns[c], value)
+
             # If the column formatter failed, use the default formatter
-            row[_1] = formatted || fn_default(value) || config.placeholder
+            str ||= fn_default(value) || config.placeholder
+
+            # look for markdown-style links
+            if (link = detect_link(str))
+              str, data.links[[r, c]] = link
+            end
+
+            # done
+            row[c] = str
           end
         end
       end
@@ -61,7 +70,7 @@ module TableTennis
       # default formatting. cleanup whitespace
       def fn_default(value)
         return if value.nil?
-        str = (value.is_a?(String) ? value : value.to_s)
+        str = value.is_a?(String) ? value : value.to_s
         str = str.strip.gsub("\n", "\\n").gsub("\r", "\\r") if str.match?(/\s/)
         return if str.empty?
         str
@@ -89,6 +98,14 @@ module TableTennis
         end
 
         x
+      end
+
+      def detect_link(str)
+        # fail fast, for speed
+        return unless str.length >= 6 && str[0] == "["
+        if str =~ /^\[([^\]]+)\]\(([^\)]+)\)$/
+          [$1, $2]
+        end
       end
 
       # str to_xxx that are resistant to commas

@@ -29,6 +29,7 @@ gem "table_tennis"
 - auto-layout to fit your terminal window
 - auto-format floats and dates
 - auto-color numeric columns
+- auto-link markdown links
 - titles, row numbers, zebra stripes...
 
 ### Themes
@@ -45,7 +46,7 @@ Construct your table with an array of rows. Rows are hashes, ActiveRecord object
 puts TableTennis.new([{a: "hello", b: "world"}, {a: "foo", b: "bar"}])
 puts TableTennis.new(Recipe.all.to_a)  # activerecord
 puts TableTennis.new(array_of_structs) # these use to_h
-puts TableTennis.new([[1,2],[3,4]])   # array of arrays
+puts TableTennis.new([[1,2],[3,4]])    # array of arrays
 puts TableTennis.new(authors[0])       # single hash
 ```
 
@@ -114,6 +115,16 @@ puts TableTennis.new(rows, row_numbers: true, zebra: true)
 | - | - | - |
 | ![droids](./screenshots/droids.png) | ![hope](./screenshots/hope.png) | ![row numbers](./screenshots/row_numbers.png) |
 
+### Links
+
+Modern terminals support **hyperlinks** in the text stream. If your table includes markdown-style links, TableTennis will use [OSC 8](https://github.com/Alhadis/OSC8-Adoption) to render them. For example:
+
+```ruby
+puts TableTennis.new([{site: "[search](https://google.com)"}])
+```
+
+![link](./screenshots/link.png)
+
 ### Advanced Usage
 
 TableTennis can be configured a few different ways:
@@ -151,6 +162,10 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 - [visidata](https://www.visidata.org) - the best for poking around large files, it does everything
 
 ### Changelog
+
+#### 0.0.5 (April '25)
+
+- Support for markdown style links in the cells
 
 #### 0.0.4 (April '25)
 

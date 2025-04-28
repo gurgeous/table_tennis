@@ -162,6 +162,12 @@ module TableTennis
         assert_equal("1234.123", f.fmt_number(1234.1234, digits: 3))
       end
 
+      def test_link
+        f = create_format(rows: [{a: "[hello](world)"}]).tap(&:run)
+        assert_equal "hello", f.rows[0][0]
+        assert_equal "world", f.data.links[[0, 0]]
+      end
+
       protected
 
       def create_format(rows: [], **options)

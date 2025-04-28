@@ -93,6 +93,18 @@ module TableTennis
         ].zip(lines) { assert_match(_1, _2) }
       end
 
+      def test_link
+        # add a link
+        r = create_render.tap do
+          _1.data.links[[0, 0]] = "https://example.com"
+        end
+        # no color, no link
+        refute_match(/example.com/, render_to_string(r))
+        # with color, link
+        r.config.color = true
+        assert_match(/example\.com/, render_to_string(r))
+      end
+
       protected
 
       def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
@@ -108,6 +120,10 @@ module TableTennis
 
       def render_string(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
         render = create_render(color:, rows:, separators:, theme:, title:)
+        render_to_string(render)
+      end
+
+      def render_to_string(render)
         StringIO.new.tap { render.run(_1) }.string
       end
     end

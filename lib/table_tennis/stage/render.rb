@@ -83,6 +83,11 @@ module TableTennis
         # add ansi codes for search
         value = value.gsub(search) { paint(_1, :search) } if search
 
+        # add ansi codes for links
+        if config.color && (link = data.links[[r, c]])
+          value = theme.link(value, link)
+        end
+
         # pad and paint
         if whitespace > 0
           spaces = " " * whitespace

@@ -22,6 +22,12 @@ module TableTennis
         simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
       end
 
+      def hyperlink(value)
+        if value =~ /^\[([^\]]*)\]\(([^\)]*)\)$/
+          [$1, $2]
+        end
+      end
+
       # truncate a string based on the display width of the grapheme clusters.
       # Should handle emojis and international characters
       def truncate(text, stop)
