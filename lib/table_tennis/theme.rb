@@ -101,8 +101,17 @@ module TableTennis
     # use osc 8 to create a terminal hyperlink. underline too
     def link(str, link)
       linked = "#{OSC_8}#{link}#{ST}#{str}#{OSC_8}#{ST}"
-      Paint[linked, :underline]
+      # underline if aren't on iterm
+      linked = Paint[linked, :underline] if term_program != :iterm
+      linked
     end
+
+    def term_program
+      if ENV["TERM_PROGRAM"] == "iTerm.app"
+        :iterm
+      end
+    end
+    memo_wise :term_program
 
     # for debugging, mostly
     def self.info

@@ -103,7 +103,7 @@ module TableTennis
       def detect_link(str)
         # fail fast, for speed
         return unless str.length >= 6 && str[0] == "["
-        if str =~ /^\[([^\]]+)\]\(([^\)]+)\)$/
+        if str =~ /^\[(.*)\]\((.*)\)$/
           [$1, $2]
         end
       end

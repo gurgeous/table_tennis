@@ -166,6 +166,12 @@ module TableTennis
         f = create_format(rows: [{a: "[hello](world)"}]).tap(&:run)
         assert_equal "hello", f.rows[0][0]
         assert_equal "world", f.data.links[[0, 0]]
+
+        # what if link contains parens? from nak
+        link = "https://es.wikipedia.org/wiki/David_Rees_(cantante)"
+        f = create_format(rows: [{a: "[hello](#{link})"}]).tap(&:run)
+        assert_equal "hello", f.rows[0][0]
+        assert_match(/David_Rees/, f.data.links[[0, 0]])
       end
 
       protected
