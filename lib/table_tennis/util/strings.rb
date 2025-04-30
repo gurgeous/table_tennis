@@ -22,8 +22,10 @@ module TableTennis
         simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
       end
 
-      def hyperlink(value)
-        if value =~ /^\[([^\]]*)\]\(([^\)]*)\)$/
+      def hyperlink(str)
+        # fail fast, for speed
+        return unless str.length >= 6 && str[0] == "["
+        if str =~ /^\[(.*)\]\((.*)\)$/
           [$1, $2]
         end
       end

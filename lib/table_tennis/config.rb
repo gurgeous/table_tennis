@@ -12,6 +12,7 @@ module TableTennis
       debug: false, # true for debug output
       delims: true, # true for numeric delimeters
       digits: 3, # format floats
+      headers: nil, # columns => header strings, or inferred from columns
       layout: true, # true/false/int or hash of columns -> width. true to infer
       mark: nil, # lambda returning boolean or symbol to mark rows in output
       placeholder: "—", # placeholder for empty cells. default is emdash
@@ -100,13 +101,8 @@ module TableTennis
       end
       value.to_h { [_1, :g] } if value.is_a?(Array)
       @color_scales = validate(:color_scales, value) do
-        if !value.is_a?(Hash)
-          "expected hash"
-        elsif value.keys.any? { !_1.is_a?(Symbol) }
-          "keys must be symbols"
-        elsif value.values.any? { !_1.is_a?(Symbol) }
-          "values must be symbols"
-        elsif value.values.any? { !Util::Scale::SCALES.include?(_1) }
+        _hash(:color_scales, value, Symbol, Symbol) # ignore return value
+        if value.values.any? { !Util::Scale::SCALES.include?(_1) }
           "values must be the name of a color scale"
         end
       end
@@ -118,6 +114,18 @@ module TableTennis
         if !(value.is_a?(Array) && !value.empty? && value.all? { _1.is_a?(Symbol) })
           "expected array of symbols"
         end
+      end
+    end
+
+    def headers=(value)
+      @headers = _hash(:headers, value, Symbol, String)
+    end
+
+    def layout=(value)
+      @layout = validate(:layout, value) do
+        next if [true, false].include?(value) || value.is_a?(Integer)
+        _hash(:layout, value, Symbol, Integer) # ignore return value
+        nil
       end
     end
 
@@ -135,19 +143,6 @@ module TableTennis
       @search = validate(:search, value) do
         if !(value.is_a?(String) || value.is_a?(Regexp))
           "expected string/regex"
-        end
-      end
-    end
-
-    def layout=(value)
-      @layout = validate(:layout, value) do
-        next if [true, false].include?(value) || value.is_a?(Integer)
-        if !value.is_a?(Hash)
-          "expected boolean, int or hash"
-        elsif value.keys.any? { !_1.is_a?(Symbol) }
-          "keys must be symbols"
-        elsif value.values.any? { !_1.is_a?(Integer) }
-          "values must be ints"
         end
       end
     end
@@ -192,6 +187,18 @@ module TableTennis
       end
       validate(option, value) do
         "expected boolean" if ![true, false].include?(value)
+      end
+    end
+
+    def _hash(option, value, key_class, value_class)
+      validate(option, value) do
+        if !value.is_a?(Hash)
+          "expected hash"
+        elsif value.keys.any? { !_1.is_a?(key_class) }
+          "keys must be #{key_class.to_s.downcase}s"
+        elsif value.values.any? { !_1.is_a?(value_class) }
+          "values must be #{value_class.to_s.downcase}s"
+        end
       end
     end
 
