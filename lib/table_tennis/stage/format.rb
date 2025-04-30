@@ -27,7 +27,7 @@ module TableTennis
             str ||= fn_default(value) || config.placeholder
 
             # look for markdown-style links
-            if (link = detect_link(str))
+            if (link = Util::Strings.hyperlink(str))
               str, data.links[[r, c]] = link
             end
 
@@ -98,14 +98,6 @@ module TableTennis
         end
 
         x
-      end
-
-      def detect_link(str)
-        # fail fast, for speed
-        return unless str.length >= 6 && str[0] == "["
-        if str =~ /^\[(.*)\]\((.*)\)$/
-          [$1, $2]
-        end
       end
 
       # str to_xxx that are resistant to commas

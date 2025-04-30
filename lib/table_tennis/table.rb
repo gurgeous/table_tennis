@@ -3,10 +3,6 @@
 #
 # puts TableTennis.new(array_of_hashes, options = {})
 #
-# See the README for details on options - _color_scales_, _color_, _columns_,
-# _debug_, _digits_, _layout_, _mark_, _placeholder_, _row_numbers_, _save_,
-# _search_, _strftime_, _theme_, _title_, _zebra_
-#
 
 module TableTennis
   # Public API for TableTennis.
@@ -41,7 +37,16 @@ module TableTennis
     def save(path)
       headers = column_names
       CSV.open(path, "wb", headers:, write_headers: true) do |csv|
-        rows.each { csv << _1 }
+        rows.each do |row|
+          # strip hyperlinks
+          row = row.map do |value|
+            if value.is_a?(String) && (h = Util::Strings.hyperlink(value))
+              value = h[1]
+            end
+            value
+          end
+          csv << row
+        end
       end
     end
 
@@ -54,7 +59,7 @@ module TableTennis
 
     # we cnan do a bit more config checking now
     def sanity!
-      %i[color_scales layout].each do |key|
+      %i[color_scales headers layout].each do |key|
         next if !config[key].is_a?(Hash)
         next if rows.empty? # ignore on empty data
         invalid = config[key].keys - data.column_names
@@ -71,9 +76,6 @@ module TableTennis
     #
     # puts TableTennis.new(array_of_hashes_or_records, options = {})
     #
-    # See the README for details on options - _color_scales_, _color_,
-    # _columns_, _debug_, _digits_, _layout_, _mark_, _placeholder_,
-    # _row_numbers_, _save_, _search_, _strftime_, _theme_, _title_, _zebra_
     def new(*args, &block) = Table.new(*args, &block)
   end
 end

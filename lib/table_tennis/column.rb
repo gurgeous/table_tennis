@@ -10,12 +10,12 @@ module TableTennis
     # c is the column index
     attr_reader :name, :data, :c
     attr_accessor :header, :width
-    def_delegators :data, *%i[rows]
+    def_delegators :data, *%i[config rows]
 
     def initialize(data, name, c)
       @name, @data, @c = name, data, c
-      @header = name.to_s
-      if data&.config&.titleize?
+      @header = config&.headers&.dig(name) || name.to_s
+      if config&.titleize?
         @header = Util::Strings.titleize(@header)
       end
     end

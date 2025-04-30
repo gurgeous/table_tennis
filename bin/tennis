@@ -30,9 +30,6 @@ module TableTennis
 
     def table_options
       table_options = options.select { TableTennis::Config::OPTIONS.key?(_1) }.tap do
-        _1[:color_scales] = if (columns = options[:color_scales])
-          columns.to_h { |name| [name.to_sym, :b] }
-        end
         _1[:mark] = if options[:mark]
           ->(row) { row.to_s =~ options[:mark] }
         end
@@ -119,6 +116,21 @@ end
 
 options = {}.tap do |into|
   OptionParser.new do |opts|
+    opts.accept(Hash) do |str|
+      {}.tap do |hash|
+        if str !~ /^(\w+=:?\w+)(,(\w+=:?\w+))*$/
+          raise ArgumentError, "invalid hash, use a=b,c=123,e=:sym"
+        end
+        str.split(",").each do |pair|
+          key, value = pair.split("=")
+          case value
+          when /^\d+$/ then value = value.to_i
+          when /^:/ then value = value[1..].to_sym
+          end
+          hash[key.to_sym] = value
+        end
+      end
+    end
     opts.accept(Regexp) { Regexp.new(_1, Regexp::IGNORECASE) }
     opts.accept(Symbol) { _1.to_sym }
 
@@ -134,9 +146,10 @@ options = {}.tap do |into|
     opts.on("-a", "--all", "don't limit rows")
     opts.on("--clear", "clear screen before we begin (for screenshots)")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
-    opts.on("--color-scale COLUMN", Array, "color scale a column")
-    opts.on("--columns COLUMNS", Array, "columns to include in the table")
+    opts.on("--color-scales a=:b,c=:r", Hash, "color scale some column")
+    opts.on("--columns STR,STR,STR", Array, "columns to include in the table")
     opts.on("--digits DIGITS", Integer, "number of digits for formatting floats")
+    opts.on("--headers a=b,c=d", Hash, "custom table headers")
     opts.on("--holes", "randomly nil out some cells to test placeholders")
     opts.on("--layout LAYOUT", "true for autolayout, false for no layout, or int width")
     opts.on("--limit LIMIT", Integer, "limit rows table")
@@ -159,7 +172,7 @@ options = {}.tap do |into|
     end
   end.parse!(into:)
   into[:action] = TableTennis::Main::ACTIONS.find { into[_1] } || :demo
-  into[:color_scales] = into.delete(:"color-scale")
+  into[:color_scales] = into.delete(:"color-scales")
   into[:columns] = into[:columns]&.map(&:to_sym)
   into[:layout] = case into[:layout]
   when "true" then true
