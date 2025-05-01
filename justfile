@@ -22,6 +22,7 @@ gem-local:
 
 # this will tag, build and push to rubygems
 gem-push: check
+  @if rg -g '!justfile' "\bREMIND\b" ; then just _fatal "REMIND found, bailing" ; fi
   @just _banner rake release...
   rake release
 

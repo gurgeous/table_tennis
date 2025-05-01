@@ -18,17 +18,16 @@ module TableTennis
     def test_validation
       # try something we know is invalid for every option
       bad = (123..345)
-      Config::OPTIONS.each { assert_config_raise(_1, bad) }
+      Config::OPTIONS.each_key { assert_config_raise(_1, bad) }
 
       # here are things that work
       assert_config_no_raise(:color, true)
-      assert_config_no_raise(:color_scale, :a)
       assert_config_no_raise(:color_scales, :a)
       assert_config_no_raise(:color_scales, {a: :b})
       assert_config_no_raise(:color_scales, %i[a b c])
       assert_config_no_raise(:columns, %i[a b c])
       assert_config_no_raise(:headers, {a: "hi"})
-      assert_config_no_raise(:digits, 123)
+      assert_config_no_raise(:digits, 7)
       assert_config_no_raise(:layout, {a: 123})
       assert_config_no_raise(:layout, 123)
       assert_config_no_raise(:layout, false)
@@ -104,21 +103,21 @@ module TableTennis
 
     protected
 
-    def assert_config_no_raise(key, value)
-      assert_no_raises { Config.new(key => value) }
+    def assert_config_no_raise(name, value)
+      assert_no_raises { Config.new(name => value) }
     end
 
-    def assert_config_raise(key, value)
+    def assert_config_raise(name, value)
       begin
-        Config.new(key => value)
+        Config.new(name => value)
       rescue => ex
       end
 
-      what = "Config(#{key.inspect} => #{value.inspect})"
+      what = "Config(#{name.inspect} => #{value.inspect})"
       if !ex.is_a?(ArgumentError)
         flunk("Expected ArgumentError for #{what}, but got #{ex.inspect}")
       end
-      assert_match("TableTennis.#{key}", ex.message)
+      assert_match("TableTennis::Config.#{name}", ex.message)
     end
   end
 end
