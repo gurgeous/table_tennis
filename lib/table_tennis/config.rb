@@ -3,8 +3,8 @@ module TableTennis
     attr_accessor :defaults
   end
 
-  # Store the table configuration options, with lots of validation.
-  class Config
+  # Table configuration options, with schema validation courtesy of MagicOptions.
+  class Config < Util::MagicOptions
     OPTIONS = {
       color_scales: nil, # columns => color scale
       color: nil, # true/false/nil (detect)
@@ -28,67 +28,47 @@ module TableTennis
     }.freeze
 
     SCHEMA = {
-      color_scales: {sym: :sym}, # REMIND: preprocess
+      color_scales: ->(value) do
+        if (error = Config.magic_validate!(value, {Symbol => Symbol}))
+          error
+        elsif value.values.any? { !Util::Scale::SCALES.include?(_1) }
+          "values must be the name of a color scale"
+        end
+      end,
       color: :bool,
       columns: :symbols,
       debug: :bool,
       delims: :bool,
-      digits: :int,
+      digits: (0..10),
       headers: {sym: :str},
-      layout: "REMIND", # lambda
+      layout: -> do
+        return if _1 == true || _1 == false || _1.is_a?(Integer)
+        Config.magic_validate!(_1, {Symbol => Integer})
+      end,
       mark: :proc,
       placeholder: :str,
       row_numbers: :bool,
       save: :str,
-      search: "REMIND", # lambda
+      search: -> do
+        if !(_1.is_a?(String) || _1.is_a?(Regexp))
+          "expected string/regex"
+        end
+      end,
       separators: :bool,
       strftime: :str,
-      theme: %w[dark light ansi],
+      theme: %i[dark light ansi],
       title: :str,
       titleize: :bool,
       zebra: :bool,
     }
 
-    #   def _str(option, value)
-    # case option
-    # when :placeholder
-    #   value = "" if value.nil?
-    # when :title
-    #   value = value.to_s if value.is_a?(Symbol)
-    # end
-
-    # def layout=(value)
-    #   @layout = validate(:layout, value) do
-    #     next if [true, false].include?(value) || value.is_a?(Integer)
-    #     _hash(:layout, value, Symbol, Integer) # ignore return value
-    #     nil
-    #   end
-    # end
-
-    # def theme=(value)
-    #   @theme = validate(:theme, value) do
-    #     if !value.is_a?(Symbol)
-    #       "expected symbol"
-    #     elsif !Theme::THEMES.key?(value)
-    #       "expected one of #{Theme::THEMES.keys.inspect}"
-    #     end
-    #   end
-    # end
-
-    # def search=(value)
-    #   @search = validate(:search, value) do
-    #     if !(value.is_a?(String) || value.is_a?(Regexp))
-    #       "expected string/regex"
-    #     end
-    #   end
-    # end
-
     def initialize(options = {}, &block)
+      super(SCHEMA)
+
       # preprocess
       options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
       options[:color] = Config.detect_color? if options[:color].nil?
-      if options[:color_scales]
-        value = options[:color_scales]
+      if (value = options[:color_scales])
         case value
         when Array then value = value.to_h { [_1, :g] }
         when Symbol then value = {value => :g}
@@ -99,40 +79,9 @@ module TableTennis
       options[:placeholder] = "" if options[:placeholder].nil?
       options[:theme] = Config.detect_theme if options[:theme].nil?
       options[:title] = options[:title].to_s if options[:title].is_a?(Symbol)
-
-      # validate
-      magic = MagicOptions.new(SCHEMA, error_prefix: "TableTennis")
-      magic.parse(options).each { self[_1] = _2 }
+      update!(options)
 
       yield self if block_given?
-    end
-
-    # readers
-    attr_reader(*OPTIONS.keys)
-
-    #
-    # simple writers
-    #
-
-    {
-      color: :bool,
-      debug: :bool,
-      delims: :bool,
-      digits: :int,
-      mark: :proc,
-      placeholder: :str,
-      row_numbers: :bool,
-      save: :str,
-      separators: :bool,
-      strftime: :str,
-      title: :str,
-      titleize: :bool,
-      zebra: :bool,
-    }.each do |option, type|
-      define_method(:"#{option}=") do |value|
-        instance_variable_set(:"@#{option}", send(:"_#{type}", option, value))
-      end
-      alias_method(:"#{option}?", option) if type == :bool
     end
 
     #
@@ -157,152 +106,6 @@ module TableTennis
       case terminal_dark?
       when true, nil then :dark
       when false then :light
-      end
-    end
-
-    #
-    # complex writers
-    #
-
-    def color_scales=(value)
-      case value
-      when Array then value = value.to_h { [_1, :g] }
-      when Symbol then value = {value => :g}
-      end
-      value.to_h { [_1, :g] } if value.is_a?(Array)
-      @color_scales = validate(:color_scales, value) do
-        _hash(:color_scales, value, Symbol, Symbol) # ignore return value
-        if value.values.any? { !Util::Scale::SCALES.include?(_1) }
-          "values must be the name of a color scale"
-        end
-      end
-    end
-    alias_method(:"color_scale=", :"color_scales=")
-
-    def columns=(value)
-      @columns = validate(:columns, value) do
-        if !(value.is_a?(Array) && !value.empty? && value.all? { _1.is_a?(Symbol) })
-          "expected array of symbols"
-        end
-      end
-    end
-
-    def headers=(value)
-      @headers = _hash(:headers, value, Symbol, String)
-    end
-
-    def layout=(value)
-      @layout = validate(:layout, value) do
-        next if [true, false].include?(value) || value.is_a?(Integer)
-        _hash(:layout, value, Symbol, Integer) # ignore return value
-        nil
-      end
-    end
-
-    def theme=(value)
-      @theme = validate(:theme, value) do
-        if !value.is_a?(Symbol)
-          "expected symbol"
-        elsif !Theme::THEMES.key?(value)
-          "expected one of #{Theme::THEMES.keys.inspect}"
-        end
-      end
-    end
-
-    def search=(value)
-      @search = validate(:search, value) do
-        if !(value.is_a?(String) || value.is_a?(Regexp))
-          "expected string/regex"
-        end
-      end
-    end
-
-    def [](key)
-      raise ArgumentError, "unknown TableTennis.#{key}" if !respond_to?(key)
-      send(key)
-    end
-
-    def []=(key, value)
-      raise ArgumentError, "unknown TableTennis.#{key}=" if !respond_to?(:"#{key}=")
-      send(:"#{key}=", value)
-    end
-
-    def inspect
-      options = to_h.map { "@#{_1}=#{_2.inspect}" }.join(", ")
-      "#<Config #{options}>"
-    end
-
-    def to_h
-      OPTIONS.keys.to_h { [_1, self[_1]] }.compact
-    end
-
-    protected
-
-    #
-    # validations
-    #
-
-    def validate(option, value, &block)
-      if value != nil && (error = yield)
-        raise ArgumentError, "TableTennis.#{option} #{error}, got #{value.inspect}"
-      end
-      value
-    end
-
-    def _bool(option, value)
-      value = case value
-      when true, 1, "1", "true" then true
-      when false, 0, "", "0", "false" then false
-      else; value # this will turn into an error down below
-      end
-      validate(option, value) do
-        "expected boolean" if ![true, false].include?(value)
-      end
-    end
-
-    def _hash(option, value, key_class, value_class)
-      validate(option, value) do
-        if !value.is_a?(Hash)
-          "expected hash"
-        elsif value.keys.any? { !_1.is_a?(key_class) }
-          "keys must be #{key_class.to_s.downcase}s"
-        elsif value.values.any? { !_1.is_a?(value_class) }
-          "values must be #{value_class.to_s.downcase}s"
-        end
-      end
-    end
-
-    def _int(option, value)
-      validate(option, value) do
-        if !value.is_a?(Integer)
-          "expected int"
-        elsif value < 0
-          "expected positive int"
-        end
-      end
-    end
-
-    def _proc(option, value)
-      validate(option, value) do
-        "expected proc" if !value.is_a?(Proc)
-      end
-    end
-
-    def _str(option, value)
-      case option
-      when :placeholder
-        value = "" if value.nil?
-      when :title
-        value = value.to_s if value.is_a?(Symbol)
-      end
-      validate(option, value) do
-        "expected string" if !value.is_a?(String)
-      end
-    end
-
-    def _sym(option, value)
-      validate(option, value) do
-        "expected symbol" if !value.is_a?(Symbol)
       end
     end
   end

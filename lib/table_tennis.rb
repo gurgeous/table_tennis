@@ -9,10 +9,10 @@ require "unicode/display_width"
 
 # mixins must be at top
 require "table_tennis/util/inspectable"
+require "table_tennis/util/magic_options"
 
 require "table_tennis/column"
 require "table_tennis/config"
-require "table_tennis/magic_options"
 require "table_tennis/row"
 require "table_tennis/table_data"
 require "table_tennis/table"
