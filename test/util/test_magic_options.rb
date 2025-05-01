@@ -28,9 +28,6 @@ module TableTennis
         possibilities: %w[foo bar],
       }
 
-      # REMIND: init w/block
-      # REMIND: invalid schema keys (wrong type, bad method names)
-
       def test_basic
         # create some options
         options = magic(
