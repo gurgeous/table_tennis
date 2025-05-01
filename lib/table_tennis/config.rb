@@ -29,7 +29,7 @@ module TableTennis
 
     SCHEMA = {
       color_scales: ->(value) do
-        if (error = Config.magic_validate!(value, {Symbol => Symbol}))
+        if (error = Config.magic_validate(value, {Symbol => Symbol}))
           error
         elsif value.values.any? { !Util::Scale::SCALES.include?(_1) }
           "values must be the name of a color scale"
@@ -43,7 +43,7 @@ module TableTennis
       headers: {sym: :str},
       layout: -> do
         return if _1 == true || _1 == false || _1.is_a?(Integer)
-        Config.magic_validate!(_1, {Symbol => Integer})
+        Config.magic_validate(_1, {Symbol => Integer})
       end,
       mark: :proc,
       placeholder: :str,
@@ -63,37 +63,38 @@ module TableTennis
     }
 
     def initialize(options = {}, &block)
-      super(SCHEMA)
-
-      # preprocess
+      # assemble from OPTIONS, defaults and options
       options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
       options[:color] = Config.detect_color? if options[:color].nil?
-      if (value = options[:color_scales])
-        case value
-        when Array then value = value.to_h { [_1, :g] }
-        when Symbol then value = {value => :g}
-        end
-        options[:color_scales] = value
-      end
       options[:debug] = true if ENV["TT_DEBUG"]
-      options[:placeholder] = "" if options[:placeholder].nil?
       options[:theme] = Config.detect_theme if options[:theme].nil?
-      options[:title] = options[:title].to_s if options[:title].is_a?(Symbol)
-      update!(options)
+      super(SCHEMA, options, &block)
+    end
 
-      yield self if block_given?
+    #
+    # override a few setters to coerce values
+    #
+
+    def color_scales=(value)
+      if value.is_a?(Array) || value.is_a?(Symbol)
+        value = Array(value).to_h { [_1, :g] }
+      end
+      self[:color_scales] = value
+    end
+
+    def placeholder=(value)
+      value = "" if value.nil?
+      self[:placeholder] = value
+    end
+
+    def title=(value)
+      value = value.to_s if value.is_a?(Symbol)
+      self[:title] = value
     end
 
     #
     # helpers
     #
-
-    # is this a dark terminal?
-    def self.terminal_dark?
-      if (bg = Util::Termbg.bg)
-        Util::Colors.dark?(bg)
-      end
-    end
 
     def self.detect_color?
       return false if ENV["NO_COLOR"] || ENV["CI"]
@@ -106,6 +107,13 @@ module TableTennis
       case terminal_dark?
       when true, nil then :dark
       when false then :light
+      end
+    end
+
+    # is this a dark terminal?
+    def self.terminal_dark?
+      if (bg = Util::Termbg.bg)
+        Util::Colors.dark?(bg)
       end
     end
   end

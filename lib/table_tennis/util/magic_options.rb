@@ -59,7 +59,7 @@ module TableTennis
         yield self if block_given?
       end
 
-      def update!(hash) = hash.each { self[_1] = _2 }
+      def update!(hash) = hash.each { send("#{_1}=", _2) }
       def to_h = magic_values.dup
 
       def inspect
@@ -132,7 +132,7 @@ module TableTennis
         raise ArgumentError, "unknown #{self.class}.#{name}=" if !magic_attributes.key?(name)
         type = magic_attributes[name]
         value = self.class.magic_coerce(value, type)
-        if !value.nil? && (error = MagicOptions.magic_validate!(value, type))
+        if !value.nil? && (error = MagicOptions.magic_validate(value, type))
           if !type.is_a?(Proc)
             error = "#{error}, got #{value.inspect}"
           end
@@ -146,10 +146,10 @@ module TableTennis
       alias_method :[]=, :magic_set
 
       #
-      # magic_validate! and static helpers
+      # magic_validate and static helpers
       #
 
-      def self.magic_validate!(value, type)
+      def self.magic_validate(value, type)
         case type
         when Array
           "expected one of #{type.inspect}" if !type.include?(value)
