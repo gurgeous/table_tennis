@@ -27,12 +27,82 @@ module TableTennis
       zebra: false, # turn on zebra stripes
     }.freeze
 
+    SCHEMA = {
+      color_scales: {sym: :sym}, # REMIND: preprocess
+      color: :bool,
+      columns: :symbols,
+      debug: :bool,
+      delims: :bool,
+      digits: :int,
+      headers: {sym: :str},
+      layout: "REMIND", # lambda
+      mark: :proc,
+      placeholder: :str,
+      row_numbers: :bool,
+      save: :str,
+      search: "REMIND", # lambda
+      separators: :bool,
+      strftime: :str,
+      theme: %w[dark light ansi],
+      title: :str,
+      titleize: :bool,
+      zebra: :bool,
+    }
+
+    #   def _str(option, value)
+    # case option
+    # when :placeholder
+    #   value = "" if value.nil?
+    # when :title
+    #   value = value.to_s if value.is_a?(Symbol)
+    # end
+
+    # def layout=(value)
+    #   @layout = validate(:layout, value) do
+    #     next if [true, false].include?(value) || value.is_a?(Integer)
+    #     _hash(:layout, value, Symbol, Integer) # ignore return value
+    #     nil
+    #   end
+    # end
+
+    # def theme=(value)
+    #   @theme = validate(:theme, value) do
+    #     if !value.is_a?(Symbol)
+    #       "expected symbol"
+    #     elsif !Theme::THEMES.key?(value)
+    #       "expected one of #{Theme::THEMES.keys.inspect}"
+    #     end
+    #   end
+    # end
+
+    # def search=(value)
+    #   @search = validate(:search, value) do
+    #     if !(value.is_a?(String) || value.is_a?(Regexp))
+    #       "expected string/regex"
+    #     end
+    #   end
+    # end
+
     def initialize(options = {}, &block)
+      # preprocess
       options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
       options[:color] = Config.detect_color? if options[:color].nil?
-      options[:theme] = Config.detect_theme if options[:theme].nil?
+      if options[:color_scales]
+        value = options[:color_scales]
+        case value
+        when Array then value = value.to_h { [_1, :g] }
+        when Symbol then value = {value => :g}
+        end
+        options[:color_scales] = value
+      end
       options[:debug] = true if ENV["TT_DEBUG"]
-      options.each { self[_1] = _2 }
+      options[:placeholder] = "" if options[:placeholder].nil?
+      options[:theme] = Config.detect_theme if options[:theme].nil?
+      options[:title] = options[:title].to_s if options[:title].is_a?(Symbol)
+
+      # validate
+      magic = MagicOptions.new(SCHEMA, error_prefix: "TableTennis")
+      magic.parse(options).each { self[_1] = _2 }
 
       yield self if block_given?
     end
