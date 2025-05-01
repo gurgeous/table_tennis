@@ -164,6 +164,13 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 
 ### Changelog
 
+#### 0.0.6 (May '25)
+
+- (in progress)
+- added `headers:` option to manually set column headers
+- fixed some issues related to links, including `save:`
+- added MagicOptions, which I might break out into a gem
+
 #### 0.0.5 (April '25)
 
 - Support for markdown style links in the cells
