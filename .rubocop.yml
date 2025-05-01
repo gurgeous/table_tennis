@@ -21,6 +21,7 @@ AllCops:
 
 # we like these, don't remove
 Bundler/OrderedGems: { Enabled: true } # sort gems in gemfile
+Bundler/GemVersion: { Enabled: true } # make sure we have versions
 Layout/EmptyLineBetweenDefs: { AllowAdjacentOneLineDefs: true }
 Lint/NonLocalExitFromIterator: { Enabled: false }
 Lint/RedundantDirGlobSort: { Enabled: true } # glob is already sorted

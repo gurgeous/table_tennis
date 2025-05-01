@@ -80,7 +80,7 @@ module TableTennis
         assert_magic_no_raises(:float, 1.23)
         assert_magic_no_raises(:float, 123)
         assert_magic_no_raises(:int, 123)
-        assert_magic_no_raises(:num, (1/2r))
+        assert_magic_no_raises(:num, 1/2r)
         assert_magic_no_raises(:num, 1.23)
         assert_magic_no_raises(:num, 123)
         assert_magic_no_raises(:range, 5)
