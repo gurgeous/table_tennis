@@ -1,12 +1,18 @@
 #
-# Helper class for strict config/option processing. This is used by Config but
-# could probably be a custom gem at some point.
+# Helper class for validated option processing. This is used by Config but could probably be a
+# custom gem at some point...
 #
-# The schema is a hash of keys to types. The types are:
+# MagicOptions is created with a `schema` that describes a set of `attributes`. Each attribute has a
+# `name` and a `type`. `options` is a hash of values that should match the schema. MagicOptions adds
+# getters and setters for each attribute. The setters perform validation and raise an error if
+# something is awry. Because the setters throw on error, It is not possible to populate MagicOptions
+# with invalid values.
+#
+# Here are the supported attribute types:
 #
 # (1) A simple type like :bool, :int, :num, :float, :str or :sym.
-# (2) A range, regexp or Class.
-# (3) An array type like :bools, :ints, :nums, :floats, :strs, or :syms.
+# (2) An array type like :bools, :ints, :nums, :floats, :strs, or :syms.
+# (3) A range, regexp or Class.
 # (4) A lambda which should return an error string, a boolean, or nil.
 # (5) An array of possible values (typically numbers, strings, or symbols). The
 #     value must be one of those possibilities.
@@ -14,64 +20,58 @@
 #     signature, and the value must be a hash where the keys and values are
 #     those classes.
 #
-# All values are optional. There is a bit of type coercion, but not much. For
-# example, the string "true" or "1" will be coerced to true for boolean options.
-# Integers can be used when the schema calls for floats.
+# There is a bit of type coercion, but not much. For example, the string "true" or "1" will be
+# coerced to true for boolean options. Integers can be used when the schema calls for floats.
 #
 
 module TableTennis
   class MagicOptions
-    attr_accessor :magic_options, :magic_schema
+    attr_accessor :magic_attributes, :magic_options
 
     #
     # public api
     #
 
     def initialize(schema, options = {}, &block)
-      @magic_options, @magic_schema = {}, {}
-      schema.each { magic_define(_1, _2) }
+      @magic_attributes, @magic_options = {}, {}
+      schema.each { magic_define_attribute(_1, _2) }
       update!(options) if options
       yield self if block_given?
     end
 
-    def []=(key, value)
-      magic_set(key, value)
-    end
-
-    def [](key) = magic_get(key)
     def update!(hash) = hash.each { self[_1] = _2 }
     def to_h = magic_options.dup
 
-    protected
-
     #
-    # magic_define and friends
+    # magic_define_attribute and friends
     #
 
-    def magic_define(key, type)
+    def magic_define_attribute(name, type)
+      # resolve types
       type = if type.is_a?(Hash)
         type.to_h { [magic_resolve(_1), magic_resolve(_2)] }
       else
         magic_resolve(type)
       end
-
-      if (error = magic_sanity(key, type))
-        raise ArgumentError, "MagicOptions schema #{key.inspect} #{error}"
+      # check for schema errors
+      if (error = magic_sanity(name, type))
+        raise ArgumentError, "MagicOptions schema #{name.inspect} #{error}"
       end
-      magic_schema[key] = type
 
-      define_singleton_method(key) { self[key] }
-      define_singleton_method("#{key}?") { !!self[key] } if type == :bool
-      define_singleton_method("#{key}=") { |value| self[key] = value }
+      # all is well
+      magic_attributes[name] = type
+      define_singleton_method(name) { self[name] }
+      define_singleton_method("#{name}?") { !!self[name] } if type == :bool
+      define_singleton_method("#{name}=") { |value| self[name] = value }
     end
 
-    # sanity check a key/type from the schema
-    def magic_sanity(key, type)
-      if !key.is_a?(Symbol)
-        return "schema keys must be symbols"
+    # sanity check a name/type from the schema
+    def magic_sanity(name, type)
+      if !name.is_a?(Symbol)
+        return "attribute names must be symbols"
       end
-      if !key.to_s.match?(/\A[a-z_][0-9a-z_]+\z/i)
-        return "schema keys must be valid method names"
+      if !name.to_s.match?(/\A[a-z_][0-9a-z_]*\z/i)
+        return "attribute names must be valid method names"
       end
 
       case type
@@ -87,7 +87,7 @@ module TableTennis
       end
     end
 
-    ALIASES = {
+    MAGIC_ALIASES = {
       boolean: :bool,
       booleans: :bools,
       bool: :bool,
@@ -112,7 +112,7 @@ module TableTennis
       syms: :syms,
     }
 
-    PRETTY = {
+    MAGIC_PRETTY = {
       :bool => "boolean",
       Float => "float",
       Integer => "integer",
@@ -121,30 +121,34 @@ module TableTennis
       Symbol => "symbol",
     }
 
-    def magic_resolve(type) = ALIASES[type] || type
-    def magic_pretty(klass) = PRETTY[klass] || klass.to_s
+    def magic_resolve(type) = MAGIC_ALIASES[type] || type
+    def magic_pretty(klass) = MAGIC_PRETTY[klass] || klass.to_s
 
     #
     # magic_get/set
     #
 
-    def magic_get(key)
-      raise ArgumentError, "unknown #{self.class}.#{key}" if !magic_schema.key?(key)
-      magic_options[key]
+    def magic_get(name)
+      raise ArgumentError, "unknown #{self.class}.#{name}" if !magic_attributes.key?(name)
+      magic_options[name]
     end
 
-    def magic_set(key, value)
-      raise ArgumentError, "unknown #{self.class}.#{key}=" if !magic_schema.key?(key)
-      type = magic_schema[key]
+    def magic_set(name, value)
+      raise ArgumentError, "unknown #{self.class}.#{name}=" if !magic_attributes.key?(name)
+      type = magic_attributes[name]
       value = magic_coerce(value, type)
       if !value.nil? && (error = magic_validate(value, type))
         if !type.is_a?(Proc)
           error = "#{error}, got #{value.inspect}"
         end
-        raise ArgumentError, "#{self.class}.#{key}= #{error}"
+        raise ArgumentError, "#{self.class}.#{name}= #{error}"
       end
-      magic_options[key] = value
+      magic_options[name] = value
     end
+
+    # these are part of the public api
+    alias_method :[], :magic_get
+    alias_method :[]=, :magic_set
 
     # coerce value into type. pretty conservative at the moment
     def magic_coerce(value, type)
@@ -168,9 +172,9 @@ module TableTennis
       when Class, :bool
         "expected #{magic_pretty(type)}" if !magic_is_a?(value, type)
       when Hash
-        key_klass, value_klass = type.first
-        valid = value.is_a?(Hash) && value.all? { magic_is_a?(_1, key_klass) && magic_is_a?(_2, value_klass) }
-        "expected hash of #{magic_pretty(key_klass)} => #{magic_pretty(value_klass)}" if !valid
+        name_klass, value_klass = type.first
+        valid = value.is_a?(Hash) && value.all? { magic_is_a?(_1, name_klass) && magic_is_a?(_2, value_klass) }
+        "expected hash of #{magic_pretty(name_klass)} => #{magic_pretty(value_klass)}" if !valid
       when Proc
         ret = type.call(value)
         if ret.is_a?(String)
@@ -193,7 +197,7 @@ module TableTennis
       end
     end
 
-    # like is_a?, but slightly more flexible
+    # like is_a?, but supports :bool and allows ints to be floats
     def magic_is_a?(value, klass)
       if klass == :bool
         value == true || value == false
