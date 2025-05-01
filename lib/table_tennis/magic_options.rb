@@ -2,11 +2,11 @@
 # Helper class for validated option processing. This is used by Config but could probably be a
 # custom gem at some point...
 #
-# MagicOptions is created with a `schema` that describes a set of `attributes`. Each attribute has a
-# `name` and a `type`. `options` is a hash of values that should match the schema. MagicOptions adds
-# getters and setters for each attribute. The setters perform validation and raise an error if
-# something is awry. Because the setters throw on error, It is not possible to populate MagicOptions
-# with invalid values.
+# MagicOptions is created with a `schema` defining a list of `attributes`. Each attribute has a
+# `name` and a `type`. `options` is a hash of values that hopefully match the schema. MagicOptions
+# adds getters and setters for each attribute, and also supports [] and []=. The setters perform
+# validation and raise ArgumentError if something is awry. Because setters validate, it is not
+# possible to populate MagicOptions with invalid values.
 #
 # Here are the supported attribute types:
 #
@@ -47,13 +47,14 @@ module TableTennis
     #
 
     def magic_define_attribute(name, type)
-      # resolve types
+      # resolve :boolean to :bool, :int => Integer class, etc.
       type = if type.is_a?(Hash)
         type.to_h { [magic_resolve(_1), magic_resolve(_2)] }
       else
         magic_resolve(type)
       end
-      # check for schema errors
+
+      # now check for schema errors
       if (error = magic_sanity(name, type))
         raise ArgumentError, "MagicOptions schema #{name.inspect} #{error}"
       end
@@ -112,17 +113,7 @@ module TableTennis
       syms: :syms,
     }
 
-    MAGIC_PRETTY = {
-      :bool => "boolean",
-      Float => "float",
-      Integer => "integer",
-      Numeric => "number",
-      String => "string",
-      Symbol => "symbol",
-    }
-
     def magic_resolve(type) = MAGIC_ALIASES[type] || type
-    def magic_pretty(klass) = MAGIC_PRETTY[klass] || klass.to_s
 
     #
     # magic_get/set
@@ -207,5 +198,17 @@ module TableTennis
         value.is_a?(klass)
       end
     end
+
+    MAGIC_PRETTY = {
+      :bool => "boolean",
+      Float => "float",
+      Integer => "integer",
+      Numeric => "number",
+      String => "string",
+      Symbol => "symbol",
+    }
+
+    # pretty print a class (or :bool)
+    def magic_pretty(klass) = MAGIC_PRETTY[klass] || klass.to_s
   end
 end
