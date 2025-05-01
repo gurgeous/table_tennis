@@ -6,7 +6,7 @@ module TableTennis
       int: :int,
       num: :num,
       proc_bool: -> { _1 == "yes" },
-      proc_err: -> { (_1 != "yes") ? "ugh" : nil },
+      proc_err: -> { (_1 == "yes") || "ugh" },
       range: (-10..10),
       re: /hello|world/i,
       str: :str,
@@ -126,6 +126,13 @@ module TableTennis
       m = MagicOptions.new({a: :bool})
       assert_equal true, m.coerce(1, :bool)
       assert_equal false, m.coerce("false", :bool)
+    end
+
+    def test_error_prefix
+      m = MagicOptions.new({a: :bool}, error_prefix: "Slurpy")
+      assert_raises(ArgumentError, "Slurpy.a") do
+        m.parse(a: "nope")
+      end
     end
 
     protected

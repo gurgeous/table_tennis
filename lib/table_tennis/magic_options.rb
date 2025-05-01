@@ -4,10 +4,10 @@
 #
 # The schema is a hash of keys to types. The types are:
 #
-# (1) A primitive type like :bool, :int, :num, :float, :str or :sym
-# (2) An array type like :bools, :ints, :nums, :floats, :strs, or :syms
-# (3) A range, regexp or Class
-# (4) A lambda which should return an error string, a boolean, or nil
+# (1) A simple type like :bool, :int, :num, :float, :str or :sym.
+# (2) A range, regexp or Class.
+# (3) An array type like :bools, :ints, :nums, :floats, :strs, or :syms.
+# (4) A lambda which should return an error string, a boolean, or nil.
 # (5) An array of possible values (typically numbers, strings, or symbols). The
 #     value must be one of those possibilities.
 # (6) A hash with one element { class => class }. This specifies the hash
@@ -21,13 +21,13 @@
 
 module TableTennis
   class MagicOptions
-    attr_reader :schema
+    attr_reader :error_prefix, :schema
 
-    def initialize(schema)
+    def initialize(schema, error_prefix: nil)
+      @error_prefix = error_prefix
       if !schema.is_a?(Hash) || schema.empty?
         raise ArgumentError, "MagicOptions schema must be a non-empty hash"
       end
-
       # resolve type aliases (:boolean => :bool, :int => Integer, etc.)
       @schema = schema.transform_values do |type|
         if type.is_a?(Hash)
@@ -36,8 +36,7 @@ module TableTennis
           resolve_alias(type)
         end
       end
-
-      # now do our sanity check
+      # now do our sanity check on the schema
       @schema.each do |key, type|
         if (error = sanity(key, type))
           raise ArgumentError, "MagicOptions schema #{key.inspect} #{error}"
@@ -46,52 +45,42 @@ module TableTennis
     end
 
     def parse(options)
-      # any unknown keys?
+      # does options have unknown keys?
       unknown = options.keys - schema.keys
       if !unknown.empty?
         raise ArgumentError, "unknown options #{unknown.inspect}"
       end
 
-      # validate
-      schema.filter_map do |key, type|
-        if options.key?(key)
-          if !(value = options[key]).nil?
-            value = coerce(value, type)
-            if (error = validate(value, type))
-              raise ArgumentError, "#{key.inspect} #{error}, but it was #{value.inspect}"
-            end
+      # now validate options
+      options.to_h do |key, value|
+        type = schema[key]
+        value = coerce(value, type)
+        if !value.nil? && (error = validate(value, type))
+          if !type.is_a?(Proc)
+            error = "#{error}, got #{value.inspect}"
           end
-          [key, value]
+          error = if error_prefix
+            "#{error_prefix}.#{key} #{error}"
+          else
+            "#{key.inspect} #{error}"
+          end
+          raise ArgumentError, error
         end
-      end.to_h
+        [key, value]
+      end
     end
 
     # sanity check the schema
     def sanity(key, type)
-      if !key.is_a?(Symbol)
-        return "schema keys must be symbols"
-      end
-
+      return "schema keys must be symbols" if !key.is_a?(Symbol)
       case type
-      # single value that matches this type
-      when :bool, Class, Proc, Range, Regexp then return
-
-      # value is an array
-      when :bools, :floats, :ints, :nums, :strs, :syms then return
-
-      # one of these possible values
+      when :bool, :bools, :floats, :ints, :nums, :strs, :syms, Class, Proc, Range, Regexp
+        return
       when Array
-        if type.empty?
-          "must be an array of possible values"
-        end
-
-      # hash with a certain signature
+        "must be an array of possible values" if type.empty?
       when Hash
         valid = type.length == 1 && type.first.all? { _1 == :bool || _1.is_a?(Class) }
-        if !valid
-          "must be { class => class }"
-        end
-
+        "must be { class => class }" if !valid
       else
         "unknown schema type #{type.inspect}"
       end
@@ -111,55 +100,32 @@ module TableTennis
     # validate the value matches type
     def validate(value, type)
       case type
-
-      # one of these possible values
       when Array
-        if !type.include?(value)
-          "expected one of #{type.inspect}"
-        end
-
-      # hash with a certain signature
+        "expected one of #{type.inspect}" if !type.include?(value)
+      when Class, :bool
+        "expected #{pretty_class(type)}" if !is_flex?(value, type)
       when Hash
         key_klass, value_klass = type.first
         validate_hash(value, key_klass, value_klass)
-
       when Proc
         ret = type.call(value)
-        case ret
-        when String then ret
-        when false then "expected to pass #{type.inspect}"
+        if ret.is_a?(String)
+          ret
+        elsif !ret
+          "invalid"
         end
-
       when Range
-        if !value.is_a?(Numeric)
-          "expected number"
-        elsif !type.include?(value)
+        if !value.is_a?(Numeric) || !type.include?(value)
           "expected to be in range #{type.inspect}"
         end
-
       when Regexp
-        if !value.is_a?(String)
-          "expected string"
-        elsif !value.match?(type)
-          "expected to match #{type.inspect}"
+        if !value.is_a?(String) || !value.match?(type)
+          "expected to be a string matching #{type.inspect}"
         end
-
-      when :bool, Class
-        if !is_a_flexible?(value, type)
-          "expected #{pretty_class(type)}"
-        end
-
-      # arrays
       when :bools, :floats, :ints, :nums, :strs, :syms
         klass = resolve_alias(type.to_s[..-2].to_sym)
-        valid = value.is_a?(Array) && value.all? { is_a_flexible?(_1, klass) }
-        if !valid
-          "expected array of #{type}"
-        end
-
-      else
-        # this should never happen
-        raise "impossible type #{type.inspect}"
+        valid = value.is_a?(Array) && value.all? { is_flex?(_1, klass) }
+        "expected array of #{type}" if !valid
       end
     end
 
@@ -167,20 +133,14 @@ module TableTennis
     # helpers
     #
 
-    # validate that valie is a hash of key_klass => value_klass
+    # value should be a hash of key_klass => value_klass
     def validate_hash(value, key_klass, value_klass)
-      valid = if value.is_a?(Hash)
-        valid_values = value.values.all? { is_a_flexible?(_1, value_klass) }
-        valid_keys = value.keys.all? { is_a_flexible?(_1, key_klass) }
-        valid_keys && valid_values
-      end
-      if !valid
-        "expected hash of #{pretty_class(key_klass)} => #{pretty_class(value_klass)}"
-      end
+      valid = value.is_a?(Hash) && value.all? { is_flex?(_1, key_klass) && is_flex?(_2, value_klass) }
+      "expected hash of #{pretty_class(key_klass)} => #{pretty_class(value_klass)}" if !valid
     end
 
-    # like is_a?, but supports :bool is a klass
-    def is_a_flexible?(value, klass)
+    # like is_a?, but slightly more flexible
+    def is_flex?(value, klass)
       if klass == :bool
         value == true || value == false
       elsif klass == Float
