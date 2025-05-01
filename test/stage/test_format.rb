@@ -51,6 +51,24 @@ module TableTennis
         end
       end
 
+      def test_coerce
+        # floats with and without coerce
+        Util::Identify.stubs(:identify_column).returns(:float)
+        rows = [[1.23, 1234, "1234.12341234"]]
+        f = create_format(rows:, coerce: true).tap(&:run)
+        assert_equal ["1.230", "1,234.000", "1,234.123"], f.rows.first
+        f = create_format(rows:, coerce: false).tap(&:run)
+        assert_equal ["1.230", "1,234.000", "1234.12341234"], f.rows.first
+
+        # ints with and without coerce
+        Util::Identify.stubs(:identify_column).returns(:int)
+        rows = [[1.23, 1234, "1234"]]
+        f = create_format(rows:, coerce: true).tap(&:run)
+        assert_equal ["1.23", "1,234", "1,234"], f.rows.first
+        f = create_format(rows:, coerce: false).tap(&:run)
+        assert_equal ["1.23", "1,234", "1234"], f.rows.first
+      end
+
       #
       # fns
       #

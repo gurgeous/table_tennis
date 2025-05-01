@@ -54,15 +54,19 @@ module TableTennis
         assert_equal false, m.bool?
         # update!
         assert_equal 5, m.tap { m.update!(range: 5) }.range
+
+        # can't be directly instantiated
+        ex = assert_raises(ArgumentError) { MagicOptions.new({}) }
+        assert_match(/abstract class/, ex.message)
       end
 
+      class Subclass < MagicOptions; end
+
       def test_bad_schema_keys
-        assert_raises(ArgumentError, "must be symbols") do
-          MagicOptions.new("a" => :bool)
-        end
-        assert_raises(ArgumentError, "method names") do
-          MagicOptions.new("hi there": :bool)
-        end
+        ex = assert_raises(ArgumentError) { Subclass.new("a" => :bool) }
+        assert_match(/must be symbols/, ex.message)
+        ex = assert_raises(ArgumentError) { Subclass.new("hi there": :bool) }
+        assert_match(/method names/, ex.message)
       end
 
       def test_types
@@ -124,7 +128,8 @@ module TableTennis
         assert_magic_raises(:syms, ["nope"])
 
         # proc custom error
-        assert_raises(ArgumentError, "ugh") { magic(proc: "nope") }
+        ex = assert_raises(ArgumentError) { magic(proc: "nope") }
+        assert_match(/ugh/, ex.message)
       end
 
       def test_aliases

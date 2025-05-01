@@ -54,6 +54,11 @@ module TableTennis
 
       def initialize(schema, options = {}, &block)
         @magic_attributes, @magic_values = {}, {}
+
+        if self.class == MagicOptions # rubocop:disable Style/ClassEqualityComparison
+          raise ArgumentError, "MagicOptions is an abstract class"
+        end
+
         schema.each { magic_add_attribute(_1, _2) }
         update!(options) if options
         yield self if block_given?

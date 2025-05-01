@@ -46,16 +46,24 @@ module TableTennis
         @_memo_wise[__method__].tap { _1.clear if _1.length > 5000 }
 
         case value
-        when String then fmt_number(to_f(value), digits: config.digits) if Util::Identify.number?(value)
-        when Numeric then fmt_number(value, digits: config.digits)
+        when String
+          if config.coerce && Util::Identify.number?(value)
+            fmt_number(to_f(value), digits: config.digits)
+          end
+        when Numeric
+          fmt_number(value, digits: config.digits)
         end
       end
       memo_wise :fn_float
 
       def fn_int(value)
         case value
-        when String then fmt_number(to_i(value)) if Util::Identify.int?(value)
-        when Integer then fmt_number(value)
+        when String
+          if config.coerce && Util::Identify.int?(value)
+            fmt_number(to_i(value))
+          end
+        when Integer
+          fmt_number(value)
         end
       end
 

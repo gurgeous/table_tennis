@@ -145,6 +145,7 @@ options = {}.tap do |into|
     opts.separator nil
     opts.on("-a", "--all", "don't limit rows")
     opts.on("--clear", "clear screen before we begin (for screenshots)")
+    opts.on("--[no-]coerce", "enable/disable string coercion")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
     opts.on("--color-scales a=:b,c=:r", Hash, "color scale some column")
     opts.on("--columns STR,STR,STR", Array, "columns to include in the table")

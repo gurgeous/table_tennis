@@ -58,10 +58,10 @@ class Minitest::Test
     end
   end
 
-  def assert_no_raises
+  def assert_no_raises(msg = nil)
     yield
   rescue => ex
-    flunk "assert_no_raises, but raised #{ex.inspect}"
+    flunk(msg || "assert_no_raises, but raised #{ex.inspect}")
   end
 
   def assert_equal(exp, act, msg = nil)

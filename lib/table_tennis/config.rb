@@ -6,6 +6,7 @@ module TableTennis
   # Table configuration options, with schema validation courtesy of MagicOptions.
   class Config < Util::MagicOptions
     OPTIONS = {
+      coerce: true, # if true, we try to coerce strings into numbers
       color_scales: nil, # columns => color scale
       color: nil, # true/false/nil (detect)
       columns: nil, # array of symbols, or inferred from rows
@@ -28,6 +29,7 @@ module TableTennis
     }.freeze
 
     SCHEMA = {
+      coerce: :bool,
       color_scales: ->(value) do
         if (error = Config.magic_validate(value, {Symbol => Symbol}))
           error

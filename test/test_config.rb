@@ -21,6 +21,7 @@ module TableTennis
       Config::OPTIONS.each_key { assert_config_raise(_1, bad) }
 
       # here are things that work
+      assert_config_no_raise(:coerce, 0)
       assert_config_no_raise(:color, true)
       assert_config_no_raise(:color_scales, :a)
       assert_config_no_raise(:color_scales, {a: :b})
@@ -47,6 +48,7 @@ module TableTennis
       assert_config_no_raise(:zebra, true)
 
       # and some things that don't
+      assert_config_raise(:coerce, "nope")
       assert_config_raise(:color_scales, "nope")
       assert_config_raise(:color_scales, {"a" => :b})
       assert_config_raise(:color_scales, {a: :nope})
