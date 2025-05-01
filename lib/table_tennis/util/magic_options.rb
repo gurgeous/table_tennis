@@ -8,6 +8,25 @@
 # setters perform validation and raise ArgumentError if something is awry. Because setters always
 # validate, it is not possible to populate MagicOptions with invalid values.
 #
+# To use, subclass MagicOptions and construct with a schema:
+#
+#   class Config < MagicOptions
+#     def initialize
+#       super(
+#         first_name: :str,
+#         colors: :strings,
+#         customer: :bool,
+#         age: (20..90)
+#       )
+#     end
+#   end
+#
+# Then assign values:
+#
+#   config = Config.new
+#   config.colors = %w[red white blue]
+#   config.update!(first_name: "john", customer: false)
+#
 # Here are the supported attribute types:
 #
 # (1) A simple type like :bool, :int, :num, :float, :str or :sym.
@@ -141,11 +160,12 @@ module TableTennis
           valid = value.is_a?(Hash) && value.all? { magic_is_a?(_1, name_klass) && magic_is_a?(_2, value_klass) }
           "expected hash of #{magic_pretty(name_klass)} => #{magic_pretty(value_klass)}" if !valid
         when Proc
-          error = type.call(value)
-          case error
-          when String, nil then error
+          ret = type.call(value)
+          case ret
+          when String, false, nil then ret
           else
-            "proc should ONLY return error string or nil, not #{error.inspect}"
+            puts "warning: MagicOptions.proc should ONLY return error string or nil/false, not #{ret.inspect}"
+            ret.to_s
           end
         when Range
           if !value.is_a?(Numeric) || !type.include?(value)
