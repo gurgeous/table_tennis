@@ -6,7 +6,9 @@ module TableTennis
         float: :float,
         int: :int,
         num: :num,
-        proc: -> { "ugh" if _1 != "yes" },
+        proc: -> {
+          raise ArgumentError, "ugh" if _1 != "yes"
+        },
         range: (-10..10),
         re: /hello|world/i,
         str: :str,
@@ -51,7 +53,7 @@ module TableTennis
         m = Magic.new(float: 1.23) { _1.bool = 0 }
         assert_equal({bool: false, float: 1.23}, m.to_h)
         # xxx? methods
-        assert_equal false, m.bool?
+        assert_false m.bool?
         # update!
         assert_equal 5, m.tap { m.update!(range: 5) }.range
 
@@ -127,7 +129,7 @@ module TableTennis
         assert_magic_raises(:strs, [:nope])
         assert_magic_raises(:syms, ["nope"])
 
-        # proc custom error
+        # test proc custom error
         ex = assert_raises(ArgumentError) { magic(proc: "nope") }
         assert_match(/ugh/, ex.message)
       end
@@ -139,8 +141,9 @@ module TableTennis
       end
 
       def test_coercion
-        assert_equal true, MagicOptions.magic_coerce(1, :bool)
-        assert_equal false, MagicOptions.magic_coerce("false", :bool)
+        assert_true magic(bool: "true").bool
+        assert_true MagicOptions.magic_coerce(1, :bool)
+        assert_false MagicOptions.magic_coerce("false", :bool)
       end
 
       protected

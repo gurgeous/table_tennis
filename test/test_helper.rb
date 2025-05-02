@@ -66,8 +66,11 @@ class Minitest::Test
 
   def assert_equal(exp, act, msg = nil)
     # just a hack to workaround the assert_nil warning
-    assert(exp == act, message(msg, E) { diff(exp, act) })
+    assert(exp == act, message(msg) { diff(exp, act) })
   end
+
+  def assert_true(act, msg = nil) = assert_equal true, act, msg
+  def assert_false(act, msg = nil) = assert_equal false, act, msg
 
   def windows? = RbConfig::CONFIG["host_os"] =~ /mswin|mingw|cygwin/
 

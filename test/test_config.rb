@@ -3,8 +3,8 @@ module TableTennis
     def test_basic
       assert_equal "foo", Config.new(placeholder: "foo").placeholder
       assert_equal "foo", Config.new.tap { _1.placeholder = "foo" }.placeholder
-      assert_equal true, Config.new.tap { _1.zebra = 1 }.zebra
-      assert_equal false, Config.new.tap { _1.zebra = "0" }.zebra?
+      assert_true Config.new.tap { _1.zebra = 1 }.zebra
+      assert_false Config.new.tap { _1.zebra = "0" }.zebra?
     end
 
     def test_defaults
