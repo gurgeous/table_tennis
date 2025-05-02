@@ -34,6 +34,8 @@
 # (3) A range, regexp or Class.
 # (4) A custom validation lambda. The lambda should raise an ArgumentError if
 #     the value is invalid.
+# (5) An array of possible values (typically numbers, strings, or symbols). The
+#     value must be one of those possibilities.
 # (6) A hash with one element { class => class }. This specifies the hash
 #     signature, and the value must be a hash where the keys and values are
 #     those classes.
