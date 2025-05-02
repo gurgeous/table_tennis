@@ -32,9 +32,8 @@
 # (1) A simple type like :bool, :int, :num, :float, :str or :sym.
 # (2) An array type like :bools, :ints, :nums, :floats, :strs, or :syms.
 # (3) A range, regexp or Class.
-# (4) A lambda which should return an error string or nil.
-# (5) An array of possible values (typically numbers, strings, or symbols). The
-#     value must be one of those possibilities.
+# (4) A custom validation lambda. The lambda should raise an ArgumentError if
+#     the value is invalid.
 # (6) A hash with one element { class => class }. This specifies the hash
 #     signature, and the value must be a hash where the keys and values are
 #     those classes.
@@ -135,15 +134,7 @@ module TableTennis
 
       def magic_set(name, value)
         raise ArgumentError, "unknown #{self.class}.#{name}=" if !magic_attributes.key?(name)
-        type = magic_attributes[name]
-        value = self.class.magic_coerce(value, type)
-        if !value.nil? && (error = MagicOptions.magic_validate(value, type))
-          if !type.is_a?(Proc)
-            error = "#{error}, got #{value.inspect}"
-          end
-          raise ArgumentError, "#{self.class}.#{name}= #{error}"
-        end
-        magic_values[name] = value
+        magic_values[name] = self.class.magic_validate!(name, value, magic_attributes[name])
       end
 
       # these are part of the public api
@@ -151,39 +142,76 @@ module TableTennis
       alias_method :[]=, :magic_set
 
       #
-      # magic_validate and static helpers
+      # magic_validate! and static helpers
       #
 
-      def self.magic_validate(value, type)
+      # validate name=value against type, raise on failure
+      def self.magic_validate!(name, value, type)
+        # we validate against coerced values, but squirrel away the original
+        # uncoerced in case we need to use it inside an error message
+        original, value = value, magic_coerce(value, type)
+        return if value.nil?
+
         case type
-        when Array
-          "expected one of #{type.inspect}" if !type.include?(value)
-        when Class, :bool
-          "expected #{magic_pretty(type)}" if !magic_is_a?(value, type)
-        when Hash
-          name_klass, value_klass = type.first
-          valid = value.is_a?(Hash) && value.all? { magic_is_a?(_1, name_klass) && magic_is_a?(_2, value_klass) }
-          "expected hash of #{magic_pretty(name_klass)} => #{magic_pretty(value_klass)}" if !valid
-        when Proc
-          ret = type.call(value)
-          case ret
-          when String, false, nil then ret
-          else
-            puts "warning: MagicOptions.proc should ONLY return error string or nil/false, not #{ret.inspect}"
-            ret.to_s
-          end
-        when Range
-          if !value.is_a?(Numeric) || !type.include?(value)
-            "expected to be in range #{type.inspect}"
-          end
-        when Regexp
-          if !value.is_a?(String) || !value.match?(type)
-            "expected to be a string matching #{type.inspect}"
-          end
-        when :bools, :floats, :ints, :nums, :strs, :syms
-          klass = magic_resolve(type.to_s[..-2].to_sym)
-          valid = value.is_a?(Array) && value.all? { magic_is_a?(_1, klass) }
-          "expected array of #{type}" if !valid
+        when Array then validate_any_of(value, type)
+        when Class, :bool then validate_class(value, type)
+        when Hash then validate_hash(value, type)
+        when Proc then type.call(value)
+        when Range then validate_range(value, type)
+        when Regexp then validate_regexp(value, type)
+        when :bools, :floats, :ints, :nums, :strs, :syms then validate_array(value, type)
+        else
+          raise "impossible"
+        end
+        value
+      rescue ArgumentError => ex
+        # add context to msg if necessary
+        msg = ex.message
+        if !msg.include?("#{name} = #{original.inspect}")
+          msg = "#{self}.#{name} = #{original.inspect} failed, #{msg}"
+        end
+        raise ArgumentError, msg
+      end
+
+      #
+      # validators
+      #
+
+      def self.validate_any_of(value, possibilities)
+        if !possibilities.include?(value)
+          raise ArgumentError, "expected one of #{possibilities.inspect}"
+        end
+      end
+
+      def self.validate_class(value, klass)
+        if !magic_is_a?(value, klass)
+          raise ArgumentError, "expected #{magic_pretty(klass)}"
+        end
+      end
+
+      def self.validate_hash(value, hash_type)
+        kk, vk = hash_type.first
+        if !(value.is_a?(Hash) && value.all? { magic_is_a?(_1, kk) && magic_is_a?(_2, vk) })
+          raise ArgumentError, "expected hash of #{magic_pretty(kk)} => #{magic_pretty(vk)}"
+        end
+      end
+
+      def self.validate_range(value, range)
+        if !value.is_a?(Numeric) || !range.include?(value)
+          raise ArgumentError, "expected to be in range #{range.inspect}"
+        end
+      end
+
+      def self.validate_regexp(value, regexp)
+        if !value.is_a?(String) || !value.match?(regexp)
+          raise ArgumentError, "expected to be a string matching #{regexp}"
+        end
+      end
+
+      def self.validate_array(value, array_type)
+        klass = magic_resolve(array_type.to_s[..-2].to_sym)
+        if !(value.is_a?(Array) && value.all? { magic_is_a?(_1, klass) })
+          raise ArgumentError, "expected array of #{array_type}"
         end
       end
 

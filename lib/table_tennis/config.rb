@@ -30,11 +30,10 @@ module TableTennis
 
     SCHEMA = {
       coerce: :bool,
-      color_scales: ->(value) do
-        if (error = Config.magic_validate(value, {Symbol => Symbol}))
-          error
-        elsif value.values.any? { !Util::Scale::SCALES.include?(_1) }
-          "values must be the name of a color scale"
+      color_scales: -> do
+        Config.magic_validate!(:color_scales, _1, {Symbol => Symbol})
+        if !(invalid = _1.values - Util::Scale::SCALES.keys).empty?
+          raise ArgumentError, "invalid color scale(s): #{invalid.inspect}"
         end
       end,
       color: :bool,
@@ -45,7 +44,7 @@ module TableTennis
       headers: {sym: :str},
       layout: -> do
         return if _1 == true || _1 == false || _1.is_a?(Integer)
-        Config.magic_validate(_1, {Symbol => Integer})
+        Config.magic_validate!(:layout, _1, {Symbol => Integer})
       end,
       mark: :proc,
       placeholder: :str,
@@ -53,7 +52,7 @@ module TableTennis
       save: :str,
       search: -> do
         if !(_1.is_a?(String) || _1.is_a?(Regexp))
-          "expected string/regex"
+          raise ArgumentError, "expected string/regex"
         end
       end,
       separators: :bool,

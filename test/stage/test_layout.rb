@@ -33,7 +33,7 @@ module TableTennis
 
       def test_autolayout
         config = Config.new
-        assert_equal true, config.layout
+        assert_true config.layout
         data = TableData.new(config:, rows: [{address: "x" * 10, name: "x" * 20}])
 
         # extra large
