@@ -50,7 +50,7 @@ module TableTennis
         title_width = data.table_width - 4
         title = Util::Strings.truncate(config.title, title_width)
         title_style = data.get_style(r: :title) || :cell
-        line = paint(title.center(title_width), title_style || :cell)
+        line = paint(ansi_center(title, title_width), title_style || :cell)
         paint("#{pipe} #{line} #{pipe}", Theme::BG)
       end
 
@@ -71,7 +71,8 @@ module TableTennis
 
       def render_cell(value, r, c, default_cell_style)
         # calculate whitespace based on plaintext
-        whitespace = columns[c].width - Util::Strings.width(value)
+        whitespace = columns[c].width -
+          Util::Strings.width(Util::Strings.unpaint(value))
 
         # cell > column > default > cell (row styles are applied elsewhere)
         style = nil
@@ -143,6 +144,18 @@ module TableTennis
         # delegate painting to the theme, if color is enabled
         str = theme.paint(str, style) if config.color
         str
+      end
+
+      # center string, accounting for ansi codes
+      def ansi_center(str, width)
+        unpainted_str = Util::Strings.unpaint(str)
+        return str if unpainted_str.length >= width
+
+        padding = width - unpainted_str.length
+        left_padding = padding / 2
+        right_padding = padding - left_padding
+
+        (" " * left_padding) + str + (" " * right_padding)
       end
 
       def pipe = paint(PIPE, :chrome)
