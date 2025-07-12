@@ -37,21 +37,24 @@ module TableTennis
         data = TableData.new(config:, rows: [{address: "x" * 10, name: "x" * 20}])
 
         # extra large
-        IO.console.stubs(:winsize).returns([nil, 80])
+        Terminal.current.console.stubs(:winsize).returns([nil, 80])
+        Terminal.current.reset_memo_wise
         Layout.new(data).run
         assert_equal([10, 20], data.columns.map(&:width))
         assert_equal([7, 4], data.columns.map(&:header).map(&:length))
         assert_equal([10, 20], data.rows.first.map(&:length))
 
         # cruncha muncha
-        IO.console.stubs(:winsize).returns([nil, 20])
+        Terminal.current.console.stubs(:winsize).returns([nil, 20])
+        Terminal.current.reset_memo_wise
         Layout.new(data).run
         assert_equal([5, 6], data.columns.map(&:width))
         assert_equal([5, 4], data.columns.map(&:header).map(&:length))
         assert_equal([5, 6], data.rows.first.map(&:length))
 
         # tiny
-        IO.console.stubs(:winsize).returns([nil, 10])
+        Terminal.current.console.stubs(:winsize).returns([nil, 10])
+        Terminal.current.reset_memo_wise
         Layout.new(data).run
         assert_equal([2, 2], data.columns.map(&:width))
         assert_equal([2, 2], data.columns.map(&:header).map(&:length))
@@ -72,13 +75,15 @@ module TableTennis
         rows = [["hello world how are you doing today"] * 2]
 
         # if we don't have a lot of room, min should be 2
-        IO.console.stubs(:winsize).returns([nil, 10])
+        Terminal.current.console.stubs(:winsize).returns([nil, 10])
+        Terminal.current.reset_memo_wise
         data = TableData.new(config:, rows:)
         Layout.new(data).run
         assert_equal [2, 2], data.columns.map(&:width)
 
         # if we have more room, columns can breathe
-        IO.console.stubs(:winsize).returns([nil, 40])
+        Terminal.current.console.stubs(:winsize).returns([nil, 40])
+        Terminal.current.reset_memo_wise
         data = TableData.new(config:, rows:)
         Layout.new(data).run
         assert_equal [16, 15], data.columns.map(&:width)

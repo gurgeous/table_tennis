@@ -16,6 +16,7 @@ require "table_tennis/config"
 require "table_tennis/row"
 require "table_tennis/table_data"
 require "table_tennis/table"
+require "table_tennis/terminal"
 require "table_tennis/theme"
 
 require "table_tennis/stage/base"

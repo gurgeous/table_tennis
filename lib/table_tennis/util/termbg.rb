@@ -70,13 +70,17 @@ module TableTennis
         # mucking with the tty will hang if we are not in the foreground
         return if !in_foreground?
 
+        # Return nil if no console available (CI environments)
+        terminal = Terminal.current
+        return unless terminal.available?
+
         # we can't touch stdout inside IO.console.raw, so save these for later
         logs = []
 
         debug("osc_query(#{attr})")
         begin
-          IO.console.raw do
-            logs << "  IO.console.raw"
+          terminal.raw_operation do
+            logs << "  terminal.raw_operation"
 
             # we send two messages - the cursor query is widely supported, so we
             # always end with that. if the first message is ignored we will still
@@ -89,7 +93,7 @@ module TableTennis
             end.join
 
             logs << "  syswrite #{msg.inspect}"
-            IO.console.syswrite(msg)
+            terminal.syswrite(msg)
 
             # there should always be at least one response. If this is a response to
             # the cursor message, the first message didn't work
@@ -114,20 +118,21 @@ module TableTennis
 
       # read a response, which could be either an OSC or cursor response
       def read_term_response
+        terminal = Terminal.current
         # fast forward to ESC
         loop do
-          return if !(ch = IO.console.getbyte&.chr)
+          return if !(ch = terminal.getbyte&.chr)
           break ch if ch == ESC
         end
         # next char should be either [ or ]
-        return if !(type = IO.console.getbyte&.chr)
+        return if !(type = terminal.getbyte&.chr)
         return if !(type == "[" || type == "]")
 
         # now read the response. note that the response can end in different ways
         # and we have to check for all of them
         buf = "#{ESC}#{type}"
         loop do
-          return if !(ch = IO.console.getbyte&.chr)
+          return if !(ch = terminal.getbyte&.chr)
           buf << ch
           break if type == "[" && buf.end_with?("R")
           break if type == "]" && buf.end_with?(BEL, ST)
@@ -162,7 +167,9 @@ module TableTennis
           return if !respond_to?(:tcgetpgrp)
         end
 
-        io = IO.console
+        io = Terminal.current
+        return if io.fileno.nil?
+
         if (ttypgrp = tcgetpgrp(io.fileno)) <= 0
           debug("tcpgrp(#{io.fileno}) => #{ttypgrp}, errno=#{FFI.errno}")
           return

@@ -37,7 +37,7 @@ module TableTennis
         columns.each { _1.width = _1.measure }
 
         # How much space is available, and do we already fit?
-        screen_width = IO.console.winsize[1]
+        screen_width = Terminal.current.width
         available = screen_width - chrome_width - FUDGE
         return if available >= data_width
 
