@@ -17,8 +17,11 @@ module TableTennis
     # Create a new table with options (see Config or README). This is typically
     # called using TableTennis.new.
     def initialize(rows, options = {}, &block)
-      config = Config.new(options, &block)
-      @data = TableData.new(config:, rows:)
+      # Extract terminal from options if provided
+      terminal = options.delete(:terminal)
+      @terminal = terminal || Terminal.new
+      config = ConfigBuilder.build(options, terminal: @terminal, &block)
+      @data = TableData.new(config:, rows:, terminal: @terminal)
       sanity!
       save(config.save) if config.save
     end
@@ -29,7 +32,12 @@ module TableTennis
         args = [].tap do
           _1 << io if stage == "render"
         end
-        Stage.const_get(stage.capitalize).new(data).run(*args)
+        stage_class = Stage.const_get(stage.capitalize)
+        if stage == "layout"
+          stage_class.new(data, terminal: @terminal).run(*args)
+        else
+          stage_class.new(data).run(*args)
+        end
       end
     end
 

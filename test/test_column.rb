@@ -2,7 +2,7 @@ module TableTennis
   class TestColumn < Minitest::Test
     def test_headers
       # normal
-      data = TableData.new(config: Config.new, rows: [])
+      data = TableData.new(config: ConfigBuilder.build, rows: [])
       assert_equal "foo_bar_id", Column.new(data, :foo_bar_id, 1).header
 
       # headers:
@@ -20,7 +20,7 @@ module TableTennis
         [{foo: "b"}, 3], # long header
         [{a: "b"}, 2], # min 2
       ].each do |row, exp|
-        data = TableData.new(config: Config.new, rows: [row])
+        data = TableData.new(config: ConfigBuilder.build, rows: [row])
         assert_equal exp, data.columns.first.measure, "#{row} => #{exp}"
       end
     end

@@ -196,7 +196,7 @@ module TableTennis
 
       def create_format(rows: [], **options)
         defaults = {digits: 3, placeholder: "NA", strftime: "%Y"}
-        config = Config.new(defaults.merge(options))
+        config = ConfigBuilder.build(defaults.merge(options))
         data = TableData.new(config:, rows:)
         Format.new(data)
       end

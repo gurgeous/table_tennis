@@ -109,7 +109,7 @@ module TableTennis
 
       def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
         rows ||= [{a: "1", b: " "}]
-        config = Config.new(color:, separators:, theme:, title:)
+        config = ConfigBuilder.build({color:, separators:, theme:, title:})
         data = TableData.new(config:, rows:)
         if data.columns.length >= 2
           data.columns[0].width = 3

@@ -63,12 +63,8 @@ module TableTennis
       zebra: :bool,
     }
 
-    def initialize(options = {}, &block)
-      # assemble from OPTIONS, defaults and options
-      options = [OPTIONS, TableTennis.defaults, options].reduce { _1.merge(_2 || {}) }
-      options[:color] = Config.detect_color? if options[:color].nil?
-      options[:debug] = true if ENV["TT_DEBUG"]
-      options[:theme] = Config.detect_theme if options[:theme].nil?
+    def initialize(options, terminal:, &block)
+      @terminal = terminal
       super(SCHEMA, options, &block)
     end
 
@@ -100,22 +96,29 @@ module TableTennis
     def self.detect_color?
       return false if ENV["NO_COLOR"] || ENV["CI"]
       return true if ENV["FORCE_COLOR"] == "1"
-      return false if !($stdout.tty? && $stderr.tty?)
+      return false unless $stdout.tty? && $stderr.tty?
       Paint.detect_mode > 0
     end
 
-    def self.detect_theme
-      case terminal_dark?
+    def self.detect_theme(terminal = nil)
+      terminal ||= Terminal.new
+      case terminal_dark?(terminal)
       when true, nil then :dark
       when false then :light
       end
     end
 
-    # is this a dark terminal?
-    def self.terminal_dark?
-      if (bg = Util::Termbg.bg)
-        Util::Colors.dark?(bg)
-      end
+    def self.terminal_dark?(terminal = nil)
+      terminal ||= Terminal.new
+      return nil unless terminal&.available?
+
+      bg = terminal.bg
+      return nil unless bg
+
+      Util::Colors.dark?(bg)
     end
+
+    def detect_theme = self.class.detect_theme(@terminal)
+    def terminal_dark? = self.class.terminal_dark?(@terminal)
   end
 end

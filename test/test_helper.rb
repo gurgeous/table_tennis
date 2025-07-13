@@ -39,8 +39,6 @@ class Minitest::Test
     IO.stubs(:console).returns(FakeConsole.new)
     reset_memo_wise!
     TableTennis.defaults = nil
-    # Reset Terminal singleton so it picks up the new FakeConsole
-    TableTennis::Terminal.reset!
 
     # we can't do much with windows, but at least make the tests pass by
     # pretending that Paint.mode is doing something.

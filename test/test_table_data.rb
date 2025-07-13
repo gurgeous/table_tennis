@@ -7,7 +7,7 @@ module TableTennis
       assert_equal [[1, 2]], data.rows
 
       # columns specified
-      config = Config.new(columns: %i[a])
+      config = ConfigBuilder.build({columns: %i[a]})
       data = TableData.new(config:, rows: ab)
       assert_equal %i[a], data.column_names
       assert_equal [[1]], data.rows
@@ -49,13 +49,13 @@ module TableTennis
     def test_missing_columns
       assert_raises(ArgumentError) do
         # there is no column c
-        config = Config.new(columns: %i[a c])
+        config = ConfigBuilder.build({columns: %i[a c]})
         TableData.new(config:, rows: ab).columns
       end
     end
 
     def test_row_numbers
-      config = Config.new(row_numbers: true)
+      config = ConfigBuilder.build({row_numbers: true})
       data = TableData.new(config:, rows: [{a: 1}, {b: 2}])
       assert_equal :"#", data.columns.first.name
       assert_equal [1, 2], data.columns.first.to_a

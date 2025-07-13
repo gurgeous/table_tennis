@@ -2,15 +2,15 @@ module TableTennis
   module Stage
     class TestPainter < Minitest::Test
       def test_main
-        config = Config.new(
+        config = ConfigBuilder.build({
           color: true,
           color_scales: {b: :rg, c: :y},
           mark: ->(row) { row[:a] == "0" },
           placeholder: "NA",
           row_numbers: true,
           theme: :dark,
-          zebra: true
-        )
+          zebra: true,
+        })
         data = TableData.new(config:, rows: [
           {a: "0", b: "0", c: "a"},
           {a: "1", b: "1", c: "b"},
@@ -38,7 +38,7 @@ module TableTennis
       end
 
       def test_mark_style
-        data = TableData.new(config: Config.new, rows: ab)
+        data = TableData.new(config: ConfigBuilder.build, rows: ab)
         painter = Painter.new(data)
         [
           [true, :mark],

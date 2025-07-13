@@ -23,21 +23,10 @@ module TableTennis
 
     attr_accessor :config, :input_rows, :links, :styles
 
-    def initialize(rows:, config: nil)
-      @config, @input_rows = config, rows
-
-      if !config && !ENV["MINITEST"]
-        raise ArgumentError, "must provide a config"
-      end
-
-      # We leave input_rows untouched so we can pass them back to the user for
-      # `mark`. The only strange case is if the user passed in a plain old Hash.
-      if @input_rows.is_a?(Hash)
-        @input_rows = @input_rows.map { |key, value| {key:, value:} }
-      elsif !@input_rows.is_a?(Enumerable)
-        raise ArgumentError, "input_rows must be an array of hash-like objects, not #{input_rows.class}"
-      end
-
+    def initialize(rows:, config: nil, terminal: Terminal.new)
+      @terminal = terminal
+      @config = config
+      @input_rows = normalize_input_rows(rows)
       @links = {}
       @styles = {}
     end
@@ -74,8 +63,8 @@ module TableTennis
     end
     memo_wise :rows
 
-    # currnet theme
-    def theme = Theme.new(config&.theme)
+    # current theme
+    def theme = Theme.new(config&.theme || :dark)
     memo_wise :theme
 
     # Set the style for a cell, row or column. The "style" is a
@@ -114,7 +103,7 @@ module TableTennis
     def debug(str)
       return if !config&.debug
       str = "[#{Time.now.strftime("%H:%M:%S")}] #{str}"
-      str = str.ljust(@debug_width ||= Terminal.current.width)
+      str = str.ljust(@debug_width ||= @terminal.width)
       puts Paint[str, :white, :green]
     end
 
@@ -171,5 +160,18 @@ module TableTennis
 
     # helper for turning something into a symbol
     def symbolize(obj) = obj.is_a?(Symbol) ? obj : obj.to_s.to_sym
+
+    # Normalize input rows to a consistent format
+    def normalize_input_rows(rows)
+      # We leave input_rows untouched so we can pass them back to the user for
+      # `mark`. The only strange case is if the user passed in a plain old Hash.
+      if rows.is_a?(Hash)
+        rows.map { |key, value| {key:, value:} }
+      elsif !rows.is_a?(Enumerable)
+        raise ArgumentError, "input_rows must be an array of hash-like objects, not #{rows.class}"
+      else
+        rows
+      end
+    end
   end
 end

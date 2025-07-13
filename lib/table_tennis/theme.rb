@@ -114,7 +114,7 @@ module TableTennis
     memo_wise :term_program
 
     # for debugging, mostly
-    def self.info
+    def self.info(terminal: Terminal.new)
       sample = if !Config.detect_color?
         "(color is disabled)"
       elsif Config.detect_theme == :light
@@ -128,7 +128,7 @@ module TableTennis
         detect_theme: Config.detect_theme,
         sample:,
         terminal_dark?: Config.terminal_dark?,
-      }.merge(Util::Termbg.info)
+      }.merge(terminal.info)
     end
   end
 end

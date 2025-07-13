@@ -34,7 +34,7 @@ gem "table_tennis"
 
 ### Themes
 
-TableTennis examines the background color of your terminal to pick either the dark or light theme. You can also specify `:dark` or `:light` manually, or even an `:ansi` theme to use your terminal's default colors. This feature is [surprisingly complicated](https://github.com/gurgeous/table_tennis/blob/main/lib/table_tennis/util/termbg.rb).
+TableTennis examines the background color of your terminal to pick either the dark or light theme. You can also specify `:dark` or `:light` manually, or even an `:ansi` theme to use your terminal's default colors. This feature is [surprisingly complicated](https://github.com/gurgeous/table_tennis/blob/main/lib/table_tennis/terminal.rb).
 
 ![themes](./screenshots/themes.png)
 

@@ -7,6 +7,11 @@ module TableTennis
     class Layout < Base
       def_delegators :data, :chrome_width, :data_width
 
+      def initialize(data, terminal: Terminal.new)
+        super(data)
+        @terminal = terminal
+      end
+
       def run
         # did the user specify a layout strategy?
         if config.layout
@@ -37,7 +42,7 @@ module TableTennis
         columns.each { _1.width = _1.measure }
 
         # How much space is available, and do we already fit?
-        screen_width = Terminal.current.width
+        screen_width = @terminal.width
         available = screen_width - chrome_width - FUDGE
         return if available >= data_width
 

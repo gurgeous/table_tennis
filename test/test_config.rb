@@ -1,18 +1,18 @@
 module TableTennis
   class TestConfig < Minitest::Test
     def test_basic
-      assert_equal "foo", Config.new(placeholder: "foo").placeholder
-      assert_equal "foo", Config.new.tap { _1.placeholder = "foo" }.placeholder
-      assert_true Config.new.tap { _1.zebra = 1 }.zebra
-      assert_false Config.new.tap { _1.zebra = "0" }.zebra?
+      assert_equal "foo", ConfigBuilder.build({placeholder: "foo"}).placeholder
+      assert_equal "foo", ConfigBuilder.build.tap { _1.placeholder = "foo" }.placeholder
+      assert_true ConfigBuilder.build.tap { _1.zebra = 1 }.zebra
+      assert_false ConfigBuilder.build.tap { _1.zebra = "0" }.zebra?
     end
 
     def test_defaults
-      assert_equal "—", Config.new.placeholder
+      assert_equal "—", ConfigBuilder.build.placeholder
       TableTennis.defaults = {placeholder: "foo"}
-      assert_equal "foo", Config.new.placeholder
-      assert_equal "bar", Config.new(placeholder: "bar").placeholder
-      assert_equal "", Config.new(placeholder: nil).placeholder
+      assert_equal "foo", ConfigBuilder.build.placeholder
+      assert_equal "bar", ConfigBuilder.build({placeholder: "bar"}).placeholder
+      assert_equal "", ConfigBuilder.build({placeholder: nil}).placeholder
     end
 
     def test_validation
@@ -73,7 +73,7 @@ module TableTennis
         ["888", true, :dark],
         ["fff", false, :light],
       ].each do |bg, dark, theme|
-        Util::Termbg.stubs(:bg).returns(bg)
+        Terminal.any_instance.stubs(:bg).returns(bg)
         assert_equal dark, Config.terminal_dark?, "for bg #{bg.inspect}"
         assert_equal theme, Config.detect_theme, "for bg #{bg.inspect}"
       end
@@ -106,12 +106,12 @@ module TableTennis
     protected
 
     def assert_config_no_raise(name, value)
-      assert_no_raises { Config.new(name => value) }
+      assert_no_raises { ConfigBuilder.build({name => value}) }
     end
 
     def assert_config_raise(name, value)
       begin
-        Config.new(name => value)
+        ConfigBuilder.build({name => value})
       rescue => ex
       end
 
