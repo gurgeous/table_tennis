@@ -34,8 +34,8 @@ module TableTennis
 
       # center text, like String#center but works with painted strings
       def center(str, width)
+        # artificially inflate width to include escape codes
         if painted?(str)
-          # artificially inflate width to include escape codes
           width += str.length - unpaint(str).length
         end
         str.center(width)
@@ -50,12 +50,26 @@ module TableTennis
       end
 
       # truncate a string based on the display width of the grapheme clusters.
-      # Should handle emojis and international characters
-      def truncate(text, stop)
-        if simple?(text)
-          return (text.length > stop) ? "#{text[0, stop - 1]}…" : text
+      # Should handle emojis and international characters. Painted strings too.
+      def truncate(str, stop)
+        if simple?(str)
+          (str.length > stop) ? "#{str[0, stop - 1]}…" : str
+        elsif painted?(str)
+          # generate truncated plain version
+          plain = truncate0(unpaint(str), stop)
+          # make a best effort to apply the colors
+          if (opening_codes = str[/\e\[(?:[0-9];?)+m/])
+            "#{opening_codes}#{plain}#{Paint::NOTHING}"
+          else
+            plain
+          end
+        else
+          truncate0(str, stop)
         end
+      end
 
+      # slow, but handles graphemes
+      def truncate0(text, stop)
         # get grapheme clusters, and attach zero width graphemes to the previous grapheme
         list = [].tap do |accum|
           text.grapheme_clusters.each do
@@ -80,6 +94,7 @@ module TableTennis
 
         text
       end
+      private_class_method :truncate0
 
       # note that escape \e (0x1b) is excluded
       SIMPLE = /\A[\x00-\x1a\x1c-\x7F–—…·‘’“”•áéíñóúÓ]*\Z/

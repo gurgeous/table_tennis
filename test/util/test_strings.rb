@@ -54,7 +54,7 @@ module TableTennis
         assert_equal "🚀3…", Strings.truncate("🚀3🚀6", 5)
       end
 
-      def test_difficult_unicode
+      def test_truncate_difficult_unicode
         difficult = [
           "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
           "\u0635\u0648\u0631", # arabic sad, wah, reh
@@ -79,7 +79,7 @@ module TableTennis
         assert_equal "صور", del_rtl_ltr.call(s4)
       end
 
-      def test_grapheme_clusters
+      def test_truncate_grapheme_clusters
         hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
         # hardcode since this can change based on the font
         Unicode::DisplayWidth.stubs(:of).returns(2)
@@ -87,6 +87,11 @@ module TableTennis
         (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
         (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
         (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
+      end
+
+      def test_truncate_painted
+        assert_equal "fo…", Strings.truncate(PLAIN, 3)
+        assert_equal "\e[38;2;0;255;0mfo…\e[0m", Strings.truncate(GREEN, 3)
       end
 
       def test_titleize
