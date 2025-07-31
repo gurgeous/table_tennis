@@ -1,14 +1,30 @@
 module TableTennis
   module Util
     class TestString < Minitest::Test
+      PLAIN = "foobar"
+      GREEN = "\e[38;2;0;255;0mfoobar\e[0m"
+
+      def test_painted?
+        assert !Strings.painted?(PLAIN)
+        assert Strings.painted?(GREEN)
+      end
+
       def test_unpaint
-        assert_equal "foobar", Strings.unpaint("foo\e[123;mbar")
+        assert_equal PLAIN, Strings.unpaint(GREEN)
       end
 
       def test_width
         assert_equal 0, Strings.width("")
         assert_equal 1, Strings.width("a")
         assert_equal 4, Strings.width("🚀🚀")
+        assert_equal 6, Strings.width(PLAIN)
+        # ansi
+        assert_equal 6, Strings.width(GREEN)
+      end
+
+      def test_center
+        assert_equal " foobar ", Strings.center(PLAIN, 8)
+        assert_equal " #{GREEN} ", Strings.center(GREEN, 8)
       end
 
       def test_truncate

@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.join(__dir__, "../lib"))
+
+require "benchmark"
+require "table_tennis"
+
+#
+# internal benchmark scratch script
+#
+# TODO
+#
+# [x] line = paint(title.center(title_width), title_style || :cell)
+# [x] whitespace = columns[c].width - Util::Strings.width(value)
+# [ ] an ansi sample for tennis
+# [ ] truncate
+# [ ] tests
+#
+
+N = 1_000_000
+PLAIN = "foobar"
+GREEN = "\e[38;2;0;255;0mfoobar\e[0m"
+
+Benchmark.bm do |benchmark|
+  benchmark.report("plain") do
+    N.times { TableTennis::Util::Strings.width(PLAIN) }
+  end
+  benchmark.report("painted") do
+    # GREEN is 10x slower vs PLAIN, but that's ok
+    N.times { TableTennis::Util::Strings.width(GREEN) }
+  end
+end

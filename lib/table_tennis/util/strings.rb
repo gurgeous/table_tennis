@@ -6,6 +6,9 @@ module TableTennis
 
       module_function
 
+      # does this string contain ansi codes?
+      def painted?(str) = str.match?(/\e/)
+
       # strip ansi codes
       def unpaint(str) = str.gsub(/\e\[[0-9;]*m/, "")
 
@@ -18,8 +21,24 @@ module TableTennis
         str
       end
 
-      def width(text)
-        simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
+      # measure width of text, with support for emojis, painted/ansi strings, etc
+      def width(str)
+        if simple?(str)
+          str.length
+        elsif painted?(str)
+          unpaint(str).length
+        else
+          Unicode::DisplayWidth.of(str)
+        end
+      end
+
+      # center text, like String#center but works with painted strings
+      def center(str, width)
+        if painted?(str)
+          # artificially inflate width to include escape codes
+          width += str.length - unpaint(str).length
+        end
+        str.center(width)
       end
 
       def hyperlink(str)
@@ -62,7 +81,8 @@ module TableTennis
         text
       end
 
-      SIMPLE = /\A[\x00-\x7F–—…·‘’“”•áéíñóúÓ]*\Z/
+      # note that escape \e (0x1b) is excluded
+      SIMPLE = /\A[\x00-\x1a\x1c-\x7F–—…·‘’“”•áéíñóúÓ]*\Z/
 
       # Is this a "simple" string? (no emojis, etc). Caches results for small
       # strings for performance reasons.

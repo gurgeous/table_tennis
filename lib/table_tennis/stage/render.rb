@@ -50,7 +50,7 @@ module TableTennis
         title_width = data.table_width - 4
         title = Util::Strings.truncate(config.title, title_width)
         title_style = data.get_style(r: :title) || :cell
-        line = paint(title.center(title_width), title_style || :cell)
+        line = paint(Util::Strings.center(title, title_width), title_style || :cell)
         paint("#{pipe} #{line} #{pipe}", Theme::BG)
       end
 
