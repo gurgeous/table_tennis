@@ -69,32 +69,32 @@ options = {
 
 #### Popular Options
 
-| option | default | details |
-| ------ | ------- | ------- |
-| `color_scales` | ─ | Color code a column of floats, similar to the "conditional formatting" feature in Google Sheets. See [docs below](#color-scales). |
-| `columns` | ─ | Manually set which columns to include. Leave unset to show all columns.
-| `headers` | ─ | Specify some or all column headers. For example, `{user_id: "Customer"}`. When unset, headers are inferred. |
-| `mark` | ─ | `mark` is a way to highlight specific columns with a nice color. For example, use `mark: ->(row) { row[:planet] == "tatooine" }` to highlight those rows. Your lambda can also return a specific bg color or Paint color array.
-| `row_numbers` | `false` | Show row numbers in the table. |
-| `search` | ─ | String/regex to highlight in output. |
-| `separators` | `true` | Include column and header separators in output. |
-| `title` | ─ | Add a title line to the table. |
-| `titleize` | ─ | Titleize column headers, so `person_id` becomes `Person`. |
-| `zebra` | `false` | Turn on zebra stripes. |
+| option         | default | details                                                                                                                                                                                                                         |
+| -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `color_scales` | ─       | Color code a column of floats, similar to the "conditional formatting" feature in Google Sheets. See [docs below](#color-scales).                                                                                               |
+| `columns`      | ─       | Manually set which columns to include. Leave unset to show all columns.                                                                                                                                                         |
+| `headers`      | ─       | Specify some or all column headers. For example, `{user_id: "Customer"}`. When unset, headers are inferred.                                                                                                                     |
+| `mark`         | ─       | `mark` is a way to highlight specific columns with a nice color. For example, use `mark: ->(row) { row[:planet] == "tatooine" }` to highlight those rows. Your lambda can also return a specific bg color or Paint color array. |
+| `row_numbers`  | `false` | Show row numbers in the table.                                                                                                                                                                                                  |
+| `search`       | ─       | String/regex to highlight in output.                                                                                                                                                                                            |
+| `separators`   | `true`  | Include column and header separators in output.                                                                                                                                                                                 |
+| `title`        | ─       | Add a title line to the table.                                                                                                                                                                                                  |
+| `titleize`     | ─       | Titleize column headers, so `person_id` becomes `Person`.                                                                                                                                                                       |
+| `zebra`        | `false` | Turn on zebra stripes.                                                                                                                                                                                                          |
 
 #### More Advanced Options
 
-| option | default | details |
-| ------ | ------- | ------- |
-| `coerce` | `true`  | if true, try to coerce strings into numbers where possible so we can format with `digits`. You may want to disable this if you already have nicely formatted ints/floats and you don't want TableTennis to mess with them. |
-| `color` | ─ | Are ANSI colors enabled? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`. |
-| `delims` | `true` | Format ints & floats with comma delimiter, like 123,456. |
-| `digits` | `3` | Format floats to this number of digits. TableTennis will look for either `Float` cells or string floats. |
-| `layout` | `true` | This controls column widths. Leave unset or use `true` for autolayout. Autolayout will shrink the table to fit inside the terminal. `false` turns off layout and columns will be full width. Use an int to fix all columns to a certain width, or a hash to just set a few. |
-| `placeholder` | `"—"` | Put this into empty cells. |
-| `save` | ─ | If you set this to a file path, TableTennis will save your table as a CSV file too. Useful if you want to do something else with the data. |
-| `strftime` | see → | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`  |
-| `theme` | ─ | When unset, will be autodetected based on terminal background color. If autodetect fails the theme defaults to :dark. You can also manually specify `:dark`, `:light` or `:ansi`. If colors are turned off this setting has no effect.|
+| option        | default | details                                                                                                                                                                                                                                                                     |
+| ------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `coerce`      | `true`  | if true, try to coerce strings into numbers where possible so we can format with `digits`. You may want to disable this if you already have nicely formatted ints/floats and you don't want TableTennis to mess with them.                                                  |
+| `color`       | ─       | Are ANSI colors enabled? Specify `true` or `false`, or leave it as nil to autodetect. Autodetect will turn on color unless redirecting to a file. When using autodetect, you can force it on by setting `ENV["FORCE_COLOR"]`, or off with `ENV["NO_COLOR"]`.                |
+| `delims`      | `true`  | Format ints & floats with comma delimiter, like 123,456.                                                                                                                                                                                                                    |
+| `digits`      | `3`     | Format floats to this number of digits. TableTennis will look for either `Float` cells or string floats.                                                                                                                                                                    |
+| `layout`      | `true`  | This controls column widths. Leave unset or use `true` for autolayout. Autolayout will shrink the table to fit inside the terminal. `false` turns off layout and columns will be full width. Use an int to fix all columns to a certain width, or a hash to just set a few. |
+| `placeholder` | `"—"`   | Put this into empty cells.                                                                                                                                                                                                                                                  |
+| `save`        | ─       | If you set this to a file path, TableTennis will save your table as a CSV file too. Useful if you want to do something else with the data.                                                                                                                                  |
+| `strftime`    | see →   | strftime string for formatting Date/Time objects. The default is `"%Y-%m-%d"`, which looks like `2025-04-21`                                                                                                                                                                |
+| `theme`       | ─       | When unset, will be autodetected based on terminal background color. If autodetect fails the theme defaults to :dark. You can also manually specify `:dark`, `:light` or `:ansi`. If colors are turned off this setting has no effect.                                      |
 
 ### Color Scales
 
@@ -120,8 +120,8 @@ puts TableTennis.new(rows, search: /hope.*empire/i })
 puts TableTennis.new(rows, row_numbers: true, zebra: true)
 ```
 
-| `:mark` | `:search` | `:row_numbers` and `:zebra` |
-| - | - | - |
+| `:mark`                             | `:search`                       | `:row_numbers` and `:zebra`                   |
+| ----------------------------------- | ------------------------------- | --------------------------------------------- |
 | ![droids](./screenshots/droids.png) | ![hope](./screenshots/hope.png) | ![row numbers](./screenshots/row_numbers.png) |
 
 ### Links
@@ -171,6 +171,10 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 - [visidata](https://www.visidata.org) - the best for poking around large files, it does everything
 
 ### Changelog
+
+#### unreleased (main)
+
+- handle data that already contains ANSI colors (@ronaldtse)
 
 #### 0.0.6 (May '25)
 

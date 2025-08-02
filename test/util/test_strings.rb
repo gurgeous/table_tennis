@@ -1,14 +1,30 @@
 module TableTennis
   module Util
     class TestString < Minitest::Test
+      PLAIN = "foobar"
+      GREEN = "\e[38;2;0;255;0mfoobar\e[0m"
+
+      def test_painted?
+        assert !Strings.painted?(PLAIN)
+        assert Strings.painted?(GREEN)
+      end
+
       def test_unpaint
-        assert_equal "foobar", Strings.unpaint("foo\e[123;mbar")
+        assert_equal PLAIN, Strings.unpaint(GREEN)
       end
 
       def test_width
         assert_equal 0, Strings.width("")
         assert_equal 1, Strings.width("a")
         assert_equal 4, Strings.width("🚀🚀")
+        assert_equal 6, Strings.width(PLAIN)
+        # ansi
+        assert_equal 6, Strings.width(GREEN)
+      end
+
+      def test_center
+        assert_equal " foobar ", Strings.center(PLAIN, 8)
+        assert_equal " #{GREEN} ", Strings.center(GREEN, 8)
       end
 
       def test_truncate
@@ -38,7 +54,7 @@ module TableTennis
         assert_equal "🚀3…", Strings.truncate("🚀3🚀6", 5)
       end
 
-      def test_difficult_unicode
+      def test_truncate_difficult_unicode
         difficult = [
           "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
           "\u0635\u0648\u0631", # arabic sad, wah, reh
@@ -63,7 +79,7 @@ module TableTennis
         assert_equal "صور", del_rtl_ltr.call(s4)
       end
 
-      def test_grapheme_clusters
+      def test_truncate_grapheme_clusters
         hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
         # hardcode since this can change based on the font
         Unicode::DisplayWidth.stubs(:of).returns(2)
@@ -71,6 +87,38 @@ module TableTennis
         (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
         (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
         (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
+      end
+
+      def test_truncate_painted
+        assert_equal "fo…", Strings.truncate(PLAIN, 3)
+        assert_equal "\e[38;2;0;255;0mfo…\e[0m", Strings.truncate(GREEN, 3)
+
+        # test that ANSI codes are properly closed when truncated
+        colored_text = Paint["hello world", :red]
+        # when truncated in the middle, preserve and close color
+        result = Strings.truncate(colored_text, 7)
+        assert_equal "\e[31mhello …\e[0m", result
+        # when not truncated, should preserve original
+        result = Strings.truncate(colored_text, 15)
+        assert_equal colored_text, result
+        # test with unclosed ANSI code
+        unclosed_text = "\e[31mhello world"
+        result = Strings.truncate(unclosed_text, 7)
+        assert_equal "\e[31mhello …\e[0m", result
+        # test with emojis and color:
+        # rocket=2, pepper=1, h=1, ellipsis=1 = 5 total
+        emoji_colored_text = Paint["🚀🌶hello", :blue]
+        result = Strings.truncate(emoji_colored_text, 5)
+        assert_equal "\e[34m🚀🌶h…\e[0m", result
+        # test shorter truncation:
+        # rocket=2, pepper=1, ellipsis=1 = 4 total
+        result = Strings.truncate(emoji_colored_text, 4)
+        assert_equal "\e[34m🚀🌶…\e[0m", result
+        # test longer emoji text with color:
+        # rocket=2, pepper=1, party=2, h=1, ellipsis=1 = 7 total
+        long_emoji_text = Paint["🚀🌶🎉hello world", :green]
+        result = Strings.truncate(long_emoji_text, 7)
+        assert_equal "\e[32m🚀🌶🎉h…\e[0m", result
       end
 
       def test_titleize

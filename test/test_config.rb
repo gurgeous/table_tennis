@@ -23,6 +23,7 @@ module TableTennis
       # here are things that work
       assert_config_no_raise(:coerce, 0)
       assert_config_no_raise(:color, true)
+      assert_config_no_raise(:color_scale, :a)
       assert_config_no_raise(:color_scales, :a)
       assert_config_no_raise(:color_scales, {a: :b})
       assert_config_no_raise(:color_scales, %i[a b c])

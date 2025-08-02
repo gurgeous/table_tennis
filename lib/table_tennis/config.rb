@@ -82,6 +82,7 @@ module TableTennis
       end
       self[:color_scales] = value
     end
+    alias_method :color_scale=, :color_scales=
 
     def placeholder=(value)
       value = "" if value.nil?

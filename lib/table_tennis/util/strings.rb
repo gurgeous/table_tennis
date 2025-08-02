@@ -6,6 +6,9 @@ module TableTennis
 
       module_function
 
+      # does this string contain ansi codes?
+      def painted?(str) = str.match?(/\e/)
+
       # strip ansi codes
       def unpaint(str) = str.gsub(/\e\[[0-9;]*m/, "")
 
@@ -18,8 +21,24 @@ module TableTennis
         str
       end
 
-      def width(text)
-        simple?(text) ? text.length : Unicode::DisplayWidth.of(text)
+      # measure width of text, with support for emojis, painted/ansi strings, etc
+      def width(str)
+        if simple?(str)
+          str.length
+        elsif painted?(str)
+          unpaint(str).length
+        else
+          Unicode::DisplayWidth.of(str)
+        end
+      end
+
+      # center text, like String#center but works with painted strings
+      def center(str, width)
+        # artificially inflate width to include escape codes
+        if painted?(str)
+          width += str.length - unpaint(str).length
+        end
+        str.center(width)
       end
 
       def hyperlink(str)
@@ -31,12 +50,26 @@ module TableTennis
       end
 
       # truncate a string based on the display width of the grapheme clusters.
-      # Should handle emojis and international characters
-      def truncate(text, stop)
-        if simple?(text)
-          return (text.length > stop) ? "#{text[0, stop - 1]}…" : text
+      # Should handle emojis and international characters. Painted strings too.
+      def truncate(str, stop)
+        if simple?(str)
+          (str.length > stop) ? "#{str[0, stop - 1]}…" : str
+        elsif painted?(str)
+          # generate truncated plain version
+          plain = truncate0(unpaint(str), stop)
+          # make a best effort to apply the colors
+          if (opening_codes = str[/\e\[(?:[0-9];?)+m/])
+            "#{opening_codes}#{plain}#{Paint::NOTHING}"
+          else
+            plain
+          end
+        else
+          truncate0(str, stop)
         end
+      end
 
+      # slow, but handles graphemes
+      def truncate0(text, stop)
         # get grapheme clusters, and attach zero width graphemes to the previous grapheme
         list = [].tap do |accum|
           text.grapheme_clusters.each do
@@ -61,8 +94,10 @@ module TableTennis
 
         text
       end
+      private_class_method :truncate0
 
-      SIMPLE = /\A[\x00-\x7F–—…·‘’“”•áéíñóúÓ]*\Z/
+      # note that escape \e (0x1b) is excluded
+      SIMPLE = /\A[\x00-\x1a\x1c-\x7F–—…·‘’“”•áéíñóúÓ]*\Z/
 
       # Is this a "simple" string? (no emojis, etc). Caches results for small
       # strings for performance reasons.

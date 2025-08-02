@@ -68,6 +68,14 @@ module TableTennis
       end
     end
 
+    def colorize(str)
+      if rand < 0.5
+        Paint[str, TableTennis::Util::Colors.get("blue-400"), :black, :bold]
+      else
+        Paint[str, TableTennis::Util::Colors.get("orange-400")]
+      end
+    end
+
     FILES = %w[diamonds links numbers pigeon-racing starwars titanic]
 
     def demo
@@ -85,6 +93,16 @@ module TableTennis
       # diamonds.csv pigeon-racing.csv starwars.csv titanic.csv
       rows = CSV.read("#{ROOT}/demo/#{file}.csv", headers: true).map(&:to_h)
       rows = rows.first(options[:limit]) if options[:limit]
+
+      if options[:colorize]
+        options[:title] = colorize(options[:title]) if options[:title]
+        key = rows.first.keys.sample
+        color_key = colorize(key)
+        rows.each do |row|
+          row[color_key] = row.delete(key)
+          row.transform_values! { (rand < 0.1) ? colorize(_1) : _1 }
+        end
+      end
 
       # these can't be calculated until after the CSV is loaded
       if options[:color_scales] == ["all"]
@@ -147,6 +165,7 @@ options = {}.tap do |into|
     opts.on("--clear", "clear screen before we begin (for screenshots)")
     opts.on("--[no-]coerce", "enable/disable string coercion")
     opts.on("--[no-]color", "enable/disable ansi colors entirely")
+    opts.on("--colorize", "randomly add ANSI colors to 10% of cells")
     opts.on("--color-scales a=:b,c=:r", Hash, "color scale some column")
     opts.on("--columns STR,STR,STR", Array, "columns to include in the table")
     opts.on("--digits DIGITS", Integer, "number of digits for formatting floats")
