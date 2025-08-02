@@ -92,6 +92,33 @@ module TableTennis
       def test_truncate_painted
         assert_equal "fo…", Strings.truncate(PLAIN, 3)
         assert_equal "\e[38;2;0;255;0mfo…\e[0m", Strings.truncate(GREEN, 3)
+
+        # test that ANSI codes are properly closed when truncated
+        colored_text = Paint["hello world", :red]
+        # when truncated in the middle, preserve and close color
+        result = Strings.truncate(colored_text, 7)
+        assert_equal "\e[31mhello …\e[0m", result
+        # when not truncated, should preserve original
+        result = Strings.truncate(colored_text, 15)
+        assert_equal colored_text, result
+        # test with unclosed ANSI code
+        unclosed_text = "\e[31mhello world"
+        result = Strings.truncate(unclosed_text, 7)
+        assert_equal "\e[31mhello …\e[0m", result
+        # test with emojis and color:
+        # rocket=2, pepper=1, h=1, ellipsis=1 = 5 total
+        emoji_colored_text = Paint["🚀🌶hello", :blue]
+        result = Strings.truncate(emoji_colored_text, 5)
+        assert_equal "\e[34m🚀🌶h…\e[0m", result
+        # test shorter truncation:
+        # rocket=2, pepper=1, ellipsis=1 = 4 total
+        result = Strings.truncate(emoji_colored_text, 4)
+        assert_equal "\e[34m🚀🌶…\e[0m", result
+        # test longer emoji text with color:
+        # rocket=2, pepper=1, party=2, h=1, ellipsis=1 = 7 total
+        long_emoji_text = Paint["🚀🌶🎉hello world", :green]
+        result = Strings.truncate(long_emoji_text, 7)
+        assert_equal "\e[32m🚀🌶🎉h…\e[0m", result
       end
 
       def test_titleize

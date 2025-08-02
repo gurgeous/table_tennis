@@ -6,15 +6,7 @@ require "benchmark"
 require "table_tennis"
 
 #
-# internal benchmark scratch script
-#
-# TODO
-#
-# [x] line = paint(title.center(title_width), title_style || :cell)
-# [x] whitespace = columns[c].width - Util::Strings.width(value)
-# [ ] an ansi sample for tennis
-# [ ] truncate
-# [ ] tests
+# internal benchmark scratch script, ignore
 #
 
 N = 1_000_000
@@ -25,8 +17,9 @@ Benchmark.bm do |benchmark|
   benchmark.report("plain") do
     N.times { TableTennis::Util::Strings.width(PLAIN) }
   end
+
+  # GREEN is 10x slower vs PLAIN, but that's ok
   benchmark.report("painted") do
-    # GREEN is 10x slower vs PLAIN, but that's ok
     N.times { TableTennis::Util::Strings.width(GREEN) }
   end
 end

@@ -105,6 +105,54 @@ module TableTennis
         assert_match(/example\.com/, render_to_string(r))
       end
 
+      def test_painted_text_whitespace
+        painted_rows = [
+          {
+            Paint["a", :green] => Paint[1, :red],
+            :b => " ",
+          },
+        ]
+        painted_table = render_string(
+          rows: painted_rows,
+          title: Paint["xyzzy", :blue]
+        ).split("\n")
+
+        raw_table = render_string.split("\n")
+
+        # test title, header and data lines (indices: 1=title, 3=header, 5=data)
+        [1, 3, 5].each do |i|
+          raw_row = raw_table[i]
+          painted_row = painted_table[i]
+
+          # ansi codes should be balanced
+          close_codes = painted_row.scan("\e[0m").length
+          open_codes = painted_row.scan(/\e\[[1-9]\d*m/).length
+          assert_equal(
+            open_codes,
+            close_codes,
+            "Row #{i} should have balanced ANSI codes"
+          )
+
+          # calculate ansi codes length
+          ansi_codes = painted_row.scan(/\e\[\d*m/)
+          actual_ansi_length = ansi_codes.join.length
+
+          assert_equal(
+            raw_row.length + actual_ansi_length,
+            painted_row.length,
+            "Row #{i}: painted row should be raw row length + ANSI codes length"
+          )
+
+          # stripped length should match raw table
+          cleaned_row = TableTennis::Util::Strings.unpaint(painted_row)
+          assert_equal(
+            raw_row.length,
+            cleaned_row.length,
+            "Row #{i}: cleaned row should match raw row length"
+          )
+        end
+      end
+
       protected
 
       def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
