@@ -76,7 +76,7 @@ module TableTennis
       IO.stubs(:console).returns(nil)
 
       # make sure we really stubbed it
-      assert_equal [10, 80], Util::Console.winsize
+      assert_equal [48, 80], Util::Console.winsize
       assert_raises { Util.console.raw }
 
       # now run our two main tests

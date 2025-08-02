@@ -6,7 +6,7 @@ module TableTennis
 
       # supported when IO.console is nil
       def winsize(...)
-        IO.console&.winsize(...) || [24, 80]
+        IO.console&.winsize(...) || [48, 80]
       end
 
       # not supported, don't call these
