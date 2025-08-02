@@ -114,7 +114,7 @@ module TableTennis
     def debug(str)
       return if !config&.debug
       str = "[#{Time.now.strftime("%H:%M:%S")}] #{str}"
-      str = str.ljust(@debug_width ||= IO.console.winsize[1])
+      str = str.ljust(@debug_width ||= Util::Console.winsize[1])
       puts Paint[str, :white, :green]
     end
 

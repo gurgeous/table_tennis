@@ -67,5 +67,21 @@ module TableTennis
         assert_equal([{"a" => "1"}], csv)
       end
     end
+
+    require_relative "test_helper"
+
+    # an end-to-end test when IO.console is nil, which can occur with Docker. Also see
+    # https://github.com/gurgeous/table_tennis/issues/14
+    def test_no_console
+      IO.stubs(:console).returns(nil)
+
+      # make sure we really stubbed it
+      assert_equal [10, 80], Util::Console.winsize
+      assert_raises { Util.console.raw }
+
+      # now run our two main tests
+      test_main
+      test_kitchen_sink
+    end
   end
 end
