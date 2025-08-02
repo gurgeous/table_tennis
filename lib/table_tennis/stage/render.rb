@@ -81,7 +81,7 @@ module TableTennis
         style ||= :cell
 
         # add ansi codes for search
-        value = value.gsub(search) { paint(_1, :search) } if search
+        value = search_cell(value) if search
 
         # add ansi codes for links
         if config.color && (link = data.links[[r, c]])
@@ -155,6 +155,14 @@ module TableTennis
         end
       end
       memo_wise :search
+
+      # add ansi codes for search
+      def search_cell(value)
+        return value if !value.match?(search)
+        # edge case - we can't gsub a painted cell, it can mess up the escaping
+        value = Util::Strings.unpaint(value)
+        value.gsub(search) { paint(_1, :search) }
+      end
     end
   end
 end
