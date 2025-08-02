@@ -153,11 +153,36 @@ module TableTennis
         end
       end
 
+      def test_search
+        rows = [{name: "Luke", planet: "Tatooine"}, {name: "Leia", planet: "Alderaan"}]
+        painted_rows = [
+          {name: Paint["Luke", :blue], planet: "Tatooine"},
+          {name: "Leia", planet: Paint["Alderaan", :red]},
+        ]
+
+        # test string search
+        output = render_string(rows:, color: true, search: "luke")
+        assert_match(/\e\[.*?m.*?Luke.*?\e\[0m/, output)
+
+        # test regex search
+        output = render_string(rows:, color: true, search: /L\w+/)
+        assert_match(/\e\[.*?m.*?Luke.*?\e\[0m/, output)
+        assert_match(/\e\[.*?m.*?Leia.*?\e\[0m/, output)
+
+        # test search with painted cells
+        output = render_string(rows: painted_rows, color: true, search: "Luke")
+        assert_match(/\e\[.*?m.*?Luke.*?\e\[0m/, output)
+
+        # test search matching painted cell content
+        output = render_string(rows: painted_rows, color: true, search: "Alderaan")
+        assert_match(/\e\[.*?m.*?Alderaan.*?\e\[0m/, output, "Alderaan should be highlighted in painted cell")
+      end
+
       protected
 
-      def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
+      def create_render(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy", search: nil)
         rows ||= [{a: "1", b: " "}]
-        config = Config.new(color:, separators:, theme:, title:)
+        config = Config.new(color:, separators:, theme:, title:, search:)
         data = TableData.new(config:, rows:)
         if data.columns.length >= 2
           data.columns[0].width = 3
@@ -166,8 +191,8 @@ module TableTennis
         Render.new(data)
       end
 
-      def render_string(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy")
-        render = create_render(color:, rows:, separators:, theme:, title:)
+      def render_string(color: false, rows: nil, separators: true, theme: nil, title: "xyzzy", search: nil)
+        render = create_render(color:, rows:, separators:, theme:, title:, search:)
         render_to_string(render)
       end
 
