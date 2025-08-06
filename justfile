@@ -24,7 +24,7 @@ gem-local:
 gem-push: check
   @if rg -g '!justfile' "\bREMIND\b" ; then just _fatal "REMIND found, bailing" ; fi
   @just _banner rake release...
-  rake release
+  bundle exec rake release
 
 # optimize images
 image_optim:
