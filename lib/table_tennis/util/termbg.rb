@@ -54,6 +54,8 @@ module TableTennis
           "bad TERM"
         elsif ENV["ZELLIJ"]
           "zellij"
+        elsif !IO.console
+          "no console"
         end
         if error
           debug("osc_supported? #{{host:, platform:, term:}} => #{error}")
@@ -75,7 +77,7 @@ module TableTennis
 
         debug("osc_query(#{attr})")
         begin
-          IO.console.raw do
+          Util::Console.raw do
             logs << "  IO.console.raw"
 
             # we send two messages - the cursor query is widely supported, so we
@@ -89,7 +91,7 @@ module TableTennis
             end.join
 
             logs << "  syswrite #{msg.inspect}"
-            IO.console.syswrite(msg)
+            Util::Console.syswrite(msg)
 
             # there should always be at least one response. If this is a response to
             # the cursor message, the first message didn't work
@@ -116,18 +118,18 @@ module TableTennis
       def read_term_response
         # fast forward to ESC
         loop do
-          return if !(ch = IO.console.getbyte&.chr)
+          return if !(ch = Util::Console.getbyte&.chr)
           break ch if ch == ESC
         end
         # next char should be either [ or ]
-        return if !(type = IO.console.getbyte&.chr)
+        return if !(type = Util::Console.getbyte&.chr)
         return if !(type == "[" || type == "]")
 
         # now read the response. note that the response can end in different ways
         # and we have to check for all of them
         buf = "#{ESC}#{type}"
         loop do
-          return if !(ch = IO.console.getbyte&.chr)
+          return if !(ch = Util::Console.getbyte&.chr)
           buf << ch
           break if type == "[" && buf.end_with?("R")
           break if type == "]" && buf.end_with?(BEL, ST)
@@ -162,7 +164,7 @@ module TableTennis
           return if !respond_to?(:tcgetpgrp)
         end
 
-        io = IO.console
+        io = Util::Console
         if (ttypgrp = tcgetpgrp(io.fileno)) <= 0
           debug("tcpgrp(#{io.fileno}) => #{ttypgrp}, errno=#{FFI.errno}")
           return
