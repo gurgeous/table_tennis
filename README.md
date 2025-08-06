@@ -172,7 +172,7 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 
 ### Changelog
 
-#### unreleased (main)
+#### 0.0.7 (Aug '25)
 
 - handle data that already contains ANSI colors (thx @ronaldtse, #12)
 - don't crash if IO.console is nil (thx @ronaldtse, #14)
