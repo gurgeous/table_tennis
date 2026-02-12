@@ -13,10 +13,10 @@ jobs:
       max-parallel: 3
       matrix:
         os: [macos, ubuntu, windows]
-        ruby-version: [3.0, 3.4]
+        ruby-version: [3.0, 3.4, 4.0]
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: taiki-e/install-action@just
       - uses: ruby/setup-ruby@v1
         with:
