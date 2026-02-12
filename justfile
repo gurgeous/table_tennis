@@ -20,27 +20,34 @@ format: (lint "-a")
 
 gem-local:
   just banner rake install:local...
-  @bundle exec rake install:local
+  bundle exec rake install:local
 
 # this will tag, build and push to rubygems
 gem-push: check
   if rg -g '!justfile' "\bREMIND\b" ; then just _fatal "REMIND found, bailing" ; fi
   just banner rake release...
-  @bundle exec rake release
+  bundle exec rake release
 
 # optimize images
 image_optim:
   # advpng/pngout are slow. consider --verbose as well
-  @bundle exec image_optim --allow-lossy --svgo-precision=1 --no-advpng --no-pngout -r .
+  bundle exec image_optim --allow-lossy --svgo-precision=1 --no-advpng --no-pngout -r .
+
+# check for outdated deps
+outdated:
+  just banner Here are the easy ones:
+  bundle outdated --filter-minor || true
+  just banner The full list:
+  bundle outdated || true
 
 # lint with rubocop
 lint *ARGS:
   just banner lint...
-  @bundle exec rubocop {{ARGS}}
+  bundle exec rubocop {{ARGS}}
 
 # start pry with the lib loaded
 pry:
-  @bundle exec pry -I lib -r table_tennis.rb
+  bundle exec pry -I lib -r table_tennis.rb
 
 # run tennis repeatedly
 tennis-watch *ARGS:
@@ -53,13 +60,13 @@ test *ARGS:
 
 # run tests repeatedly
 test-watch *ARGS:
-  @watchexec --stop-timeout=0 --clear clear just test "{{ARGS}}"
+  watchexec --stop-timeout=0 --clear clear just test "{{ARGS}}"
 
 # create sceenshot using vhs
 vhs:
   just banner "running vhs..."
-  @vhs demo.tape
-  @magick /tmp/dark.png -crop 1448x1004+18+16 screenshots/dark.png
+  vhs demo.tape
+  magick /tmp/dark.png -crop 1448x1004+18+16 screenshots/dark.png
 
 #
 # util

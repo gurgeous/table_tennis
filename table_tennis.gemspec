@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   # gem dependencies
   s.add_dependency "csv", "~> 3.3" # required for Ruby 3.4+
   s.add_dependency "ffi", "~> 1.17" # required for Ruby 3.2+
-  s.add_dependency "memo_wise", "~> 1.11"
+  s.add_dependency "memo_wise", "~> 1.13"
   s.add_dependency "paint", "~> 2.3"
-  s.add_dependency "unicode-display_width", "~> 3.1"
+  s.add_dependency "unicode-display_width", "~> 3.2"
 end
