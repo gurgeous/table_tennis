@@ -6,11 +6,13 @@ module TableTennis
 
       module_function
 
+      ANSI_CODE = /\e\[[0-9;]*m/
+
       # does this string contain ansi codes?
       def painted?(str) = str.match?(/\e/)
 
       # strip ansi codes
-      def unpaint(str) = str.gsub(/\e\[[0-9;]*m/, "")
+      def unpaint(str) = str.gsub(ANSI_CODE, "")
 
       # similar to rails titleize
       def titleize(str)
@@ -49,6 +51,9 @@ module TableTennis
         end
       end
 
+      ELLIPSIS = "…"
+      TRIM = /\A(\e\[[0-9;]*m|\u200B)*\z/
+
       # Truncate a string based on the display width of characters. Does not
       # attempt to handle graphemes. Should handle emojis and international
       # characters. Painted strings too.
@@ -56,41 +61,39 @@ module TableTennis
         if str.bytesize <= stop
           str
         elsif simple?(str)
-          (str.length > stop) ? "#{str[0, stop - 1]}…" : str
+          (str.length <= stop) ? str : "#{str[0, stop - 1]}#{ELLIPSIS}"
         else
           truncate0(str, stop)
         end
       end
 
-      # slow, but handles ansi colors and wide characters. inspired by
-      # piotrmurach/strings-truncation
+      # This is a slower truncate to handle ansi colors and wide characters like
+      # emojis. Inspired by piotrmurach/strings-truncation
       def truncate0(text, stop)
-        # puts
-        buf, len, painting = [], 0, false
-        scan = StringScanner.new(text)
-        until scan.eos?
-          if scan.scan("\e[0m")
-            # puts "RESET"
-            buf << scan.matched
-            painting = false
-          elsif scan.scan(/\e\[[0-9;]*m/)
-            # puts "ANSI - #{scan.matched.inspect}"
-            buf << scan.matched
-            painting = true
-          else
+        [].tap do |buf|
+          scan, len, painting = StringScanner.new(text), 0, false
+          until scan.eos?
+            # are we looking at an ansi code?
+            if scan.scan(ANSI_CODE)
+              painting = scan.matched != Paint::NOTHING
+              buf << scan.matched
+              next
+            end
+
+            # what's next?
             ch = scan.getch
-            chw = Unicode::DisplayWidth.of(ch)
-            # puts "CH #{ch.inspect}"
-            if (len += chw) >= stop
-              ch = "…" unless scan.check(/\A(\e\[[0-9;]*m|\u200B)*\z/)
-              buf << ch
+            len += Unicode::DisplayWidth.of(ch)
+
+            # done?
+            if len >= stop
+              buf << (scan.check(TRIM) ? ch : ELLIPSIS)
               break
             end
+
             buf << ch
           end
-        end
-        buf << Paint::NOTHING if painting
-        buf.join
+          buf << Paint::NOTHING if painting
+        end.join
       end
       private_class_method :truncate0
 
