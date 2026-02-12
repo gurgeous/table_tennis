@@ -52,7 +52,7 @@ module TableTennis
       end
 
       ELLIPSIS = "…"
-      TRIM = /\A(\e\[[0-9;]*m|\u200B)*\z/
+      INVISIBLE = /\A(\e\[[0-9;]*m|\u200B)*\z/
 
       # Truncate a string based on the display width of characters. Does not
       # attempt to handle graphemes. Should handle emojis and international
@@ -75,21 +75,22 @@ module TableTennis
           until scan.eos?
             # are we looking at an ansi code?
             if scan.scan(ANSI_CODE)
-              painting = scan.matched != Paint::NOTHING
               buf << scan.matched
+              painting = scan.matched != Paint::NOTHING
               next
             end
 
             # what's next?
             ch = scan.getch
-            len += Unicode::DisplayWidth.of(ch)
 
-            # done?
+            # done? append one final char, possible an ELLIPSIS
+            len += Unicode::DisplayWidth.of(ch)
             if len >= stop
-              buf << (scan.check(TRIM) ? ch : ELLIPSIS)
+              buf << (scan.check(INVISIBLE) ? ch : ELLIPSIS)
               break
             end
 
+            # keep going
             buf << ch
           end
           buf << Paint::NOTHING if painting
