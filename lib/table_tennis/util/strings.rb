@@ -49,50 +49,48 @@ module TableTennis
         end
       end
 
-      # truncate a string based on the display width of the grapheme clusters.
-      # Should handle emojis and international characters. Painted strings too.
+      # Truncate a string based on the display width of characters. Does not
+      # attempt to handle graphemes. Should handle emojis and international
+      # characters. Painted strings too.
       def truncate(str, stop)
-        if simple?(str)
+        if str.bytesize <= stop
+          str
+        elsif simple?(str)
           (str.length > stop) ? "#{str[0, stop - 1]}…" : str
-        elsif painted?(str)
-          # generate truncated plain version
-          plain = truncate0(unpaint(str), stop)
-          # make a best effort to apply the colors
-          if (opening_codes = str[/\e\[(?:[0-9];?)+m/])
-            "#{opening_codes}#{plain}#{Paint::NOTHING}"
-          else
-            plain
-          end
         else
           truncate0(str, stop)
         end
       end
 
-      # slow, but handles graphemes
+      # slow, but handles ansi colors and wide characters. inspired by
+      # piotrmurach/strings-truncation
       def truncate0(text, stop)
-        # get grapheme clusters, and attach zero width graphemes to the previous grapheme
-        list = [].tap do |accum|
-          text.grapheme_clusters.each do
-            if width(_1) == 0 && !accum.empty?
-              accum[-1] = "#{accum[-1]}#{_1}"
-            else
-              accum << _1
+        # puts
+        buf, len, painting = [], 0, false
+        scan = StringScanner.new(text)
+        until scan.eos?
+          if scan.scan("\e[0m")
+            # puts "RESET"
+            buf << scan.matched
+            painting = false
+          elsif scan.scan(/\e\[[0-9;]*m/)
+            # puts "ANSI - #{scan.matched.inspect}"
+            buf << scan.matched
+            painting = true
+          else
+            ch = scan.getch
+            chw = Unicode::DisplayWidth.of(ch)
+            # puts "CH #{ch.inspect}"
+            if (len += chw) >= stop
+              ch = "…" unless scan.check(/\A(\e\[[0-9;]*m|\u200B)*\z/)
+              buf << ch
+              break
             end
+            buf << ch
           end
         end
-
-        width = 0
-        list.each_index do
-          w = Unicode::DisplayWidth.of(list[_1])
-          next if (width += w) <= stop
-
-          # we've gone too far. do we need to pop for the ellipsis?
-          text = list[0, _1]
-          text.pop if width - w == stop
-          return "#{text.join}…"
-        end
-
-        text
+        buf << Paint::NOTHING if painting
+        buf.join
       end
       private_class_method :truncate0
 

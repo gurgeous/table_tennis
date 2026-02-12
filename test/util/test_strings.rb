@@ -36,12 +36,12 @@ module TableTennis
           "", "abc", "café", zed, "🌶", "🚀",
           # display width is 5
           "abcde",
-          "1#{zed}2345#{zed}",
+          "1#{zed}2345",
           "1🌶345",
           "1🚀45",
           "1🚀🚀",
         ].each do
-          assert_equal _1, Strings.truncate(_1, 5)
+          assert_equal _1, Strings.truncate(_1, 5), "failed with #{_1.chars.inspect}"
         end
 
         # display width > 5
@@ -54,40 +54,53 @@ module TableTennis
         assert_equal "🚀3…", Strings.truncate("🚀3🚀6", 5)
       end
 
-      def test_truncate_difficult_unicode
-        difficult = [
-          "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
-          "\u0635\u0648\u0631", # arabic sad, wah, reh
-        ].join
+      def test_truncate_ansi
+        reset = "\e[0m"
+        red = "\e[48;2;210;150;057m"
+        gre = "\e[48;2;064;160;043m"
 
-        s1 = Strings.truncate(difficult, 1)
-        s2 = Strings.truncate(difficult, 2)
-        s3 = Strings.truncate(difficult, 3)
-        s4 = Strings.truncate(difficult, 4)
-
-        assert_equal 5, s1.length
-        assert_equal 6, s2.length
-        assert_equal 7, s3.length
-        assert_equal 7, s4.length
-
-        # uprint = ->(str) { str.chars.map { "\\u#{_1.ord.to_s(16)}" }.join.gsub("\\u2026", "…") }
-        # strip rtl/ltr marks for easy comparison here
-        del_rtl_ltr = ->(str) { str.gsub(/[\u200e-\u200f]/, "") }
-        assert_equal "…", del_rtl_ltr.call(s1)
-        assert_equal "ص…", del_rtl_ltr.call(s2)
-        assert_equal "صور", del_rtl_ltr.call(s3)
-        assert_equal "صور", del_rtl_ltr.call(s4)
+        # long strings come through verbatim
+        str = "#{red}12#{gre}3456789#{reset}"
+        assert_equal str, Strings.truncate(str, 999)
+        assert_equal "#{red}12#{gre}34…#{reset}", Strings.truncate(str, 5)
       end
 
-      def test_truncate_grapheme_clusters
-        hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
-        # hardcode since this can change based on the font
-        Unicode::DisplayWidth.stubs(:of).returns(2)
+      # removed buggy support for difficult unicode in 1.0
+      # def test_truncate_difficult_unicode
+      #   difficult = [
+      #     "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
+      #     "\u0635\u0648\u0631", # arabic sad, wah, reh
+      #   ].join
 
-        (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
-        (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
-        (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
-      end
+      #   s1 = Strings.truncate(difficult, 1)
+      #   s2 = Strings.truncate(difficult, 2)
+      #   s3 = Strings.truncate(difficult, 3)
+      #   s4 = Strings.truncate(difficult, 4)
+
+      #   assert_equal 5, s1.length
+      #   assert_equal 6, s2.length
+      #   assert_equal 7, s3.length
+      #   assert_equal 7, s4.length
+
+      #   # uprint = ->(str) { str.chars.map { "\\u#{_1.ord.to_s(16)}" }.join.gsub("\\u2026", "…") }
+      #   # strip rtl/ltr marks for easy comparison here
+      #   del_rtl_ltr = ->(str) { str.gsub(/[\u200e-\u200f]/, "") }
+      #   assert_equal "…", del_rtl_ltr.call(s1)
+      #   assert_equal "ص…", del_rtl_ltr.call(s2)
+      #   assert_equal "صور", del_rtl_ltr.call(s3)
+      #   assert_equal "صور", del_rtl_ltr.call(s4)
+      # end
+
+      # removed buggy support for difficult unicode in 1.0
+      # def test_truncate_grapheme_clusters
+      #   hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
+      #   # hardcode since this can change based on the font
+      #   Unicode::DisplayWidth.stubs(:of).returns(2)
+
+      #   (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
+      #   (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
+      #   (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
+      # end
 
       def test_truncate_painted
         assert_equal "fo…", Strings.truncate(PLAIN, 3)

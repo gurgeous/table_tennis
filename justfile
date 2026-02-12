@@ -17,13 +17,13 @@ coverage:
 format: (lint "-a")
 
 gem-local:
-  @just _banner rake install:local...
+  @just banner rake install:local...
   bundle exec rake install:local
 
 # this will tag, build and push to rubygems
 gem-push: check
   @if rg -g '!justfile' "\bREMIND\b" ; then just _fatal "REMIND found, bailing" ; fi
-  @just _banner rake release...
+  @just banner rake release...
   bundle exec rake release
 
 # optimize images
@@ -33,7 +33,7 @@ image_optim:
 
 # lint with rubocop
 lint *ARGS:
-  @just _banner lint...
+  @just banner lint...
   bundle exec rubocop {{ARGS}}
 
 # start pry with the lib loaded
@@ -46,7 +46,7 @@ tennis-watch *ARGS:
 
 # run tests
 test *ARGS:
-  @just _banner rake test {{ARGS}}
+  @just banner rake test {{ARGS}}
   @bundle exec rake test {{ARGS}}
 
 # run tests repeatedly
@@ -55,7 +55,7 @@ test-watch *ARGS:
 
 # create sceenshot using vhs
 vhs:
-  @just _banner "running vhs..."
+  @just banner "running vhs..."
   vhs demo.tape
   magick /tmp/dark.png -crop 1448x1004+18+16 screenshots/dark.png
 
@@ -63,10 +63,14 @@ vhs:
 # util
 #
 
-_banner *ARGS: (_message BG_GREEN ARGS)
-_warning *ARGS: (_message BG_YELLOW ARGS)
-_fatal *ARGS: (_message BG_RED ARGS)
+TRUWHITE := '\e[38;5;231m'
+GREEN    := '\e[48;2;064;160;043m'
+ORANGE   := '\e[48;2;251;100;011m'
+RED      := '\e[48;2;210;015;057m'
+
+banner +ARGS: (_banner GREEN ARGS)
+warning +ARGS: (_banner ORANGE ARGS)
+fatal +ARGS: (_banner RED ARGS)
   @exit 1
-_message color *ARGS:
-  @msg=$(printf "[%s] %s" $(date +%H:%M:%S) "{{ARGS}}") ; \
-  printf "{{color+BOLD+WHITE}}%-72s{{ NORMAL }}\n" "$msg"
+_banner BG +ARGS:
+  @printf '{{BOLD+TRUWHITE+BG}}[%s] %-72s {{NORMAL}}\n' "$(date +%H:%M:%S)" "{{ARGS}}"
