@@ -489,6 +489,7 @@ module TableTennis
 
       # print all colors to $stdout, helps with creating themes
       def spectrum
+        # paint goes bg, fg
         max = NAMED.keys.map(&:length).max
         fmt = " %-#{max}s %s  %0.3f "
         NAMED.each do |name, color|
@@ -497,6 +498,17 @@ module TableTennis
           str2 = Paint[str, color, "black"]
           str3 = Paint["  white   ", "white", color]
           str4 = Paint[" black  ", "black", color]
+          puts "#{str1}#{str2}#{str3}#{str4}"
+        end
+
+        # with 256 - 38/5/fg or 38/5/bg
+        fmt = " ansi256 %d"
+        (1..256).each do |color|
+          str = sprintf(" ansi256 %3d ", color)
+          str1 = Paint[str, 38, 5, color, "white"]
+          str2 = Paint[str, 38, 5, color, "black"]
+          str3 = Paint["  white   ", "white", 48, 5, color]
+          str4 = Paint[" black  ", "black", 48, 5, color]
           puts "#{str1}#{str2}#{str3}#{str4}"
         end
 

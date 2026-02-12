@@ -172,6 +172,12 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 
 ### Changelog
 
+#### 1.0.0 (unreleased but soon)
+
+- better truncation with ansi colors, inspired by strings-truncation gem
+- truncation no longer supports graphemes (breaking)
+- added AGENTS.md and mise.toml
+
 #### 0.0.7 (Aug '25)
 
 - handle data that already contains ANSI colors (thx @ronaldtse, #12)

@@ -2,15 +2,15 @@ module TableTennis
   module Util
     class TestString < Minitest::Test
       PLAIN = "foobar"
-      GREEN = "\e[38;2;0;255;0mfoobar\e[0m"
+      GREEN_STR = "\e[38;2;0;255;0mfoobar\e[0m"
 
       def test_painted?
         assert !Strings.painted?(PLAIN)
-        assert Strings.painted?(GREEN)
+        assert Strings.painted?(GREEN_STR)
       end
 
       def test_unpaint
-        assert_equal PLAIN, Strings.unpaint(GREEN)
+        assert_equal PLAIN, Strings.unpaint(GREEN_STR)
       end
 
       def test_width
@@ -19,12 +19,12 @@ module TableTennis
         assert_equal 4, Strings.width("🚀🚀")
         assert_equal 6, Strings.width(PLAIN)
         # ansi
-        assert_equal 6, Strings.width(GREEN)
+        assert_equal 6, Strings.width(GREEN_STR)
       end
 
       def test_center
         assert_equal " foobar ", Strings.center(PLAIN, 8)
-        assert_equal " #{GREEN} ", Strings.center(GREEN, 8)
+        assert_equal " #{GREEN_STR} ", Strings.center(GREEN_STR, 8)
       end
 
       def test_truncate
@@ -36,12 +36,12 @@ module TableTennis
           "", "abc", "café", zed, "🌶", "🚀",
           # display width is 5
           "abcde",
-          "1#{zed}2345#{zed}",
+          "1#{zed}2345",
           "1🌶345",
           "1🚀45",
           "1🚀🚀",
         ].each do
-          assert_equal _1, Strings.truncate(_1, 5)
+          assert_equal _1, Strings.truncate(_1, 5), "failed with #{_1.chars.inspect}"
         end
 
         # display width > 5
@@ -54,44 +54,29 @@ module TableTennis
         assert_equal "🚀3…", Strings.truncate("🚀3🚀6", 5)
       end
 
-      def test_truncate_difficult_unicode
-        difficult = [
-          "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
-          "\u0635\u0648\u0631", # arabic sad, wah, reh
-        ].join
+      Z = "\e[0m"
+      R = "\e[48;2;210;150;057m" # turn on red
+      G = "\e[48;2;064;160;043m" # turn on green
 
-        s1 = Strings.truncate(difficult, 1)
-        s2 = Strings.truncate(difficult, 2)
-        s3 = Strings.truncate(difficult, 3)
-        s4 = Strings.truncate(difficult, 4)
-
-        assert_equal 5, s1.length
-        assert_equal 6, s2.length
-        assert_equal 7, s3.length
-        assert_equal 7, s4.length
-
-        # uprint = ->(str) { str.chars.map { "\\u#{_1.ord.to_s(16)}" }.join.gsub("\\u2026", "…") }
-        # strip rtl/ltr marks for easy comparison here
-        del_rtl_ltr = ->(str) { str.gsub(/[\u200e-\u200f]/, "") }
-        assert_equal "…", del_rtl_ltr.call(s1)
-        assert_equal "ص…", del_rtl_ltr.call(s2)
-        assert_equal "صور", del_rtl_ltr.call(s3)
-        assert_equal "صور", del_rtl_ltr.call(s4)
-      end
-
-      def test_truncate_grapheme_clusters
-        hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
-        # hardcode since this can change based on the font
-        Unicode::DisplayWidth.stubs(:of).returns(2)
-
-        (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
-        (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
-        (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
+      def test_truncate_ansi
+        [
+          # input, width, exp
+          ["#{R}12#{G}3456789#{Z}", 5, "#{R}12#{G}34…#{Z}"],
+          ["#{R}12#{G}3456789#{Z}", 8, "#{R}12#{G}34567…#{Z}"],
+          ["#{R}12#{G}3456789#{Z}", 9, "#{R}12#{G}3456789#{Z}"],
+          ["#{R}12#{G}3456789#{Z}", 10, "#{R}12#{G}3456789#{Z}"],
+          ["#{R}1234#{Z}", 3, "#{R}12…#{Z}"],
+          ["#{R}12#{G}34#{Z}", 4, "#{R}12#{G}34#{Z}"],
+          ["#{R}12#{Z}3456", 4, "#{R}12#{Z}3…"],
+        ].each do |input, stop, exp|
+          output = Strings.truncate(input, stop)
+          assert_equal exp, output, "failed with #{input.inspect} @ #{stop}"
+        end
       end
 
       def test_truncate_painted
         assert_equal "fo…", Strings.truncate(PLAIN, 3)
-        assert_equal "\e[38;2;0;255;0mfo…\e[0m", Strings.truncate(GREEN, 3)
+        assert_equal "\e[38;2;0;255;0mfo…\e[0m", Strings.truncate(GREEN_STR, 3)
 
         # test that ANSI codes are properly closed when truncated
         colored_text = Paint["hello world", :red]
@@ -133,6 +118,42 @@ module TableTennis
           assert_equal exp, Strings.titleize(str)
         end
       end
+
+      # removed buggy support for difficult unicode (in 1.0)
+      # def test_truncate_difficult_unicode
+      #   difficult = [
+      #     "\u200f\u200e\u200e\u200f", # rtl,ltr,ltr,rtl marks
+      #     "\u0635\u0648\u0631", # arabic sad, wah, reh
+      #   ].join
+      #
+      #   s1 = Strings.truncate(difficult, 1)
+      #   s2 = Strings.truncate(difficult, 2)
+      #   s3 = Strings.truncate(difficult, 3)
+      #   s4 = Strings.truncate(difficult, 4)
+      #
+      #   assert_equal 5, s1.length
+      #   assert_equal 6, s2.length
+      #   assert_equal 7, s3.length
+      #   assert_equal 7, s4.length
+      #
+      #   # uprint = ->(str) { str.chars.map { "\\u#{_1.ord.to_s(16)}" }.join.gsub("\\u2026", "…") }
+      #   # strip rtl/ltr marks for easy comparison here
+      #   del_rtl_ltr = ->(str) { str.gsub(/[\u200e-\u200f]/, "") }
+      #   assert_equal "…", del_rtl_ltr.call(s1)
+      #   assert_equal "ص…", del_rtl_ltr.call(s2)
+      #   assert_equal "صور", del_rtl_ltr.call(s3)
+      #   assert_equal "صور", del_rtl_ltr.call(s4)
+      # end
+      #
+      # def test_truncate_grapheme_clusters
+      #   hands = "👋🏻👋🏿" # \u1f44b\u1f3fb and then \u1f44b\u1f3ff
+      #   # hardcode since this can change based on the font
+      #   Unicode::DisplayWidth.stubs(:of).returns(2)
+
+      #   (1..2).each { assert_equal "…", Strings.truncate(hands, _1), "with #{_1}" }
+      #   (3..3).each { assert_equal "👋🏻…", Strings.truncate(hands, _1), "with #{_1}" }
+      #   (4..6).each { assert_equal "👋🏻👋🏿", Strings.truncate(hands, _1), "with #{_1}" }
+      # end
     end
   end
 end

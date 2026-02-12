@@ -52,7 +52,7 @@ class Minitest::Test
   def ab = [{a: 1, b: 2}]
 
   def reset_memo_wise!
-    @memoized ||= ObjectSpace.each_object(Module).select { _1.included_modules.include? MemoWise }
+    @memoized ||= ObjectSpace.each_object(Module).select { _1.included_modules.include? MemoWise } # rubocop:disable Style/ModuleMemberExistenceCheck
     @memoized.each do
       _1.reset_memo_wise if _1.instance_variable_defined?(:@_memo_wise)
     end

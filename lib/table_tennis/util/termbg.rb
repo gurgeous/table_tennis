@@ -182,6 +182,7 @@ module TableTennis
       def load_ffi!
         module_eval do
           extend FFI::Library
+
           ffi_lib "c"
           attach_function :tcgetpgrp, %i[int], :int32
           debug("ffi attach libc.tcgetpgrp => success")
