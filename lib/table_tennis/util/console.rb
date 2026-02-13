@@ -10,7 +10,7 @@ module TableTennis
       end
 
       # not supported, don't call these
-      %i[fileno getbyte raw syswrite].each do |name|
+      %i[fileno getch raw syswrite].each do |name|
         define_method(name) do |*args, **kwargs, &block|
           if !IO.console
             raise "IO.console.#{name} not supported when IO.console is nil"

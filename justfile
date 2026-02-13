@@ -16,7 +16,7 @@ coverage:
   open /tmp/coverage/index.html
 
 # format with rubocop
-format: (lint "-a")
+fmt: (lint "-a")
 
 gem-local:
   just banner rake install:local...

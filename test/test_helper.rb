@@ -89,7 +89,7 @@ end
 
 class FakeConsole
   def fileno = 123
-  def getbyte = fakeread.shift
+  def getch(...) = fakeread.shift&.chr
   def raw = yield
   def syswrite(str) = fakewrite << str
   def winsize = [24, 80]

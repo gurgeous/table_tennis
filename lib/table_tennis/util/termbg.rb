@@ -118,24 +118,28 @@ module TableTennis
       def read_term_response
         # fast forward to ESC
         loop do
-          return if !(ch = Util::Console.getbyte&.chr)
+          return if !(ch = getch)
           break ch if ch == ESC
         end
         # next char should be either [ or ]
-        return if !(type = Util::Console.getbyte&.chr)
+        return if !(type = getch)
         return if !(type == "[" || type == "]")
 
         # now read the response. note that the response can end in different ways
         # and we have to check for all of them
         buf = "#{ESC}#{type}"
         loop do
-          return if !(ch = Util::Console.getbyte&.chr)
+          return if !(ch = getch)
           buf << ch
           break if type == "[" && buf.end_with?("R")
           break if type == "]" && buf.end_with?(BEL, ST)
         end
         buf
       end
+      private_class_method :read_term_response
+
+      # get the next character, with a 100ms timeout
+      def getch = Util::Console.getch(min: 0, time: 0.1)
       private_class_method :read_term_response
 
       #
@@ -205,7 +209,9 @@ module TableTennis
       private_class_method :env_colorfgbg
 
       def debug(s)
-        puts "termbg: #{s}" if ENV["TT_DEBUG"]
+        return if !ENV["TT_DEBUG"]
+        $stderr.write "termbg: #{s}\r\n"
+        $stderr.flush
       end
       private_class_method :debug
     end
