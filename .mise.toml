@@ -5,4 +5,5 @@ _.path = ['{{config_root}}/bin']
 postinstall = ['bundle']
 
 [tools]
+just = "latest"
 ruby = "3.4"
