@@ -1,8 +1,0 @@
-[env]
-_.path = ['{{config_root}}/bin']
-
-[hooks]
-postinstall = ['bundle']
-
-[tools]
-ruby = "3.4.2"

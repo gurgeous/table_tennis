@@ -172,7 +172,7 @@ We love CSV tools and use them all the time! Here are a few that we rely on:
 
 ### Changelog
 
-#### 1.0.0 (unreleased but soon)
+#### 1.0.0 (Jul '26)
 
 - better truncation with ansi colors, inspired by strings-truncation gem
 - set timeout in io/console getch to make OSC query more resilient
