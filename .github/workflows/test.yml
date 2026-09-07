@@ -17,9 +17,5 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: taiki-e/install-action@just
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ${{ matrix.ruby-version }}
-      - run: just ci
+      - uses: jdx/mise-action@v4
+      - run: mise x ruby@${{ matrix.ruby-version }} -- just ci

@@ -2,8 +2,8 @@
 _.path = ['{{config_root}}/bin']
 
 [hooks]
-postinstall = ['bundle']
+postinstall = ['bundle install']
 
 [tools]
 just = "latest"
-ruby = "3.4"
+ruby = "latest"
