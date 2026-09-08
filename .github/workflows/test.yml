@@ -17,5 +17,9 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v7
-      # note: bin/mise generated with `mise generate install-script -w`
-      - run: bin/mise x ruby@${{ matrix.ruby-version }} -- just ci
+      - uses: jdx/mise-action@v4
+        with:
+          mise_toml: |
+            [tools]
+            ruby = "${{ matrix.ruby-version }}"
+      - run: just ci
