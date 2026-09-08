@@ -20,6 +20,9 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           mise_toml: |
+            [hooks]
+            postinstall = ['bundle install']
             [tools]
+            just = "latest"
             ruby = "${{ matrix.ruby-version }}"
       - run: just ci
